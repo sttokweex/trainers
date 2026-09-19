@@ -44,6 +44,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   const searchRef = useRef<HTMLInputElement>(null)
   const topRef = useRef<HTMLElement>(null)
+  const sideRef = useRef<HTMLElement>(null)
 
   /** Высота липкой шапки уезжает в CSS — от неё считается высота сайдбара. */
   useEffect(() => {
@@ -73,6 +74,15 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
   const showSidebar = mode !== 'plan'
+
+  /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
+      не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
+      (длинный список тем не помещается в высоту экрана), после клика по теме
+      верх сайдбара — «Все темы» — оставался за пределами видимости, и чтобы
+      выбрать другую тему, приходилось докручивать сайдбар отдельно от страницы. */
+  useEffect(() => {
+    if (sideRef.current) sideRef.current.scrollTop = 0
+  }, [filters.topic, mode])
 
   const questions = useMemo(() => pack.questions.filter((q) => {
     if (filters.topic !== 'all' && q.topic !== filters.topic) return false
@@ -113,14 +123,21 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack, mode])
 
   const listed: (Question | TheoryArticle)[] = mode === 'theory' ? theory : questions
+  /** Группировка по теме целиком, а не по соседним элементам: если статьи одной
+      темы лежат в разных файлах контента (например, «ООП и принципы» собрана из
+      th-oop.ts и th-patterns.ts), они не идут подряд в исходном массиве — группировка
+      «пока тема не сменилась» давала два блока с одинаковым topic и, как следствие,
+      одинаковым React key у соседних <div>, что ломало реконсиляцию при смене фильтра
+      (верхний блок переставал обновляться и реагировать на клики). */
   const grouped = useMemo(() => {
-    const out: { topic: string; items: (Question | TheoryArticle)[] }[] = []
+    const order: string[] = []
+    const byTopic = new Map<string, (Question | TheoryArticle)[]>()
     for (const item of listed) {
-      const last = out[out.length - 1]
-      if (last && last.topic === item.topic) last.items.push(item)
-      else out.push({ topic: item.topic, items: [item] })
+      let bucket = byTopic.get(item.topic)
+      if (!bucket) { bucket = []; byTopic.set(item.topic, bucket); order.push(item.topic) }
+      bucket.push(item)
     }
-    return out
+    return order.map((topic) => ({ topic, items: byTopic.get(topic)! }))
   }, [listed])
 
   /** Переход по ссылке из плана: меняем режим, тему и цель раскрытия разом. */
@@ -149,11 +166,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
     ? categories.map((c) => ({ name: c.name, topics: c.topics.filter((t) => topicCounts.has(t)) }))
     : [{ name: '', topics: [...topicCounts.keys()] }]
 
+  /** Счётчик у «Все темы» — как и topicCounts, игнорирует все фильтры, кроме режима:
+      иначе при выбранной теме он совпадал бы с её же счётчиком. */
   const totalInMode =
-    mode === 'theory' ? theory.length
-      : mode === 'tools' ? tools.length
-      : mode === 'cards' ? cards.length
-      : questions.length
+    mode === 'theory' ? pack.theory.length
+      : mode === 'tools' ? (pack.tools ?? []).length
+      : mode === 'cards' ? (pack.cards ?? []).length
+      : pack.questions.length
 
   return (
     <>
@@ -240,7 +259,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
           сетка осталась бы двухколоночной, а main уехал бы в колонку сайдбара. */}
       <div className={'wrap' + (showSidebar ? '' : ' wrap-full')}>
         {showSidebar && (
-        <aside className="side">
+        <aside className="side" ref={sideRef}>
           <div className="side-box">
             <h4>Темы</h4>
             <button
