@@ -27,3 +27,9 @@
 .btn.pri:hover{background:#2b7ef5}
 .btn.gho{background:transparent}
 .btn.sm{padding:5px 9px; font-size:12px}
+
+@media(max-width:640px){
+  .top-in{padding:10px 14px}
+  .modes{flex:1 1 100%; flex-wrap:wrap; border-radius:10px}
+  .md{padding:8px 13px}
+}

@@ -95,8 +95,9 @@
 .arr-c.win{background:#0d1f16; border-color:#2d6b45; color:#9be8a8}
 .arr-c.dup{background:#1a0f0f; border-color:var(--red); color:#ffb4ae}
 
-/* граф */
-.gr{position:relative; height:220px; background:#05080c; border:1px solid var(--bd); border-radius:8px; margin-top:10px}
+/* граф — узлы позиционируются в фиксированных px, поэтому на узком экране
+   контейнер должен скроллиться сам, а не раздвигать страницу */
+.gr{position:relative; height:220px; background:#05080c; border:1px solid var(--bd); border-radius:8px; margin-top:10px; overflow-x:auto}
 .gr-n{position:absolute; width:38px; height:38px; margin:-19px 0 0 -19px; border-radius:50%;
   display:flex; align-items:center; justify-content:center; font:12px var(--mono);
   background:#0d141c; border:2px solid var(--bd2); color:var(--mut); transition:.3s}

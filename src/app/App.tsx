@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DEFAULT_PACK, PACK_META, loadPack } from '@/content'
 import { QuestionCard } from '@/engine/components/QuestionCard'
@@ -250,7 +250,10 @@ function Trainer({ pack }: { pack: ContentPack }) {
               <span>Все темы</span><b>{totalInMode}</b>
             </button>
             {topicGroups.map((cat) => (
-              <div key={cat.name || 'all'}>
+              // Fragment, а не div: кнопки-темы должны быть прямыми flex-детьми
+              // .side-box, иначе на узких экранах (flex-wrap) вся категория
+              // сжимается в одну колонку вместо того, чтобы её кнопки сами оборачивались.
+              <Fragment key={cat.name || 'all'}>
                 {cat.name && cat.topics.length > 0 && <div className="cat">{cat.name}</div>}
                 {cat.topics.map((t) => (
                   <button
@@ -261,7 +264,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                     <span>{t}</span><b>{topicCounts.get(t) ?? 0}</b>
                   </button>
                 ))}
-              </div>
+              </Fragment>
             ))}
           </div>
 

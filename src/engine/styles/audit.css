@@ -36,9 +36,16 @@ button{font-family:inherit}
 .btn.sm{padding:5px 9px; font-size:12px}
 .btn:disabled{opacity:.45; cursor:not-allowed}
 
+@media(max-width:640px){
+  .top-in{padding:10px 14px}
+  .modes{flex:1 1 100%; flex-wrap:wrap; border-radius:10px}
+  .md{padding:8px 13px}
+}
+
 /* ---------- каркас ---------- */
 .wrap{max-width:1240px; margin:0 auto; padding:18px 16px 120px; display:grid; grid-template-columns:238px 1fr; gap:22px; align-items:start}
 @media(max-width:900px){ .wrap{grid-template-columns:1fr; gap:14px} }
+.wrap > main, .wrap > .side{min-width:0}
 .side{position:sticky; top:calc(var(--top-h,96px) + 14px); max-height:calc(100dvh - var(--top-h,96px) - 28px);
   overflow-y:auto; overscroll-behavior:contain; padding-right:4px; scrollbar-width:thin; scrollbar-color:var(--bd2) transparent}
 .side::-webkit-scrollbar{width:8px}
@@ -93,6 +100,12 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 .ans p{margin:8px 0}
 .ans table,.th-b table,.tool table{width:100%; border-collapse:collapse; margin:10px 0; font-size:13px}
 .ans th,.ans td,.th-b th,.th-b td,.tool th,.tool td{border:1px solid var(--bd2); padding:6px 9px; text-align:left; vertical-align:top}
+@media(max-width:700px){
+  /* На узком экране широкую таблицу нельзя сжать без потери читаемости —
+     пусть лучше скроллится сама (текст в ячейках при этом переносится как
+     обычно), чем прячет колонки под overflow:hidden карточки-статьи. */
+  .ans table,.th-b table,.tool table{display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch}
+}
 .ans th,.th-b th,.tool th{background:var(--panel); color:var(--mut); font-weight:600}
 .sec-t{font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--mut2); margin:14px 0 2px}
 .trap{color:#ffb4ae; font-size:13px; border-left:3px solid var(--red); padding:6px 12px; margin:10px 0; background:#1a0f0f; border-radius:0 7px 7px 0}
@@ -165,6 +178,11 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 .fld .u{font:11px var(--mono); color:var(--mut2); flex:0 0 34px}
 .fld input[type=range]{flex:1; accent-color:var(--s1)}
 .fld .rv{font:600 12px var(--mono); color:var(--tx); flex:0 0 72px; text-align:right}
+@media(max-width:480px){
+  .fld{flex-wrap:wrap}
+  .fld label{flex:1 1 100%}
+  .fld input[type=number],.fld input[type=text],.fld select{flex:1 1 auto; width:auto}
+}
 
 /* плитки-результаты */
 .kpis{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 2px}
@@ -284,8 +302,9 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 
 /* инструменты (практикум) */
 .tool{background:var(--panel); border:1px solid var(--bd); border-radius:var(--r); margin-bottom:14px; overflow:hidden}
-.tool-h{display:flex; gap:12px; align-items:flex-start; padding:14px 17px; cursor:pointer}
+.tool-h{display:flex; gap:12px; align-items:flex-start; padding:14px 17px; cursor:pointer; flex-wrap:wrap}
 .tool-h:hover{background:var(--panel2)}
+.tool-h > div{flex:1 1 200px; min-width:0}
 .tool-h h3{margin:0 0 4px; font-size:15.5px}
 .tool-h p{margin:0; color:var(--mut); font-size:13px; line-height:1.5}
 .tool-b{display:none; padding:0 17px 18px}

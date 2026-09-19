@@ -1,6 +1,6 @@
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
-import CodeMirror from '@uiw/react-codemirror'
+import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { useMemo } from 'react'
 
 /**
@@ -15,7 +15,9 @@ export function CodeEditor({
   onRun: () => void
   minHeight?: string
 }) {
-  const extensions = useMemo(() => [javascript()], [])
+  // без переноса длинная строка растягивает редактор по ширине и ломает
+  // раскладку карточки на телефоне — там нет места для горизонтального скролла
+  const extensions = useMemo(() => [javascript(), EditorView.lineWrapping], [])
 
   return (
     <div
