@@ -202,7 +202,7 @@ const SHARED_REGIONS = [
     to: '/* ==================== БУХУЧЁТ: БАЗА ==================== */',
     /** у этого баннера многострочная шапка — отрезаем её остаток */
     trimLeadingComment: true,
-    imports: [`import { dEl } from './dom'`, `import { fmt } from './format'`],
+    imports: [`import { dEl } from './dom'`, `import { fmt, money, th, pct, num } from './format'`],
   },
   {
     out: 'builders.ts',
@@ -248,8 +248,6 @@ for (const pack of PACKS) {
   for (const q of questions) {
     try { new Function('return (' + q + ')') }
     catch (e) { problems++; console.log('✗ невалидный вопрос', field(q, 'id'), e.message.slice(0, 60)) }
-
-    for (const t of extractCalls('fn:' + q, 'fn')) { /* placeholder, см. ниже */ }
   }
 
   // тесты разбираем отдельно: ищем `fn:` внутри блока tests
@@ -403,8 +401,30 @@ if (!CHECK_ONLY) {
       code + '\n\n' +
       `export { ${names.join(', ')} }\n`,
     )
-    exported.push({ file: r.out.replace(/\.ts$/, ''), names })
+    exported.push({ file: r.out.replace(/\.ts$/, ''), names, code, imports: r.imports ?? [] })
   }
+
+  /**
+   * Проверка, которой не хватило в первый раз: модуль может звать хелпер из
+   * соседнего файла и не импортировать его. В браузере это всплывёт как
+   * «демо не загрузилось: X is not defined», поэтому ловим здесь.
+   */
+  const allNames = new Set(exported.flatMap((e) => e.names))
+  let importProblems = 0
+  for (const e of exported) {
+    const imported = new Set(
+      e.imports.flatMap((line) => (line.match(/\{([^}]*)\}/)?.[1] ?? '').split(',').map((s) => s.trim())),
+    )
+    const own = new Set(e.names)
+    const missing = [...allNames].filter(
+      (n) => !own.has(n) && !imported.has(n) && new RegExp('\\b' + n + '\\s*\\(').test(e.code),
+    )
+    if (missing.length) {
+      importProblems++
+      console.log(`  ✗ ${e.file}.ts использует без импорта: ${missing.join(', ')}`)
+    }
+  }
+  if (!importProblems) console.log('  импорты общего слоя согласованы')
   write(
     'src/demos/helpers/index.ts',
     exported.map((e) => `export * from './${e.file}'`).join('\n') + '\n',

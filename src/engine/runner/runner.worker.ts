@@ -57,7 +57,6 @@ self.onmessage = async (event: MessageEvent<RunRequest>) => {
 
   let mod: Record<string, unknown>
   try {
-    // eslint-disable-next-line no-new-func
     const factory = new Function('"use strict";\n' + code + '\n;return {' + exports.join(',') + '};')
     mod = factory() as Record<string, unknown>
   } catch (e) {
@@ -75,7 +74,6 @@ self.onmessage = async (event: MessageEvent<RunRequest>) => {
   let passed = 0
   for (const t of tests) {
     try {
-      // eslint-disable-next-line no-new-func
       const fn = new Function('ok', 'eq', 'deepEq', 'throwsAsync', 'sleep', 'J', 'dEq',
         'return (' + t.src + ')')(ok, eq, deepEq, throwsAsync, sleep, J, dEq)
       await fn(mod)

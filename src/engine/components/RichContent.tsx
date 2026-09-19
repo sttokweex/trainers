@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Demo } from './Demo'
 import type { LegacyDemo } from '@/engine/types'
 
@@ -32,17 +32,3 @@ export function RichContent({ html, demos }: { html: string; demos: Record<strin
     </>
   )
 }
-
-/** Разбивка текста на пункты оглавления — по заголовкам разделов. */
-export function useHeadings(html: string) {
-  return useMemo(() => {
-    const out: { id: string; text: string }[] = []
-    let i = 0
-    for (const m of html.matchAll(/<h5[^>]*>([\s\S]*?)<\/h5>/g)) {
-      out.push({ id: 's' + i++, text: (m[1] as string).replace(/<[^>]+>/g, '') })
-    }
-    return out
-  }, [html])
-}
-
-export { Fragment }

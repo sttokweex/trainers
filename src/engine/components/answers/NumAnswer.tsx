@@ -8,7 +8,9 @@ export function NumAnswer({ item, onChecked }: { item: NumQuestion; onChecked: (
   const [hintShown, setHintShown] = useState(false)
 
   const check = () => {
-    const raw = value.replace(/[\s ]/g, '').replace(',', '.')
+    // \s в JS по спецификации включает неразрывный пробел, которым
+    // разделяются разряды, поэтому «1 234,50» разбирается без доп. подстановок
+    const raw = value.replace(/\s/g, '').replace(',', '.')
     const v = Number(raw)
     const tol = item.tol ?? 0.01
     setVerdict(Number.isFinite(v) && Math.abs(v - item.expect) <= tol)

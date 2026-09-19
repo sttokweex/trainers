@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest'
-import { PACKS } from '@/content'
+import { PACKS } from '@/content/all'
 import * as assert from '@/engine/runner/assert'
 import type { CodeQuestion, ContentPack, OutputQuestion, Question } from '@/engine/types'
 

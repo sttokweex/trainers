@@ -14,12 +14,21 @@ export function OutputAnswer({ item, onChecked }: { item: OutputQuestion; onChec
   const [checked, setChecked] = useState(false)
   const refs = useRef<(HTMLInputElement | null)[]>([])
 
+  /**
+   * Порядок значений в палитре перемешан, но детерминированно: случайность
+   * прямо в рендере нарушала бы чистоту и меняла бы порядок на каждом
+   * обновлении. Ключ перемешивания — id вопроса, поэтому подсказка стабильна.
+   */
   const shuffled = useMemo(() => {
     const uniq = [...new Set(expected.map((v) => v.trim()))]
-    return uniq.every((v) => v.length <= 16)
-      ? uniq.map((v) => ({ v, r: Math.random() })).sort((a, b) => a.r - b.r).map((x) => x.v)
-      : null
-  }, [expected])
+    if (!uniq.every((v) => v.length <= 16)) return null
+
+    const seed = [...item.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
+    return uniq
+      .map((v, i) => ({ v, k: ((seed + i * 2654435761) >>> 0) % 997 }))
+      .sort((a, b) => a.k - b.k)
+      .map((x) => x.v)
+  }, [expected, item.id])
 
   const setAt = (i: number, v: string) => {
     setValues((prev) => prev.map((x, k) => (k === i ? v : x)))

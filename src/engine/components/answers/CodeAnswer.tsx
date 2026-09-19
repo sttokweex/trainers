@@ -1,30 +1,7 @@
 import { useState } from 'react'
+import { CodeEditor } from '../CodeEditor'
 import { useRunner } from '@/engine/runner/useRunner'
 import type { CodeQuestion, ManualQuestion } from '@/engine/types'
-
-function Editor({ value, onChange, onRun }: {
-  value: string; onChange: (v: string) => void; onRun: () => void
-}) {
-  return (
-    <div className="ed">
-      <textarea
-        spellCheck={false}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Tab') {
-            e.preventDefault()
-            const el = e.currentTarget
-            const s = el.selectionStart
-            onChange(value.slice(0, s) + '  ' + value.slice(el.selectionEnd))
-            requestAnimationFrame(() => { el.selectionStart = el.selectionEnd = s + 2 })
-          }
-          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); onRun() }
-        }}
-      />
-    </div>
-  )
-}
 
 /** Задача с авто-проверкой: код уходит в воркер, поэтому цикл не вешает вкладку. */
 export function CodeAnswer({ item, onSolved }: { item: CodeQuestion; onSolved: () => void }) {
@@ -38,7 +15,8 @@ export function CodeAnswer({ item, onSolved }: { item: CodeQuestion; onSolved: (
   return (
     <>
       <div className="sec-t">Ваш код</div>
-      <Editor value={code} onChange={setCode} onRun={() => run(code)} />
+      <CodeEditor value={code} onChange={setCode} onRun={() => run(code)} />
+
       <div className="ed-bar">
         <button
           type="button" className="btn pri"
@@ -79,6 +57,15 @@ export function CodeAnswer({ item, onSolved }: { item: CodeQuestion; onSolved: (
               <span className="m">{r.name}{r.message ? '\n   → ' + r.message : ''}</span>
             </div>
           ))}
+          {state.inline && (
+            <div className="res-i">
+              <span className="s">!</span>
+              <span className="m">
+                Отдельный поток недоступен (файл открыт напрямую с диска), код выполнен в главном
+                потоке. Всё работает, но бесконечный цикл здесь подвесит вкладку — перезагрузите страницу.
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -91,18 +78,14 @@ export function CodeAnswer({ item, onSolved }: { item: CodeQuestion; onSolved: (
 export function ManualAnswer({ item, onSolved }: { item: ManualQuestion; onSolved: () => void }) {
   const [code, setCode] = useState(item.starter ?? '')
   const [shown, setShown] = useState(false)
+  const reveal = () => { setShown(true); onSolved() }
 
   return (
     <>
       <div className="sec-t">Ваш код</div>
-      <Editor value={code} onChange={setCode} onRun={() => { setShown(true); onSolved() }} />
+      <CodeEditor value={code} onChange={setCode} onRun={reveal} />
       <div className="ed-bar">
-        <button
-          type="button" className="btn pri"
-          onClick={() => { setShown(true); onSolved() }}
-        >
-          Показать эталон
-        </button>
+        <button type="button" className="btn pri" onClick={reveal}>Показать эталон</button>
         <div className="ed-hint">⌘/Ctrl + Enter</div>
       </div>
       {shown && <Solution item={item} />}

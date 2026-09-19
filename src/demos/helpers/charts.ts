@@ -2,7 +2,7 @@
 // @ts-nocheck — перенесено из старого тренажёра как есть, типизируется по мере переписывания
 /** Самописный SVG-движок графиков на провалидированной для тёмной темы палитре --s1..--s4. */
 import { dEl } from './dom'
-import { fmt } from './format'
+import { fmt, money, th, pct, num } from './format'
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const PAL = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)'];

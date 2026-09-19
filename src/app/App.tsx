@@ -1,11 +1,14 @@
-import { useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { PACKS, getPack } from '@/content'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { DEFAULT_PACK, PACK_META, loadPack } from '@/content'
 import { QuestionCard } from '@/engine/components/QuestionCard'
 import { TheoryCard } from '@/engine/components/TheoryCard'
+import { CardsMode } from '@/engine/components/modes/CardsMode'
+import { PlanMode } from '@/engine/components/modes/PlanMode'
+import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
-import type { PackMode, Question, TheoryArticle } from '@/engine/types'
+import type { ContentPack, PackMode, Question, TheoryArticle } from '@/engine/types'
 import '@/engine/styles/legacy.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
@@ -19,10 +22,54 @@ const matches = (haystack: string, q: string) => !q || haystack.toLowerCase().in
 
 export function App() {
   const { packId } = useParams()
+  const [pack, setPack] = useState<ContentPack | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    loadPack(packId ?? DEFAULT_PACK).then((p) => { if (!cancelled) setPack(p) })
+    return () => { cancelled = true }
+  }, [packId])
+
+  if (!pack) return <div className="empty">Загружаем контент…</div>
+  return <Trainer key={pack.id} pack={pack} />
+}
+
+function Trainer({ pack }: { pack: ContentPack }) {
   const navigate = useNavigate()
-  const pack = getPack(packId ?? 'interview')
   const { filters, set } = useFilters(pack)
-  const { marks, toggleMark, reset, reveal, setReveal, known, repeat } = useProgress(pack)
+  const {
+    marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan,
+    reset, reveal, setReveal, known, repeat,
+  } = useProgress(pack)
+
+  const searchRef = useRef<HTMLInputElement>(null)
+  const topRef = useRef<HTMLElement>(null)
+
+  /** Высота липкой шапки уезжает в CSS — от неё считается высота сайдбара. */
+  useEffect(() => {
+    const node = topRef.current
+    if (!node) return
+    const sync = () => document.documentElement.style.setProperty('--top-h', node.offsetHeight + 'px')
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(node)
+    return () => ro.disconnect()
+  }, [])
+
+  /** «/» фокусирует поиск — как в старом тренажёре. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (document.activeElement as HTMLElement | null)?.tagName
+      if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
+
+  const mode = pack.modes.includes(filters.mode) ? filters.mode : pack.defaultMode
 
   const questions = useMemo(() => pack.questions.filter((q) => {
     if (filters.topic !== 'all' && q.topic !== filters.topic) return false
@@ -35,68 +82,88 @@ export function App() {
     return matches([q.q, q.answer, q.topic].join(' '), filters.query)
   }), [pack.questions, filters, marks])
 
-  const theory = useMemo(() => pack.theory.filter((t) => {
-    if (filters.topic !== 'all' && t.topic !== filters.topic) return false
-    return matches([t.title, t.lead, t.body, t.topic].join(' '), filters.query)
-  }), [pack.theory, filters])
+  const theory = useMemo(() => pack.theory.filter((t) =>
+    (filters.topic === 'all' || t.topic === filters.topic)
+    && matches([t.title, t.lead, t.body, t.topic].join(' '), filters.query),
+  ), [pack.theory, filters])
 
-  const isTheory = filters.mode === 'theory'
-  const source: (Question | TheoryArticle)[] = isTheory ? theory : questions
+  const tools = useMemo(() => (pack.tools ?? []).filter((t) =>
+    (filters.topic === 'all' || t.topic === filters.topic)
+    && matches([t.t, t.d, t.topic].join(' '), filters.query),
+  ), [pack.tools, filters])
+
+  const cards = useMemo(() => (pack.cards ?? []).filter((c) =>
+    (filters.topic === 'all' || c.topic === filters.topic)
+    && matches([c.term, c.en, c.def].join(' '), filters.query),
+  ), [pack.cards, filters])
 
   /** Темы и счётчики берутся из того реестра, который сейчас показан. */
   const topicCounts = useMemo(() => {
-    const src = isTheory ? pack.theory : pack.questions
+    const src: { topic: string }[] =
+      mode === 'theory' ? pack.theory
+        : mode === 'tools' ? (pack.tools ?? [])
+        : mode === 'cards' ? (pack.cards ?? [])
+        : pack.questions
     const map = new Map<string, number>()
     for (const x of src) map.set(x.topic, (map.get(x.topic) ?? 0) + 1)
     return map
-  }, [pack, isTheory])
+  }, [pack, mode])
 
+  const listed: (Question | TheoryArticle)[] = mode === 'theory' ? theory : questions
   const grouped = useMemo(() => {
     const out: { topic: string; items: (Question | TheoryArticle)[] }[] = []
-    for (const item of source) {
+    for (const item of listed) {
       const last = out[out.length - 1]
       if (last && last.topic === item.topic) last.items.push(item)
       else out.push({ topic: item.topic, items: [item] })
     }
     return out
-  }, [source])
+  }, [listed])
 
   const pickRandom = () => {
     const pool = questions.filter((q) => marks[q.id] !== 'know')
     const src = pool.length ? pool : questions
     const item = src[Math.floor(Math.random() * src.length)]
-    if (!item) return
-    document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (item) document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   const categories = pack.categories
-  const topicsInOrder = categories
+  const topicGroups = categories
     ? categories.map((c) => ({ name: c.name, topics: c.topics.filter((t) => topicCounts.has(t)) }))
     : [{ name: '', topics: [...topicCounts.keys()] }]
 
+  const totalInMode =
+    mode === 'theory' ? theory.length
+      : mode === 'tools' ? tools.length
+      : mode === 'cards' ? cards.length
+      : questions.length
+
   return (
     <>
-      <header className="top">
+      <header className="top" ref={topRef}>
         <div className="top-in">
           <div className="brand">Тренажёр <span>{pack.title.toLowerCase()}</span></div>
 
-          <div className="modes">
-            {PACKS.map((p) => (
-              <button
-                key={p.id} type="button"
-                className={'md' + (p.id === pack.id ? ' on' : '')}
-                onClick={() => navigate('/' + p.id)}
-              >
-                {p.title}
-              </button>
-            ))}
-          </div>
+          {/* при сборке под один пак переключать нечего */}
+          {PACK_META.length > 1 && (
+            <div className="modes">
+              {PACK_META.map((p) => (
+                <button
+                  key={p.id} type="button"
+                  className={'md' + (p.id === pack.id ? ' on' : '')}
+                  onClick={() => navigate('/' + p.id)}
+                >
+                  {p.title}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="modes">
             {pack.modes.map((m) => (
               <button
                 key={m} type="button"
-                className={'md' + (m === filters.mode ? ' on' : '')}
+                className={'md' + (m === mode ? ' on' : '')}
                 onClick={() => set({ mode: m, topic: 'all' })}
               >
                 {MODE_LABEL[m]}
@@ -104,33 +171,38 @@ export function App() {
             ))}
           </div>
 
-          <div className="modes">
-            <button
-              type="button" className={'md' + (reveal ? ' on' : '')}
-              onClick={() => setReveal(true)}
-              title="Ответ на теоретические вопросы виден сразу"
-            >
-              Изучение
-            </button>
-            <button
-              type="button" className={'md' + (!reveal ? ' on' : '')}
-              onClick={() => setReveal(false)}
-              title="Сначала ответьте сами"
-            >
-              Проверка
-            </button>
-          </div>
+          {mode === 'questions' && (
+            <div className="modes">
+              <button
+                type="button" className={'md' + (reveal ? ' on' : '')}
+                onClick={() => setReveal(true)}
+                title="Ответ на теоретические вопросы виден сразу"
+              >
+                Изучение
+              </button>
+              <button
+                type="button" className={'md' + (!reveal ? ' on' : '')}
+                onClick={() => setReveal(false)}
+                title="Сначала ответьте сами"
+              >
+                Проверка
+              </button>
+            </div>
+          )}
 
           <input
+            ref={searchRef}
             className="search"
-            placeholder="Поиск по вопросам и статьям…"
+            placeholder="Поиск…  (/)"
             value={filters.query}
             onChange={(e) => set({ query: e.target.value })}
           />
-          {!isTheory && <button type="button" className="btn" onClick={pickRandom}>🎲 Случайный</button>}
+          {mode === 'questions' && (
+            <button type="button" className="btn" onClick={pickRandom}>🎲 Случайный</button>
+          )}
           <button
             type="button" className="btn gho"
-            onClick={() => { if (confirm('Сбросить все отметки?')) reset() }}
+            onClick={() => { if (confirm('Сбросить отметки по вопросам, карточкам и плану?')) reset() }}
           >
             Сброс
           </button>
@@ -148,16 +220,16 @@ export function App() {
       </header>
 
       <div className="wrap">
-        <aside className="side">
+        <aside className="side" style={mode === 'plan' ? { display: 'none' } : undefined}>
           <div className="side-box">
             <h4>Темы</h4>
             <button
               type="button" className={'tp' + (filters.topic === 'all' ? ' on' : '')}
               onClick={() => set({ topic: 'all' })}
             >
-              <span>Все темы</span><b>{source.length}</b>
+              <span>Все темы</span><b>{totalInMode}</b>
             </button>
-            {topicsInOrder.map((cat) => (
+            {topicGroups.map((cat) => (
               <div key={cat.name || 'all'}>
                 {cat.name && cat.topics.length > 0 && <div className="cat">{cat.name}</div>}
                 {cat.topics.map((t) => (
@@ -173,7 +245,7 @@ export function App() {
             ))}
           </div>
 
-          {filters.mode === 'questions' && (
+          {mode === 'questions' && (
             <>
               <div className="side-box">
                 <h4>Формат</h4>
@@ -210,15 +282,17 @@ export function App() {
 
               <div className="side-box">
                 <h4>Статус</h4>
-                {[['all', 'Все'], ['new', 'Не отмечено'], ['repeat', 'Повторить'], ['know', 'Знаю']].map(([v, label]) => (
-                  <button
-                    key={v} type="button"
-                    className={'tp' + (filters.status === v ? ' on' : '')}
-                    onClick={() => set({ status: v as string })}
-                  >
-                    <span>{label}</span>
-                  </button>
-                ))}
+                {([['all', 'Все'], ['new', 'Не отмечено'], ['repeat', 'Повторить'], ['know', 'Знаю']] as const).map(
+                  ([v, label]) => (
+                    <button
+                      key={v} type="button"
+                      className={'tp' + (filters.status === v ? ' on' : '')}
+                      onClick={() => set({ status: v })}
+                    >
+                      <span>{label}</span>
+                    </button>
+                  ),
+                )}
                 <div className="stat">
                   знаю: <b>{known}</b><br />повторить: <b>{repeat}</b><br />
                   осталось: <b>{pack.questions.length - known - repeat}</b>
@@ -229,31 +303,45 @@ export function App() {
         </aside>
 
         <main id="list">
-          {source.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
-          {grouped.map((group) => (
-            <div key={group.topic}>
-              <div className="grp">{group.topic}</div>
-              {group.items.map((item, i) =>
-                isTheory
-                  ? <TheoryCard key={item.id} item={item as TheoryArticle} demos={pack.demos} />
-                  : (
-                    <QuestionCard
-                      key={item.id}
-                      item={item as Question}
-                      index={i}
-                      mark={marks[item.id]}
-                      onToggleMark={toggleMark}
-                      reveal={reveal}
-                      demos={pack.demos}
-                    />
-                  ),
-              )}
-            </div>
-          ))}
-          {!['questions', 'theory'].includes(filters.mode) && (
-            <div className="empty">
-              Режим «{MODE_LABEL[filters.mode]}» ещё переносится — пока доступен в старом файле.
-            </div>
+          {mode === 'plan' && pack.plan && (
+            <PlanMode weeks={pack.plan} done={planDone} onToggle={togglePlan} />
+          )}
+
+          {mode === 'tools' && <ToolsMode items={tools} demos={pack.demos} />}
+
+          {mode === 'cards' && (
+            <CardsMode
+              items={cards}
+              total={pack.cards?.length ?? 0}
+              known={cardsKnown}
+              onToggleKnown={toggleCard}
+            />
+          )}
+
+          {(mode === 'questions' || mode === 'theory') && (
+            <>
+              {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
+              {grouped.map((group) => (
+                <div key={group.topic}>
+                  <div className="grp">{group.topic}</div>
+                  {group.items.map((item, i) =>
+                    mode === 'theory'
+                      ? <TheoryCard key={item.id} item={item as TheoryArticle} demos={pack.demos} />
+                      : (
+                        <QuestionCard
+                          key={item.id}
+                          item={item as Question}
+                          index={i}
+                          mark={marks[item.id]}
+                          onToggleMark={toggleMark}
+                          reveal={reveal}
+                          demos={pack.demos}
+                        />
+                      ),
+                  )}
+                </div>
+              ))}
+            </>
           )}
         </main>
       </div>
