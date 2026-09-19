@@ -312,3 +312,13 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 .hintbox{font:12.5px/1.6 var(--mono); color:var(--mut2); margin-top:10px; border-left:2px solid var(--bd2); padding-left:10px}
 .verd{font:13px var(--mono); margin-top:10px}
 .verd.ok{color:var(--good)} .verd.no{color:var(--crit)}
+
+/* Кликабельный пункт плана: ведёт в статью, тренажёр или к вопросам темы.
+   Это кнопка внутри label, поэтому клик по ней не ставит галочку. */
+.chk-go{
+  background:none; border:0; padding:0; margin:0; cursor:pointer; text-align:left;
+  font:inherit; color:var(--tx); border-bottom:1px solid transparent; transition:.15s;
+}
+.chk-go:hover{color:var(--acc); border-bottom-color:var(--acc-d)}
+.chk-arrow{margin-left:6px; font-size:12px; color:var(--mut2); transition:.15s}
+.chk-go:hover .chk-arrow{color:var(--acc); transform:translateX(2px); display:inline-block}

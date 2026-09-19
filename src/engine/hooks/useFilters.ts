@@ -9,6 +9,8 @@ export interface Filters {
   level: string
   status: string
   query: string
+  /** id статьи или инструмента, который надо раскрыть и показать. */
+  open: string
 }
 
 /**
@@ -25,13 +27,15 @@ export function useFilters(pack: ContentPack) {
     level: params.get('level') ?? 'all',
     status: params.get('status') ?? 'all',
     query: params.get('q') ?? '',
+    open: params.get('open') ?? '',
   }), [params, pack.defaultMode])
 
   const set = useCallback((patch: Partial<Filters>) => {
     setParams((prev) => {
       const next = new URLSearchParams(prev)
       const map: Record<keyof Filters, string> = {
-        mode: 'mode', topic: 'topic', kind: 'kind', level: 'level', status: 'status', query: 'q',
+        mode: 'mode', topic: 'topic', kind: 'kind', level: 'level',
+        status: 'status', query: 'q', open: 'open',
       }
       for (const [k, v] of Object.entries(patch)) {
         const key = map[k as keyof Filters]

@@ -3,31 +3,61 @@ import type { OutputQuestion } from '@/engine/types'
 
 const norm = (v: string) => v.trim().replace(/['"`]/g, '').replace(/\s+/g, ' ').toLowerCase()
 
+/** Небольшой сеяный ГПСЧ: одинаковый seed — одинаковая последовательность. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 /**
  * Ответ вводится в пронумерованные ячейки — по одной на строку вывода,
  * с построчной проверкой. Плюс палитра значений вперемешку: кликом
  * подставляется в первую пустую ячейку, так быстрее и удобно с телефона.
  */
-export function OutputAnswer({ item, onChecked }: { item: OutputQuestion; onChecked: () => void }) {
+export function OutputAnswer({
+  item, onChecked, showHint,
+}: {
+  item: OutputQuestion
+  onChecked: () => void
+  /** Палитра значений — подсказка, поэтому в режиме «Проверка» её нет. */
+  showHint: boolean
+}) {
   const expected = useMemo(() => item.expected.split('\n'), [item.expected])
   const [values, setValues] = useState<string[]>(() => expected.map(() => ''))
   const [checked, setChecked] = useState(false)
   const refs = useRef<(HTMLInputElement | null)[]>([])
 
   /**
-   * Порядок значений в палитре перемешан, но детерминированно: случайность
-   * прямо в рендере нарушала бы чистоту и меняла бы порядок на каждом
-   * обновлении. Ключ перемешивания — id вопроса, поэтому подсказка стабильна.
+   * Порядок значений в палитре перемешан детерминированно: случайность прямо
+   * в рендере нарушала бы чистоту и меняла бы порядок при каждом обновлении.
+   *
+   * Важно, что это настоящая перестановка. Первая версия сортировала по
+   * ключу (seed + i·K) mod M — для коротких списков он рос монотонно, порядок
+   * сохранялся, и подсказка выдавала готовый ответ. Теперь Фишер–Йетс на
+   * сеяном ГПСЧ плюс проверка, что результат не совпал с исходным порядком.
    */
   const shuffled = useMemo(() => {
     const uniq = [...new Set(expected.map((v) => v.trim()))]
-    if (!uniq.every((v) => v.length <= 16)) return null
+    if (uniq.length < 2 || !uniq.every((v) => v.length <= 16)) return null
 
-    const seed = [...item.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
-    return uniq
-      .map((v, i) => ({ v, k: ((seed + i * 2654435761) >>> 0) % 997 }))
-      .sort((a, b) => a.k - b.k)
-      .map((x) => x.v)
+    const baseSeed = [...item.id].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) | 0, 7)
+
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const rand = mulberry32(baseSeed + attempt * 0x9e3779b9)
+      const out = [...uniq]
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1))
+        ;[out[i], out[j]] = [out[j] as string, out[i] as string]
+      }
+      // совпал с исходным порядком — подсказка выдала бы ответ, пробуем снова
+      if (out.some((v, i) => v !== uniq[i])) return out
+    }
+    return [...uniq].reverse()
   }, [expected, item.id])
 
   const setAt = (i: number, v: string) => {
@@ -80,7 +110,7 @@ export function OutputAnswer({ item, onChecked }: { item: OutputQuestion; onChec
         })}
       </div>
 
-      {shuffled && (
+      {shuffled && showHint && (
         <div className="pal">
           <div className="pal-t">подсказка: значения вперемешку — нажмите, чтобы подставить</div>
           {shuffled.map((v, i) => (

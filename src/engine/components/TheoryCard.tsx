@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { RichContent } from './RichContent'
 import type { LegacyDemo, TheoryArticle } from '@/engine/types'
 
@@ -18,9 +18,30 @@ const plural = (n: number, one: string, few: string, many: string) => {
   return many
 }
 
-export function TheoryCard({ item, demos }: { item: TheoryArticle; demos: Record<string, LegacyDemo> }) {
-  const [open, setOpen] = useState(false)
+export function TheoryCard({
+  item, demos, autoOpen = false,
+}: {
+  item: TheoryArticle
+  demos: Record<string, LegacyDemo>
+  /** Пришли по ссылке из плана: раскрыть и подвести к себе. */
+  autoOpen?: boolean
+}) {
+  const [open, setOpen] = useState(autoOpen)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * Раскрытие уже задано начальным состоянием: переход по ссылке из плана
+   * меняет режим, и карточки монтируются заново. Здесь остаётся только
+   * прокрутка — ждём кадр, чтобы тело статьи успело отрисоваться.
+   */
+  useEffect(() => {
+    if (!autoOpen) return
+    const id = requestAnimationFrame(() => {
+      rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [autoOpen])
 
   const meta = useMemo(() => {
     const demoCount = (item.body.match(/data-demo=/g) ?? []).length
@@ -40,7 +61,7 @@ export function TheoryCard({ item, demos }: { item: TheoryArticle; demos: Record
   )
 
   return (
-    <div className={'th-card' + (open ? ' open' : '')}>
+    <div className={'th-card' + (open ? ' open' : '')} ref={rootRef} id={'a-' + item.id}>
       <div className="th-h" onClick={() => setOpen((v) => !v)}>
         <div className="th-t">
           <h3>{item.title}</h3>

@@ -30,7 +30,12 @@ export function QuestionCard({
   const [open, setOpen] = useState(false)
   const [answerShown, setAnswerShown] = useState(false)
 
-  const showAnswer = item.type === 'theory' ? (reveal || answerShown) : answerShown
+  /**
+   * «Изучение» показывает разбор сразу у ЛЮБОГО типа вопроса — иначе
+   * переключатель выглядел бы сломанным на всём, кроме чистой теории.
+   * Интерактив при этом остаётся: ячейки, редактор и варианты никуда не деваются.
+   */
+  const showAnswer = reveal || answerShown
   const cls = 'card' + (open ? ' open' : '') + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
 
   return (
@@ -59,7 +64,9 @@ export function QuestionCard({
             </>
           )}
 
-          {item.type === 'output' && <OutputAnswer item={item} onChecked={() => setAnswerShown(true)} />}
+          {item.type === 'output' && (
+            <OutputAnswer item={item} onChecked={() => setAnswerShown(true)} showHint={reveal} />
+          )}
           {item.type === 'choice' && <ChoiceAnswer item={item} onChecked={() => setAnswerShown(true)} />}
           {item.type === 'num' && <NumAnswer item={item} onChecked={() => setAnswerShown(true)} />}
           {item.type === 'code' && <CodeAnswer item={item} onSolved={() => setAnswerShown(true)} />}

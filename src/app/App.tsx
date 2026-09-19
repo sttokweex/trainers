@@ -8,7 +8,7 @@ import { PlanMode } from '@/engine/components/modes/PlanMode'
 import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
-import type { ContentPack, PackMode, Question, TheoryArticle } from '@/engine/types'
+import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
 import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
@@ -122,6 +122,20 @@ function Trainer({ pack }: { pack: ContentPack }) {
     }
     return out
   }, [listed])
+
+  /** Переход по ссылке из плана: меняем режим, тему и цель раскрытия разом. */
+  const goToLink = (link: PlanLink) => {
+    set({
+      mode: link.mode,
+      topic: link.topic ?? 'all',
+      open: link.id ?? '',
+      query: '',
+      kind: 'all',
+      level: 'all',
+      status: 'all',
+    })
+    window.scrollTo({ top: 0 })
+  }
 
   const pickRandom = () => {
     const pool = questions.filter((q) => marks[q.id] !== 'know')
@@ -311,10 +325,15 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
         <main id="list">
           {mode === 'plan' && pack.plan && (
-            <PlanMode weeks={pack.plan} done={planDone} onToggle={togglePlan} />
+            <PlanMode
+              weeks={pack.plan} done={planDone}
+              onToggle={togglePlan} onNavigate={goToLink}
+            />
           )}
 
-          {mode === 'tools' && <ToolsMode items={tools} demos={pack.demos} />}
+          {mode === 'tools' && (
+            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} />
+          )}
 
           {mode === 'cards' && (
             <CardsMode
@@ -333,7 +352,14 @@ function Trainer({ pack }: { pack: ContentPack }) {
                   <div className="grp">{group.topic}</div>
                   {group.items.map((item, i) =>
                     mode === 'theory'
-                      ? <TheoryCard key={item.id} item={item as TheoryArticle} demos={pack.demos} />
+                      ? (
+                        <TheoryCard
+                          key={item.id}
+                          item={item as TheoryArticle}
+                          demos={pack.demos}
+                          autoOpen={item.id === filters.open}
+                        />
+                      )
                       : (
                         <QuestionCard
                           key={item.id}

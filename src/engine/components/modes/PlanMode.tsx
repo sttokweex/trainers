@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PlanWeek } from '@/engine/types'
+import type { PlanLink, PlanWeek } from '@/engine/types'
+
+/** Подпись к ссылке — чтобы было понятно, куда уведёт клик. */
+const LINK_HINT: Record<string, string> = {
+  theory: 'Открыть статью',
+  tools: 'Открыть тренажёр в практикуме',
+  questions: 'Перейти к вопросам темы',
+  cards: 'Открыть карточки',
+  plan: 'План',
+}
 
 /** Ключ отметки привязан к номеру недели и позиции пункта — как в старом файле. */
 const keyOf = (week: PlanWeek, i: number) => `${week.n}-${i}`
@@ -14,12 +23,13 @@ const plural = (n: number, one: string, few: string, many: string): string => {
 }
 
 function Week({
-  week, done, onToggle, defaultOpen,
+  week, done, onToggle, defaultOpen, onNavigate,
 }: {
   week: PlanWeek
   done: Record<string, boolean>
   onToggle: (key: string, value: boolean) => void
   defaultOpen: boolean
+  onNavigate: (link: PlanLink) => void
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const count = week.items.filter((_, i) => done[keyOf(week, i)]).length
@@ -44,7 +54,20 @@ function Week({
                   onChange={(e) => onToggle(key, e.target.checked)}
                 />
                 <span>
-                  {it.t}
+                  {it.link
+                    ? (
+                      // ссылка внутри label: клик по ней не должен ставить галочку
+                      <button
+                        type="button"
+                        className="chk-go"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNavigate(it.link as PlanLink) }}
+                        title={LINK_HINT[it.link.mode]}
+                      >
+                        {it.t}
+                        <span className="chk-arrow">→</span>
+                      </button>
+                    )
+                    : it.t}
                   {it.s && <small>{it.s}</small>}
                 </span>
               </label>
@@ -95,11 +118,12 @@ function ProgressChart({ weeks, done }: { weeks: PlanWeek[]; done: Record<string
 }
 
 export function PlanMode({
-  weeks, done, onToggle,
+  weeks, done, onToggle, onNavigate,
 }: {
   weeks: PlanWeek[]
   done: Record<string, boolean>
   onToggle: (key: string, value: boolean) => void
+  onNavigate: (link: PlanLink) => void
 }) {
   const total = weeks.reduce((sum, w) => sum + w.items.length, 0)
   const completed = weeks.reduce(
@@ -118,7 +142,10 @@ export function PlanMode({
       </div>
       <ProgressChart weeks={weeks} done={done} />
       {weeks.map((w) => (
-        <Week key={w.n} week={w} done={done} onToggle={onToggle} defaultOpen={w.n === 1} />
+        <Week
+          key={w.n} week={w} done={done} onToggle={onToggle}
+          defaultOpen={w.n === 1} onNavigate={onNavigate}
+        />
       ))}
     </>
   )

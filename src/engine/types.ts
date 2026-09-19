@@ -111,12 +111,31 @@ export interface Card {
   topic: string
 }
 
+/**
+ * Куда ведёт пункт плана. Проставляется в данных явно — сопоставление по
+ * названию делается один раз скриптом и проверяется глазами, чтобы в рантайме
+ * ничего не угадывалось и пользователь не попадал не в ту статью.
+ */
+export interface PlanLink {
+  mode: PackMode
+  /** id статьи или инструмента: карточка раскроется и прокрутится к себе. */
+  id?: string
+  /** Тема — когда пункт ссылается на группу материалов, а не на один. */
+  topic?: string
+}
+
+export interface PlanItem {
+  t: string
+  s: string
+  link?: PlanLink
+}
+
 /** Неделя плана обучения. */
 export interface PlanWeek {
   n: number
   t: string
   goal: string
-  items: { t: string; s: string }[]
+  items: PlanItem[]
 }
 
 /**
