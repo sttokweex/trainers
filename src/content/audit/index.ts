@@ -14,6 +14,12 @@ export const auditPack: ContentPack = {
   modes: ['theory', 'questions', 'tools', 'cards', 'plan'],
   defaultMode: 'theory',
   hasLevelFilter: true,
+  categories: [
+    { name:'Учёт', topics:['Бухучёт', 'Статьи баланса', 'ФСБУ', 'Налоги'] },
+    { name:'Отчётность', topics:['Отчётность', 'Анализ', 'МСФО'] },
+    { name:'Аудит', topics:['Методология', 'Участки', 'Завершение'] },
+    { name:'Практика', topics:['Инструменты'] },
+  ],
   questions,
   theory,
   tools,

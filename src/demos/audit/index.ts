@@ -41,6 +41,23 @@ import { excelRecon } from './excel-recon'
 import { misstatements } from './misstatements'
 import { jeTesting } from './je-testing'
 import { opinionTree } from './opinion-tree'
+import { bsMap } from './bs-map'
+import { bsLineBuild } from './bs-line-build'
+import { bsFill } from './bs-fill'
+import { entryLogic } from './entry-logic'
+import { entryMarathon } from './entry-marathon'
+import { postingMatch } from './posting-match'
+import { accountType } from './account-type'
+import { payroll } from './payroll'
+import { vacationReserve } from './vacation-reserve'
+import { netAssets } from './net-assets'
+import { deprMonthly } from './depr-monthly'
+import { fxDiff } from './fx-diff'
+import { costAlloc } from './cost-alloc'
+import { debtClassify } from './debt-classify'
+import { primaryDocs } from './primary-docs'
+import { agentGrossNet } from './agent-gross-net'
+import { fsbuTimeline } from './fsbu-timeline'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -87,4 +104,23 @@ export const demos: Record<string, LegacyDemo> = {
   'misstatements': misstatements,
   'je-testing': jeTesting,
   'opinion-tree': opinionTree,
+
+  /* статьи баланса, проводки и смежные темы */
+  'bs-map': bsMap,
+  'bs-line-build': bsLineBuild,
+  'bs-fill': bsFill,
+  'entry-logic': entryLogic,
+  'entry-marathon': entryMarathon,
+  'posting-match': postingMatch,
+  'account-type': accountType,
+  'payroll': payroll,
+  'vacation-reserve': vacationReserve,
+  'net-assets': netAssets,
+  'depr-monthly': deprMonthly,
+  'fx-diff': fxDiff,
+  'cost-alloc': costAlloc,
+  'debt-classify': debtClassify,
+  'primary-docs': primaryDocs,
+  'agent-gross-net': agentGrossNet,
+  'fsbu-timeline': fsbuTimeline,
 }

@@ -4,14 +4,15 @@ import * as assert from '@/engine/runner/assert'
 import type { CodeQuestion, ContentPack, OutputQuestion, Question } from '@/engine/types'
 
 /**
- * Это страховка переноса со старых HTML-тренажёров: те же счётчики, та же
- * форма контента и те же 198 тестов эталонных решений, что проходили там.
+ * Страховка от потери контента: счётчики, форма контента и 198 тестов
+ * эталонных решений. Пак «Собеседование» держит паритет со старым HTML-файлом;
+ * пак «Аудит» с тех пор вырос — добавлены статьи баланса, проводки и смежные темы.
  */
 
-/** Снято с исходных файлов до переноса. */
+/** Обновляется осознанно вместе с добавлением контента. */
 const EXPECTED = {
   interview: { questions: 137, theory: 27, demos: 33 },
-  audit: { questions: 83, theory: 32, demos: 43, tools: 29, cards: 76, plan: 12 },
+  audit: { questions: 111, theory: 52, demos: 60, tools: 46, cards: 139, plan: 17 },
 } as const
 
 const packById = (id: string) => PACKS.find((p) => p.id === id) as ContentPack

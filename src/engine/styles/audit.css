@@ -341,3 +341,36 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 .chk-go:hover{color:var(--acc); border-bottom-color:var(--acc-d)}
 .chk-arrow{margin-left:6px; font-size:12px; color:var(--mut2); transition:.15s}
 .chk-go:hover .chk-arrow{color:var(--acc); transform:translateX(2px); display:inline-block}
+
+/* ---------- карта баланса ---------- */
+.bs-wrap{display:grid; grid-template-columns:minmax(0,260px) minmax(0,1fr); gap:14px; margin-top:12px}
+@media(max-width:760px){ .bs-wrap{grid-template-columns:1fr} }
+.bs-nav{display:flex; flex-direction:column; gap:4px; max-height:520px; overflow-y:auto; padding-right:4px}
+@media(max-width:760px){ .bs-nav{max-height:none; overflow:visible; flex-direction:row; flex-wrap:wrap} }
+.bs-sec{font:600 9.5px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--mut2); margin:10px 0 2px}
+@media(max-width:760px){ .bs-sec{flex:0 0 100%; margin:8px 0 0} }
+.bs-line{display:flex; gap:8px; align-items:baseline; background:#05080c; border:1px solid var(--bd); color:var(--mut);
+  border-radius:7px; padding:7px 10px; font:13px inherit; text-align:left; cursor:pointer; transition:.15s}
+.bs-line:hover{border-color:var(--acc-d); color:var(--tx)}
+.bs-line.on{background:#16293f; border-color:var(--acc-d); color:var(--acc)}
+.bs-line b{font:600 11px var(--mono); color:var(--mut2); flex:0 0 auto}
+.bs-line.on b{color:var(--acc)}
+.bs-panel{background:#05080c; border:1px solid var(--bd); border-radius:9px; padding:14px 16px; min-width:0}
+.bs-head{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px}
+.bs-code{font:700 13px var(--mono); color:var(--s1)}
+.bs-name{font-size:15.5px; font-weight:600}
+.bs-what{margin:0 0 12px; color:var(--mut); font-size:13.5px; line-height:1.6}
+.bs-panel h6{margin:14px 0 6px; font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--mut2)}
+.bs-panel pre{background:#0a1017; border:1px solid var(--bd); border-radius:7px; padding:9px 12px;
+  font:12px/1.6 var(--mono); color:#9ecbff; overflow-x:auto; margin:0}
+.bs-panel ul{margin:4px 0; padding-left:20px; font-size:13.5px; line-height:1.6; color:var(--mut)}
+.bs-panel li{margin:5px 0}
+.bs-err li{color:#ffb4ae}
+
+/* ---------- марафон проводок ---------- */
+.mar-top{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px}
+.mar-bar{flex:1 1 160px; height:6px; background:#05080c; border:1px solid var(--bd); border-radius:99px; overflow:hidden}
+.mar-fill{height:100%; width:0; background:linear-gradient(90deg,var(--acc-d),var(--grn)); transition:width .3s}
+.mar-cnt{font:12px var(--mono); color:var(--mut2)}
+.mar-tag{font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--s3);
+  border:1px solid #15493a; background:#0b1a16; border-radius:99px; padding:3px 9px}

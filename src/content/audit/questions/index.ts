@@ -1,4 +1,5 @@
 import { buhuchetQuestions } from './buhuchet'
+import { statyBalansaQuestions } from './staty-balansa'
 import { otchetnostyQuestions } from './otchetnosty'
 import { fsbuQuestions } from './fsbu'
 import { nalogiQuestions } from './nalogi'
@@ -12,6 +13,7 @@ import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
   ...buhuchetQuestions,
+  ...statyBalansaQuestions,
   ...otchetnostyQuestions,
   ...fsbuQuestions,
   ...nalogiQuestions,
