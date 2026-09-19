@@ -1,6 +1,8 @@
 import { async } from './th-async'
 import { jscore } from './th-jscore'
 import { ts } from './th-ts'
+import { tsAdvanced } from './th-ts-advanced'
+import { lifecycle } from './th-lifecycle'
 import { hooks } from './th-hooks'
 import { render } from './th-render'
 import { state } from './th-state'
@@ -31,6 +33,8 @@ export const theory: TheoryArticle[] = [
   async,
   jscore,
   ts,
+  tsAdvanced,
+  lifecycle,
   hooks,
   render,
   state,
