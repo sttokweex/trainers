@@ -71,6 +71,9 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   const mode = pack.modes.includes(filters.mode) ? filters.mode : pack.defaultMode
 
+  /** План — единственный режим без фильтров: там нечего фильтровать. */
+  const showSidebar = mode !== 'plan'
+
   const questions = useMemo(() => pack.questions.filter((q) => {
     if (filters.topic !== 'all' && q.topic !== filters.topic) return false
     if (filters.kind !== 'all' && q.type !== filters.kind) return false
@@ -219,8 +222,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
         </div>
       </header>
 
-      <div className="wrap">
-        <aside className="side" style={mode === 'plan' ? { display: 'none' } : undefined}>
+      {/* В режиме плана сайдбар не нужен — и его нельзя просто спрятать:
+          сетка осталась бы двухколоночной, а main уехал бы в колонку сайдбара. */}
+      <div className={'wrap' + (showSidebar ? '' : ' wrap-full')}>
+        {showSidebar && (
+        <aside className="side">
           <div className="side-box">
             <h4>Темы</h4>
             <button
@@ -301,6 +307,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
             </>
           )}
         </aside>
+        )}
 
         <main id="list">
           {mode === 'plan' && pack.plan && (

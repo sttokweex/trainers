@@ -57,3 +57,7 @@
 .appr ol{margin:8px 0; padding-left:20px}
 .appr li{margin:7px 0; line-height:1.65}
 .appr b{color:var(--tx)}
+
+/* Режим без сайдбара (план): сетка становится одноколоночной, иначе main
+   остался бы в колонке шириной 230px и весь контент сплющило бы. */
+.wrap.wrap-full{grid-template-columns:1fr}

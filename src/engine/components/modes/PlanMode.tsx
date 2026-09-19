@@ -4,6 +4,15 @@ import type { PlanWeek } from '@/engine/types'
 /** Ключ отметки привязан к номеру недели и позиции пункта — как в старом файле. */
 const keyOf = (week: PlanWeek, i: number) => `${week.n}-${i}`
 
+/** Русское склонение после числа: 1 задача, 2 задачи, 5 задач. */
+const plural = (n: number, one: string, few: string, many: string): string => {
+  const m10 = n % 10
+  const m100 = n % 100
+  if (m10 === 1 && m100 !== 11) return one
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few
+  return many
+}
+
 function Week({
   week, done, onToggle, defaultOpen,
 }: {
@@ -65,13 +74,18 @@ function ProgressChart({ weeks, done }: { weeks: PlanWeek[]; done: Record<string
       barsH(node, {
         padL: 96,
         rowH: 26,
-        data: weeks.map((w) => ({
-          label: 'Неделя ' + w.n,
-          value: w.items.filter((_, i) => done[keyOf(w, i)]).length,
-          color: 'var(--s1)',
-          note: w.t,
-        })),
-        fmt: (v: number) => fmt(v) + ' из задач',
+        data: weeks.map((w) => {
+          const doneCount = w.items.filter((_, i) => done[keyOf(w, i)]).length
+          return {
+            label: 'Неделя ' + w.n,
+            value: doneCount,
+            color: 'var(--s1)',
+            // в подписи полосы помещается только число, поэтому знаменатель
+            // и название недели уходят в тултип
+            note: `${w.t} · выполнено ${doneCount} из ${w.items.length}`,
+          }
+        }),
+        fmt: (v: number) => fmt(v) + ' ' + plural(v, 'задача', 'задачи', 'задач'),
       })
     })
     return () => { cancelled = true; node.innerHTML = '' }
