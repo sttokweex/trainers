@@ -1,0 +1,59 @@
+/* Каркас страницы, сайдбар и фильтры. */
+
+/* ---------- layout ---------- */
+.wrap{max-width:1240px; margin:0 auto; padding:18px 16px 120px; display:grid; grid-template-columns:230px 1fr; gap:22px; align-items:start}
+@media(max-width:900px){ .wrap{grid-template-columns:1fr; gap:14px} }
+
+.side{
+  position:sticky;
+  top:calc(var(--top-h, 96px) + 14px);
+  max-height:calc(100dvh - var(--top-h, 96px) - 28px);
+  overflow-y:auto;
+  overscroll-behavior:contain;   /* прокрутка не «перетекает» на страницу */
+  padding-right:4px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--bd2) transparent;
+}
+.side::-webkit-scrollbar{width:8px}
+.side::-webkit-scrollbar-track{background:transparent}
+.side::-webkit-scrollbar-thumb{background:var(--bd2); border-radius:99px; border:2px solid var(--bg)}
+.side::-webkit-scrollbar-thumb:hover{background:var(--mut2)}
+@media(max-width:900px){
+  .side{position:static; max-height:none; overflow:visible; padding-right:0}
+}
+.side h4{margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--mut2)}
+.side-box{background:var(--panel); border:1px solid var(--bd); border-radius:var(--r); padding:10px; margin-bottom:12px}
+.tp{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; background:none; border:0; color:var(--mut);
+    padding:6px 8px; border-radius:7px; cursor:pointer; font-size:13px; text-align:left}
+.tp:hover{background:var(--panel2); color:var(--tx)}
+.tp.on{background:#16293f; color:var(--acc); font-weight:600}
+.tp b{font:600 11px var(--mono); color:var(--mut2)}
+.tp.on b{color:var(--acc)}
+@media(max-width:900px){
+  .side-box{display:flex; flex-wrap:wrap; gap:6px}
+  .side h4{flex:0 0 100%}
+  .tp{width:auto; border:1px solid var(--bd2)}
+}
+
+/* ячейки ответа для задач на вывод */
+.cells{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+.cell{display:flex; align-items:center; gap:9px}
+.cell-n{font:11px var(--mono); color:var(--mut2); width:22px; flex:0 0 22px; text-align:right}
+.cell input{flex:1; min-width:0; background:#05080c; border:1px solid var(--bd2); color:var(--tx);
+  border-radius:7px; padding:7px 11px; font:13px var(--mono); outline:none; transition:.15s}
+.cell input:focus{border-color:var(--acc-d); background:#0a1119}
+.cell.ok input{border-color:var(--grn); background:#0d1a12; color:#9be8a8}
+.cell.no input{border-color:var(--red); background:#1a0f0f; color:#ffb4ae}
+.cell-r{font:12px var(--mono); flex:0 0 auto; min-width:120px}
+.cell.ok .cell-r{color:var(--grn)}
+.cell.no .cell-r{color:var(--red)}
+.pal{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px}
+.pal-t{font:10px var(--mono); color:var(--mut2); text-transform:uppercase; letter-spacing:.1em; width:100%; margin-bottom:2px}
+.pal-c{background:#0f1721; border:1px solid #2b4a6b; color:#9ecbff; border-radius:6px;
+  padding:5px 12px; font:12.5px var(--mono); cursor:pointer; transition:.15s}
+.pal-c:hover{background:#16293f; border-color:var(--acc-d)}
+.pal-c:active{transform:scale(.94)}
+.appr{background:var(--panel2); border:1px solid var(--bd); border-left:3px solid var(--pur); border-radius:9px; padding:4px 16px 12px; margin-top:10px}
+.appr ol{margin:8px 0; padding-left:20px}
+.appr li{margin:7px 0; line-height:1.65}
+.appr b{color:var(--tx)}

@@ -1,0 +1,11 @@
+/* Стили перенесены из старых тренажёров и разложены по назначению.
+   Порядок важен: токены первыми, специфика audit последней. */
+
+@import './tokens.css';
+@import './header.css';
+@import './layout.css';
+@import './demos.css';
+@import './cards.css';
+@import './editor.css';
+@import './article.css';
+@import './audit.css';

@@ -380,8 +380,11 @@ for (const pack of PACKS) {
   )
 }
 
-// ---- общий слой хелперов (живёт в audit-trainer, нужен обоим пакам) ----
-if (!CHECK_ONLY) {
+// ---- общий слой хелперов ----
+// ВАЖНО: файлы src/demos/helpers/*.ts были типизированы вручную и больше НЕ
+// генерируются. Регионы ниже оставлены как след происхождения кода; перегенерация
+// затёрла бы типы. Включать только осознанно, через HELPERS=1.
+if (!CHECK_ONLY && process.env.HELPERS === '1') {
   const src = fs.readFileSync(path.join(LEGACY, 'audit-trainer.html'), 'utf8')
   const exported = []
   for (const r of SHARED_REGIONS) {
@@ -431,6 +434,10 @@ if (!CHECK_ONLY) {
   )
   console.log('общий слой:', exported.map((e) => `${e.file}(${e.names.length})`).join(', '))
 
+}
+
+if (!CHECK_ONLY) {
+  const src = fs.readFileSync(path.join(LEGACY, 'audit-trainer.html'), 'utf8')
   // ---- дополнительные реестры audit-пака ----
   const tools = extractCalls(src, 'TOOL')
   const cards = extractCalls(src, 'C')

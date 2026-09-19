@@ -1,0 +1,29 @@
+/* Липкая шапка: бренд, переключатели режимов, поиск, прогресс. */
+
+/* ---------- header ---------- */
+.top{
+  position:sticky; top:0; z-index:50; background:rgba(10,14,20,.88);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--bd);
+}
+.top-in{max-width:1240px; margin:0 auto; padding:12px 16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.brand{font-weight:700; font-size:16px; letter-spacing:-.2px; white-space:nowrap}
+.brand span{color:var(--acc)}
+.search{
+  flex:1 1 220px; min-width:160px; background:var(--panel2); border:1px solid var(--bd2); color:var(--tx);
+  border-radius:999px; padding:8px 14px; font-size:14px; outline:none;
+}
+.search:focus{border-color:var(--acc-d)}
+.bar{flex:0 0 100%; display:flex; align-items:center; gap:10px}
+.bar-track{flex:1; height:6px; background:var(--panel); border-radius:99px; overflow:hidden; border:1px solid var(--bd)}
+.bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--acc-d),var(--grn)); transition:width .3s}
+.bar-num{font:600 12px var(--mono); color:var(--mut); white-space:nowrap}
+
+.btn{
+  background:var(--panel); border:1px solid var(--bd2); color:var(--tx); border-radius:8px;
+  padding:7px 12px; font-size:13px; cursor:pointer; transition:.15s; white-space:nowrap;
+}
+.btn:hover{border-color:var(--acc-d); background:#15202e}
+.btn.pri{background:var(--acc-d); border-color:var(--acc-d); color:#fff; font-weight:600}
+.btn.pri:hover{background:#2b7ef5}
+.btn.gho{background:transparent}
+.btn.sm{padding:5px 9px; font-size:12px}

@@ -9,7 +9,7 @@ import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, Question, TheoryArticle } from '@/engine/types'
-import '@/engine/styles/legacy.css'
+import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
   questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',

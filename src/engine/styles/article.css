@@ -1,0 +1,71 @@
+/* Типографика длинных статей и оглавление. */
+
+/* ---- читаемая типографика длинных статей ---- */
+.th-b{font-size:15.5px; line-height:1.78; color:#cbd6e2}
+/* Ограничение длины строки. Уровней два, потому что RichContent разрезает
+   статью на куски вокруг демо и оборачивает каждый в .rc — прямыми потомками
+   .th-b текстовые блоки быть перестали. */
+.th-b > p, .th-b > ul, .th-b > ol, .th-b > .note, .th-b > .key, .th-b > blockquote,
+.th-b > .rc > p, .th-b > .rc > ul, .th-b > .rc > ol,
+.th-b > .rc > .note, .th-b > .rc > .key, .th-b > .rc > blockquote{max-width:74ch}
+.th-b h5{
+  margin:34px 0 12px; font-size:17px; line-height:1.4; color:var(--tx); font-weight:650;
+  letter-spacing:-.2px; padding-bottom:8px; border-bottom:1px solid var(--bd); scroll-margin-top:120px;
+}
+.th-b h5:first-child{margin-top:8px}
+.th-b h6{margin:22px 0 6px; font-size:14.5px; color:var(--acc); font-weight:650}
+.th-b p{margin:12px 0}
+.th-b ul,.th-b ol{margin:12px 0; padding-left:22px}
+.th-b li{margin:8px 0; padding-left:2px}
+.th-b li > ul, .th-b li > ol{margin:6px 0}
+.th-b b,.th-b strong{color:var(--tx); font-weight:650}
+.th-b table{width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; line-height:1.6}
+.th-b th,.th-b td{border:1px solid var(--bd2); padding:9px 12px; text-align:left; vertical-align:top}
+.th-b th{background:var(--panel2); color:var(--mut); font-weight:650; font-size:13px}
+.th-b tr:hover td{background:#0f1721}
+.th-b pre.code{margin:16px 0; padding:14px 16px; line-height:1.6; font-size:13px}
+.th-b blockquote{
+  margin:16px 0; padding:2px 0 2px 18px; border-left:3px solid var(--bd2);
+  color:var(--mut); font-style:italic;
+}
+/* врезки */
+.th-b .key, .th-b .note, .th-b .warn{
+  margin:18px 0; padding:12px 16px; border-radius:9px; font-size:14.5px; line-height:1.7;
+  border-left:3px solid; background:var(--panel2);
+}
+.th-b .key{border-color:var(--grn); background:#0d1a12}
+.th-b .note{border-color:var(--acc); background:#0d1722}
+.th-b .warn{border-color:var(--yel); background:#17130a}
+.th-b .key:before{content:'Главное'; display:block; font:600 10px var(--mono); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--grn); margin-bottom:5px}
+.th-b .note:before{content:'Заметка'; display:block; font:600 10px var(--mono); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--acc); margin-bottom:5px}
+.th-b .warn:before{content:'Осторожно'; display:block; font:600 10px var(--mono); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--yel); margin-bottom:5px}
+.th-b .cap{font:11px var(--mono); color:var(--mut2); margin:-10px 0 16px; padding-left:2px}
+/* оглавление статьи */
+.toc{background:var(--panel2); border:1px solid var(--bd); border-radius:10px; padding:12px 16px; margin:8px 0 6px}
+.toc-t{font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--mut2); margin-bottom:8px}
+.toc ol{margin:0; padding-left:20px; columns:2; column-gap:26px}
+.toc li{margin:4px 0; font-size:13.5px; break-inside:avoid}
+.toc a{color:var(--mut); text-decoration:none}
+.toc a:hover{color:var(--acc); text-decoration:underline}
+@media(max-width:700px){ .toc ol{columns:1} }
+.th-meta{font:11px var(--mono); color:var(--mut2); margin-top:6px}
+
+
+.cat{font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--mut2); margin:12px 0 4px; padding:0 8px}
+.cat:first-of-type{margin-top:2px}
+.side-box.flat{display:block}
+@media(max-width:900px){
+  .side-box{display:flex; flex-wrap:wrap; gap:6px; max-height:none}
+  .side h4{flex:0 0 100%; margin-bottom:2px}
+  .cat{flex:0 0 100%; margin:6px 0 0}
+  .tp{width:auto; border:1px solid var(--bd2)}
+  .lvl{flex:0 0 100%}
+  .stat{flex:0 0 100%}
+}
+.lvl{display:flex; gap:6px; flex-wrap:wrap}
+.lvl .tp{width:auto; flex:1; justify-content:center; border:1px solid var(--bd2)}
+.stat{font:11px var(--mono); color:var(--mut2); padding:6px 8px 2px; line-height:1.5}
+.stat b{color:var(--acc)}

@@ -1,0 +1,41 @@
+/* Карточка вопроса: шапка, чипы, тело, отметки. */
+
+/* ---------- card ---------- */
+.card{background:var(--panel); border:1px solid var(--bd); border-radius:var(--r); margin-bottom:14px; overflow:hidden}
+.card.done{border-color:#1f4d2e}
+.card.repeat{border-color:#5c4415}
+.c-head{padding:14px 16px; display:flex; gap:10px; align-items:flex-start; cursor:pointer}
+.c-head:hover{background:var(--panel2)}
+.c-num{font:600 12px var(--mono); color:var(--mut2); padding-top:3px; min-width:28px}
+.c-main{flex:1; min-width:0}
+.c-q{font-size:15px; font-weight:600; line-height:1.45; margin:0 0 8px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font:600 10.5px var(--mono); padding:2px 7px; border-radius:99px; border:1px solid var(--bd2); color:var(--mut); text-transform:uppercase; letter-spacing:.04em}
+.chip.t{color:var(--acc); border-color:#1d3a5c; background:#0f1d2e}
+.chip.code{color:var(--grn); border-color:#1f4d2e; background:#0e1c13}
+.chip.out{color:var(--pur); border-color:#3d2a5c; background:#18122a}
+.chip.man{color:var(--yel); border-color:#4d3a15; background:#1c1609}
+.chip.lv{color:var(--mut2)}
+.c-caret{color:var(--mut2); font-size:12px; padding-top:4px; transition:.2s}
+.card.open .c-caret{transform:rotate(90deg)}
+.c-body{display:none; padding:0 16px 16px; border-top:1px solid var(--bd)}
+.card.open .c-body{display:block}
+
+.sec-t{font:600 11px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--mut2); margin:16px 0 8px}
+pre.code{
+  background:var(--panel2); border:1px solid var(--bd); border-radius:9px; padding:12px 14px; margin:0;
+  overflow-x:auto; font:13px/1.55 var(--mono); color:#c9d6e4; white-space:pre;
+}
+pre.code b{color:var(--acc); font-weight:600}
+code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; padding:1px 5px; font:12.5px var(--mono); color:var(--acc2,#9ecbff)}
+
+.ans{background:var(--panel2); border:1px solid var(--bd); border-left:3px solid var(--grn); border-radius:9px; padding:2px 16px 14px; margin-top:12px}
+.ans h5{margin:14px 0 6px; font-size:13.5px; color:var(--tx)}
+.ans ul,.ans ol{margin:6px 0; padding-left:20px}
+.ans li{margin:4px 0}
+.ans p{margin:8px 0}
+.ans table{width:100%; border-collapse:collapse; margin:8px 0; font-size:13px}
+.ans th,.ans td{border:1px solid var(--bd2); padding:6px 9px; text-align:left; vertical-align:top}
+.ans th{background:var(--panel); color:var(--mut); font-weight:600}
+.hint{color:var(--yel); font-size:13px; background:#1c160910; border-left:3px solid var(--yel); padding:6px 12px; margin:10px 0; background:#15120a}
+.trap{color:#ffb4ae; font-size:13px; border-left:3px solid var(--red); padding:6px 12px; margin:10px 0; background:#1a0f0f}

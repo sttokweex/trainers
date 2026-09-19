@@ -1,18 +1,28 @@
-/* eslint-disable */
-// @ts-nocheck — перенесено из старого тренажёра как есть, типизируется по мере переписывания
-/** Форматирование чисел под финансовые данные: неразрывный пробел в разрядах, запятая как десятичный разделитель. */
+/**
+ * Форматирование чисел под финансовые данные: неразрывный пробел в разрядах,
+ * запятая как десятичный разделитель, юникодный минус.
+ */
 
-const NB = ' ';
-function fmt(v, dec){
-  if (v == null || !isFinite(v)) return '—';
-  dec = dec == null ? 0 : dec;
-  const s = Math.abs(v).toFixed(dec).split('.');
-  s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, NB);
-  return (v < 0 ? '−' : '') + s.join(',');
+/** Неразрывный пробел — разряды не должны разрываться переносом строки. */
+export const NB = ' '
+
+export function fmt(value: number | null | undefined, dec = 0): string {
+  if (value == null || !isFinite(value)) return '—'
+  const parts = Math.abs(value).toFixed(dec).split('.')
+  parts[0] = (parts[0] as string).replace(/\B(?=(\d{3})+(?!\d))/g, NB)
+  return (value < 0 ? '−' : '') + parts.join(',')
 }
-const money = (v, dec) => fmt(v, dec == null ? 0 : dec) + NB + '₽';
-const th = (v) => fmt(v / 1000, 0) + NB + 'тыс.';
-const pct = (v, dec) => fmt(v, dec == null ? 1 : dec) + '%';
-const num = (el) => { const v = parseFloat(String(el.value).replace(',', '.')); return isFinite(v) ? v : 0 };
 
-export { NB, fmt, money, th, pct, num }
+export const money = (value: number | null | undefined, dec = 0): string =>
+  fmt(value, dec) + NB + '₽'
+
+/** Тысячи — для осей графиков, где полные суммы не помещаются. */
+export const th = (value: number): string => fmt(value / 1000, 0) + NB + 'тыс.'
+
+export const pct = (value: number | null | undefined, dec = 1): string => fmt(value, dec) + '%'
+
+/** Читает число из поля ввода, терпя запятую вместо точки. */
+export const num = (el: HTMLInputElement | HTMLSelectElement): number => {
+  const v = parseFloat(String(el.value).replace(',', '.'))
+  return isFinite(v) ? v : 0
+}

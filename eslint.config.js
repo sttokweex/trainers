@@ -6,9 +6,10 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    // Перенесённый контент и императивные демо не линтуем: это данные и
+    // Общий слой типизирован вручную и проверяется линтером. Не линтуем
+    // только перенесённый контент и императивные демо: это данные и
     // портированный JS, который переписывается постепенно.
-    ignores: ['dist', 'dist-*', 'src/content/**', 'src/demos/**'],
+    ignores: ['dist', 'dist-*', 'src/content/**', 'src/demos/interview/**', 'src/demos/audit/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -26,7 +26,9 @@ export function RichContent({ html, demos }: { html: string; demos: Record<strin
     <>
       {parts.map((p, i) =>
         p.type === 'html'
-          ? <div key={i} dangerouslySetInnerHTML={{ __html: p.value }} />
+          // класс нужен стилям: из-за этой обёртки текстовые блоки перестали
+          // быть прямыми потомками .th-b, и селекторы ширины строки их теряли
+          ? <div key={i} className="rc" dangerouslySetInnerHTML={{ __html: p.value }} />
           : <Demo key={i} name={p.name} mount={demos[p.name]} />,
       )}
     </>
