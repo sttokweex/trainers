@@ -18,6 +18,8 @@ import { a11y } from './th-a11y'
 import { testing } from './th-testing'
 import { sysdesign } from './th-sysdesign'
 import { git } from './th-git'
+import { observability } from './th-observability'
+import { realtime } from './th-realtime'
 import { interview } from './th-interview'
 import { plan } from './th-plan'
 import { patterns } from './th-patterns'
@@ -50,6 +52,8 @@ export const theory: TheoryArticle[] = [
   testing,
   sysdesign,
   git,
+  observability,
+  realtime,
   interview,
   plan,
   patterns,
