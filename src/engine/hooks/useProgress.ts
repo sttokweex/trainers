@@ -28,6 +28,7 @@ export function useProgress(pack: ContentPack) {
         reveal: 'interview-trainer-reveal',
         cards: 'interview-trainer-cards',
         plan: 'interview-trainer-plan',
+        theory: 'interview-trainer-theory',
         notes: 'interview-trainer-notes',
         reviews: 'interview-trainer-reviews',
       }
@@ -36,6 +37,7 @@ export function useProgress(pack: ContentPack) {
         reveal: `${pack.storagePrefix}:reveal`,
         cards: `${pack.storagePrefix}:cards`,
         plan: `${pack.storagePrefix}:plan`,
+        theory: '',
         notes: '',
         reviews: '',
       }
@@ -43,6 +45,7 @@ export function useProgress(pack: ContentPack) {
   const [marks, setMarks] = useState<Marks>(() => read<Marks>(keys.marks, {}))
   const [cardsKnown, setCardsKnown] = useState<Flags>(() => (keys.cards ? read<Flags>(keys.cards, {}) : {}))
   const [planDone, setPlanDone] = useState<Flags>(() => (keys.plan ? read<Flags>(keys.plan, {}) : {}))
+  const [theoryDone, setTheoryDone] = useState<Flags>(() => (keys.theory ? read<Flags>(keys.theory, {}) : {}))
   const [notes, setNotes] = useState<Record<string, string>>(() => (keys.notes ? read<Record<string, string>>(keys.notes, {}) : {}))
   const [reviews, setReviews] = useState<Reviews>(() => (keys.reviews ? read<Reviews>(keys.reviews, {}) : {}))
   const [reveal, setReveal] = useState<boolean>(() => {
@@ -52,6 +55,7 @@ export function useProgress(pack: ContentPack) {
   useEffect(() => { save(keys.marks, marks) }, [keys.marks, marks])
   useEffect(() => { if (keys.cards) save(keys.cards, cardsKnown) }, [keys.cards, cardsKnown])
   useEffect(() => { if (keys.plan) save(keys.plan, planDone) }, [keys.plan, planDone])
+  useEffect(() => { if (keys.theory) save(keys.theory, theoryDone) }, [keys.theory, theoryDone])
   useEffect(() => { if (keys.notes) save(keys.notes, notes) }, [keys.notes, notes])
   useEffect(() => { if (keys.reviews) save(keys.reviews, reviews) }, [keys.reviews, reviews])
   useEffect(() => {
@@ -81,6 +85,17 @@ export function useProgress(pack: ContentPack) {
     setPlanDone((prev) => ({ ...prev, [key]: value }))
   }, [])
 
+  /** Отметка прочитанной статьи. Доступна только интервью-паку. */
+  const toggleTheory = useCallback((id: string) => {
+    if (!keys.theory) return
+    setTheoryDone((prev) => {
+      const next = { ...prev }
+      if (next[id]) delete next[id]
+      else next[id] = true
+      return next
+    })
+  }, [keys.theory])
+
   const setNote = useCallback((id: string, value: string) => {
     setNotes((prev) => {
       const next = { ...prev }
@@ -108,18 +123,18 @@ export function useProgress(pack: ContentPack) {
   }, [])
 
   const reset = useCallback(() => {
-    setMarks({}); setCardsKnown({}); setPlanDone({}); setNotes({}); setReviews({})
+    setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({})
   }, [])
 
   const exportProgress = useCallback(() => JSON.stringify({
-    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, notes, reviews,
-  }, null, 2), [pack.id, marks, cardsKnown, planDone, notes, reviews])
+    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews,
+  }, null, 2), [pack.id, marks, cardsKnown, planDone, theoryDone, notes, reviews])
 
   const importProgress = useCallback((raw: string) => {
     try {
       const data = JSON.parse(raw) as Partial<{
         pack: string; version: number
-        marks: Marks; cardsKnown: Flags; planDone: Flags
+        marks: Marks; cardsKnown: Flags; planDone: Flags; theoryDone: Flags
         notes: Record<string, string>; reviews: Reviews
       }>
       if (!data || typeof data !== 'object') return false
@@ -128,6 +143,7 @@ export function useProgress(pack: ContentPack) {
       if (data.marks && typeof data.marks === 'object') setMarks(data.marks)
       if (data.cardsKnown && typeof data.cardsKnown === 'object') setCardsKnown(data.cardsKnown)
       if (data.planDone && typeof data.planDone === 'object') setPlanDone(data.planDone)
+      if (data.theoryDone && typeof data.theoryDone === 'object') setTheoryDone(data.theoryDone)
       if (data.notes && typeof data.notes === 'object') setNotes(data.notes)
       if (data.reviews && typeof data.reviews === 'object') setReviews(data.reviews)
       return true
@@ -142,7 +158,7 @@ export function useProgress(pack: ContentPack) {
   return {
     marks, toggleMark,
     cardsKnown, toggleCard,
-    planDone, togglePlan,
+    planDone, togglePlan, theoryDone, toggleTheory,
     notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
     reset, reveal, setReveal, known, repeat,
   }

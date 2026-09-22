@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { ContentPack, Mark, PlanLink, ReviewState } from '@/engine/types'
 
 export function DashboardMode({
-  pack, marks, reviews, notes, cardsKnown, known, repeat,
+  pack, marks, reviews, notes, cardsKnown, theoryDone, known, repeat,
   onNavigate, onExport, onImport,
 }: {
   pack: ContentPack
@@ -10,6 +10,7 @@ export function DashboardMode({
   reviews: Record<string, ReviewState>
   notes: Record<string, string>
   cardsKnown: Record<string, boolean>
+  theoryDone: Record<string, boolean>
   known: number
   repeat: number
   onNavigate: (link: PlanLink) => void
@@ -30,6 +31,8 @@ export function DashboardMode({
     return { topic, total: list.length, done, weak }
   }).sort((a, b) => b.weak - a.weak || a.done - b.done)
   const noteCount = Object.values(notes).filter(Boolean).length
+  const theoryCount = pack.theory.filter((article) => theoryDone[article.id]).length
+  const theoryPercent = pack.theory.length ? Math.round((theoryCount / pack.theory.length) * 100) : 0
 
   const download = () => {
     const blob = new Blob([onExport()], { type: 'application/json' })
@@ -94,11 +97,14 @@ export function DashboardMode({
 
       <div className="dash-grid">
         <section className="dash-panel">
-          <div className="dash-panel-head"><h3>Материалы</h3><span>{noteCount} заметок</span></div>
-          <p>Карточки и план сохраняются отдельно от ответов. Личные заметки прикреплены к вопросам и не пропадут после обновления страницы.</p>
+          <div className="dash-panel-head"><h3>Материалы</h3><span>{noteCount} заметок · {theoryCount}/{pack.theory.length} статей</span></div>
+          <p>Отмечайте статью после чтения: так проще продолжить с места, где остановились. Карточки и личные заметки тоже сохраняются после обновления страницы.</p>
+          <div className="dash-progress" aria-label={`Теория: ${theoryCount} из ${pack.theory.length}`}>
+            <i style={{ width: `${theoryPercent}%` }} />
+          </div>
           <div className="dash-actions">
             <button type="button" className="btn" onClick={() => onNavigate({ mode: 'cards' })}>Карточки · {Object.keys(cardsKnown).length}</button>
-            <button type="button" className="btn" onClick={() => onNavigate({ mode: 'theory' })}>Теория · {pack.theory.length}</button>
+            <button type="button" className="btn" onClick={() => onNavigate({ mode: 'theory' })}>Теория · {theoryCount}/{pack.theory.length}</button>
           </div>
         </section>
         <section className="dash-panel">

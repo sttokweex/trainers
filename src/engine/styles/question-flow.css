@@ -41,6 +41,79 @@
   outline-offset: 2px;
 }
 
+/* Small, deliberate affordances inside interview cards. They are scoped to
+   the interview pack so audit keeps its original compact question UI. */
+[data-pack="interview"] .question-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px 0 2px;
+  border-bottom: 1px dashed var(--bd2);
+}
+
+[data-pack="interview"] .question-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+[data-pack="interview"] .question-hint-toggle {
+  color: var(--yel);
+  border-color: #4d3a15;
+  background: #15120a;
+}
+
+[data-pack="interview"] .question-hint-toggle:hover,
+[data-pack="interview"] .question-hint-toggle.active {
+  color: #ffe39a;
+  border-color: var(--yel);
+  background: #211a0b;
+}
+
+[data-pack="interview"] .question-hint-text {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 7px 11px;
+  color: #f1d58b;
+  background: #15120a;
+  border-left: 3px solid var(--yel);
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+[data-pack="interview"] .question-theory-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: var(--mut2);
+  font-size: 12px;
+}
+
+[data-pack="interview"] .question-theory-link {
+  border: 1px solid #1d3a5c;
+  border-radius: 7px;
+  padding: 5px 9px;
+  color: var(--acc);
+  background: #0f1d2e;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+[data-pack="interview"] .question-theory-link:hover {
+  border-color: var(--acc);
+  background: #132b45;
+}
+
+[data-pack="interview"] .question-theory-link:focus-visible,
+[data-pack="interview"] .question-hint-toggle:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
 @keyframes random-card-pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 42%, transparent); }
   100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent), 0 8px 26px color-mix(in srgb, var(--acc) 12%, transparent); }

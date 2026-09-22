@@ -7,6 +7,7 @@ import { CodeAnswer, ManualAnswer } from './answers/CodeAnswer'
 import { NumAnswer } from './answers/NumAnswer'
 import { OutputAnswer } from './answers/OutputAnswer'
 import type { LegacyDemo, Mark, Question } from '@/engine/types'
+import { questionHint } from '@/engine/questionHints'
 
 const TYPE_LABEL: Record<Question['type'], string> = {
   theory: 'теория', code: 'код', output: 'вывод', manual: 'написать',
@@ -19,7 +20,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 
 export function QuestionCard({
   item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
-  highlighted = false, autoOpen = false, context = 'audit',
+  highlighted = false, autoOpen = false, context = 'audit', hint, theoryLinks, onOpenTheory,
 }: {
   item: Question
   index: number
@@ -38,9 +39,16 @@ export function QuestionCard({
   autoOpen?: boolean
   /** Adds interview-only explanations to progress markers. */
   context?: 'interview' | 'audit'
+  /** Short nudge shown without exposing the complete answer. */
+  hint?: string
+  /** Related interview theory articles. Audit intentionally never receives these. */
+  theoryLinks?: { id: string; title: string; topic?: string }[]
+  /** Opens a related article in the theory mode. */
+  onOpenTheory?: (id: string) => void
 }) {
   const [open, setOpen] = useState(autoOpen)
   const [answerShown, setAnswerShown] = useState(false)
+  const [hintShown, setHintShown] = useState(false)
 
   /**
    * «Изучение» показывает разбор сразу у ЛЮБОГО типа вопроса — иначе
@@ -48,6 +56,8 @@ export function QuestionCard({
    * Интерактив при этом остаётся: ячейки, редактор и варианты никуда не деваются.
    */
   const showAnswer = reveal || answerShown
+  const isInterview = context === 'interview'
+  const visibleHint = isInterview ? questionHint({ ...item, hint }) : hint?.trim()
   const cls = 'card' + (open ? ' open' : '')
     + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
     + (highlighted ? ' random-highlight' : '')
@@ -72,6 +82,40 @@ export function QuestionCard({
 
       {open && (
         <div className="c-body">
+          {isInterview && (visibleHint || theoryLinks?.length) && (
+            <div className="question-tools" onClick={(e) => e.stopPropagation()}>
+              {visibleHint && (
+                <div className="question-hint">
+                  <button
+                    type="button"
+                    className={'btn question-hint-toggle' + (hintShown ? ' active' : '')}
+                    aria-expanded={hintShown}
+                    onClick={() => setHintShown((v) => !v)}
+                  >
+                    💡 {hintShown ? 'Скрыть подсказку' : 'Подсказка'}
+                  </button>
+                  {hintShown && <div className="question-hint-text">{visibleHint}</div>}
+                </div>
+              )}
+              {theoryLinks && theoryLinks.length > 0 && onOpenTheory && (
+                <div className="question-theory-links">
+                  <span>Полезно освежить:</span>
+                  {theoryLinks.map((link) => (
+                    <button
+                      key={link.id}
+                      type="button"
+                      className="question-theory-link"
+                      title={link.topic ? `Теория · ${link.topic}` : 'Открыть теорию'}
+                      onClick={() => onOpenTheory(link.id)}
+                    >
+                      ↗ {link.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {item.code && (
             <>
               <div className="sec-t">Код</div>

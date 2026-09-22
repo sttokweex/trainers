@@ -7,12 +7,71 @@ const LIMIT = 10
 const MINUTES = 15
 const norm = (value: string) => value.trim().replace(/[\s]+/g, ' ').replace(/["'`]/g, '').toLowerCase()
 
+const TYPE_PRIORITY: Record<Question['type'], number> = {
+  output: 0,
+  code: 1,
+  choice: 2,
+  num: 3,
+  manual: 4,
+  theory: 5,
+}
+
+/**
+ * Собирает короткий пробный раунд из всего банка.
+ *
+ * Сначала важность определяется повторением (просроченные → новые → остальные),
+ * но внутри одной важности вопросы идут по типу задачи. Затем темы выбираются
+ * по кругу: пока есть другая тема, второй вопрос из текущей не берём. Так в
+ * пробнике рядом не оказываются пять вопросов только про JavaScript, а в раунд
+ * попадают разные форматы — код, вывод, выбор и объяснение.
+ */
+function shuffled<T>(items: T[]): T[] {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j]!, result[i]!]
+  }
+  return result
+}
+
 function makeQueue(questions: Question[], reviews: Record<string, ReviewState>, marks: Record<string, Mark>) {
   const now = Date.now()
-  const due = questions.filter((q) => reviews[q.id]?.next !== undefined && (reviews[q.id]?.next ?? 0) <= now)
-  const fresh = questions.filter((q) => !reviews[q.id] && !marks[q.id])
-  const rest = questions.filter((q) => !due.includes(q) && !fresh.includes(q))
-  return [...due, ...fresh, ...rest].slice(0, LIMIT)
+  const rank = (q: Question) => {
+    const review = reviews[q.id]
+    const isDue = review?.next !== undefined && review.next <= now
+    const isFresh = !review && !marks[q.id]
+    return isDue ? 0 : isFresh ? 1 : 2
+  }
+  const byTopic = new Map<string, Question[]>()
+  shuffled(questions)
+    .map((question, position) => ({ question, position }))
+    .sort((a, b) => rank(a.question) - rank(b.question)
+      || TYPE_PRIORITY[a.question.type] - TYPE_PRIORITY[b.question.type]
+      || a.position - b.position)
+    .forEach(({ question }) => {
+      const list = byTopic.get(question.topic) ?? []
+      list.push(question)
+      byTopic.set(question.topic, list)
+    })
+
+  // Тема и задача внутри неё перемешиваются при старте нового раунда.
+  const topics = [...byTopic.keys()]
+  const queue: Question[] = []
+  let cursor = 0
+  while (queue.length < LIMIT && topics.length) {
+    if (cursor >= topics.length) cursor = 0
+    const topic = topics[cursor]!
+    const list = byTopic.get(topic)
+    const next = list?.shift()
+    if (next) queue.push(next)
+    if (!list?.length) {
+      byTopic.delete(topic)
+      topics.splice(cursor, 1)
+    } else {
+      cursor += 1
+    }
+  }
+  return queue
 }
 
 function isAutoQuestion(item: Question): item is Extract<Question, { type: 'choice' | 'num' | 'output' }> {

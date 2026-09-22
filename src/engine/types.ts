@@ -13,6 +13,8 @@ interface QuestionBase {
   q: string
   /** Разбор. HTML; может содержать <div data-demo="…"> */
   answer: string
+  /** Короткая подсказка, которую можно показать до полного разбора. */
+  hint?: string
   /** Необязательный листинг, показываемый над полем ответа. */
   code?: string
 }
@@ -68,7 +70,6 @@ export interface NumQuestion extends QuestionBase {
   unit?: string
   /** Допустимое отклонение, по умолчанию 0.01. */
   tol?: number
-  hint?: string
 }
 
 export type Question =

@@ -11,6 +11,7 @@ import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
+import { theoryForQuestion } from '@/engine/theoryLinks'
 import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
@@ -41,7 +42,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const navigate = useNavigate()
   const { filters, set } = useFilters(pack)
   const {
-    marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan,
+    marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan, theoryDone, toggleTheory,
     reset, reveal, setReveal, known, repeat,
     notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
   } = useProgress(pack)
@@ -430,6 +431,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
               reviews={reviews}
               notes={notes}
               cardsKnown={cardsKnown}
+              theoryDone={theoryDone}
               known={known}
               repeat={repeat}
               onNavigate={goToLink}
@@ -488,6 +490,8 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           item={item as TheoryArticle}
                           demos={pack.demos}
                           autoOpen={item.id === filters.open}
+                          done={pack.id === 'interview' ? Boolean(theoryDone[item.id]) : false}
+                          onToggleDone={pack.id === 'interview' ? () => toggleTheory(item.id) : undefined}
                         />
                       )
                       : (
@@ -505,6 +509,9 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           onNoteChange={pack.id === 'interview' ? (value) => setNote(item.id, value) : undefined}
                           notesEnabled={pack.id === 'interview'}
                           context={pack.id === 'interview' ? 'interview' : 'audit'}
+                          hint={pack.id === 'interview' ? (item as Question).hint : undefined}
+                          theoryLinks={pack.id === 'interview' ? theoryForQuestion(item as Question, pack.theory).map((article) => ({ id: article.id, title: article.title, topic: article.topic })) : undefined}
+                          onOpenTheory={pack.id === 'interview' ? (id) => goToLink({ mode: 'theory', id }) : undefined}
                         />
                       )
                     )
