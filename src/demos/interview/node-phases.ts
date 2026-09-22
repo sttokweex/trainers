@@ -9,12 +9,12 @@ const { dEl, dBtn, dShell, dField, dSelect, dRange, kpi, fmt, money, num, pct, t
 export const nodePhases: LegacyDemo = root => {
   const body = dShell(root, 'Фазы цикла событий в Node.js')
   const PH = [
-    ['timers', 'колбэки setTimeout и setInterval, у которых истёк срок'],
-    ['pending', 'отложенные системные колбэки — например, ошибки TCP'],
-    ['idle/prepare', 'внутреннее использование libuv'],
-    ['poll', 'получение новых событий ввода-вывода и выполнение их колбэков. ЗДЕСЬ Node может заблокироваться в ожидании, если больше делать нечего'],
-    ['check', 'setImmediate — выполняется сразу после poll'],
-    ['close', 'колбэки закрытия: socket.on("close")'],
+    ['timers', 'Будильники: setTimeout и setInterval, чей срок уже пришёл'],
+    ['pending', 'Редкие системные уведомления, например отдельные ошибки TCP'],
+    ['idle/prepare', 'Служебная подготовка внутри Node; ваш код сюда не попадает'],
+    ['poll', 'Главная очередь: Node получает готовый файл, HTTP-ответ или сокет и вызывает их callback'],
+    ['check', 'Отдельный ящик setImmediate — открывается сразу после poll'],
+    ['close', 'Прощание: socket.on("close") и другие уведомления о закрытии'],
   ]
   const row = dEl('div', 'rp')
   row.style.flexDirection = 'column'
