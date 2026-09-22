@@ -44,7 +44,7 @@ export const httpCache: LegacyDemo = root => {
     info.className = 'pb-res wait'; info.textContent = 'Режим выбран. Загрузите страницу несколько раз.'
   }))
   btns.forEach(b => ctl.appendChild(b))
-  ctl.appendChild(dBtn('↻ Загрузить страницу', 'sm', visit))
+  ctl.appendChild(dBtn('↻ Загрузить страницу', 'pri main-action', visit))
   body.appendChild(ctl)
   body.appendChild(dEl('div', 'demo-note',
     'Отсюда стратегия «двух скоростей»: <b>index.html</b> с no-cache (маленький, его не жалко проверять), <b>app.хеш.js</b> с immutable на год.'))

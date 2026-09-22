@@ -50,6 +50,8 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const topRef = useRef<HTMLElement>(null)
   const sideRef = useRef<HTMLElement>(null)
   const [helpOpen, setHelpOpen] = useState(false)
+  /** Interview-only marker for the last random question. */
+  const [randomPick, setRandomPick] = useState<{ id: string; filterKey: string; nonce: number } | null>(null)
 
   /** Высота липкой шапки уезжает в CSS — от неё считается высота сайдбара. */
   useEffect(() => {
@@ -81,6 +83,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [])
 
   const mode = pack.modes.includes(filters.mode) ? filters.mode : pack.defaultMode
+
+  /** A random marker is useful only inside the current result set. */
+  const randomFilterKey = `${pack.id}|${filters.mode}|${filters.topic}|${filters.kind}|${filters.level}|${filters.status}|${filters.query}|${filters.open}`
+  const changeFilters = (patch: Partial<typeof filters>) => {
+    setRandomPick(null)
+    set(patch)
+  }
 
   /** В заголовке вкладки сразу видно, какой пак и режим открыт. */
   useEffect(() => {
@@ -158,7 +167,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   /** Переход по ссылке из плана: меняем режим, тему и цель раскрытия разом. */
   const goToLink = (link: PlanLink) => {
-    set({
+    changeFilters({
       mode: link.mode,
       topic: link.topic ?? 'all',
       open: link.id ?? '',
@@ -174,7 +183,15 @@ function Trainer({ pack }: { pack: ContentPack }) {
     const pool = questions.filter((q) => marks[q.id] !== 'know')
     const src = pool.length ? pool : questions
     const item = src[Math.floor(Math.random() * src.length)]
-    if (item) document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (!item) return
+    if (pack.id === 'interview') {
+      setRandomPick((previous) => ({
+        id: item.id,
+        filterKey: randomFilterKey,
+        nonce: (previous?.nonce ?? 0) + 1,
+      }))
+    }
+    document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   const categories = pack.categories
@@ -216,14 +233,14 @@ function Trainer({ pack }: { pack: ContentPack }) {
               <button
                 key={m} type="button"
                 className={'md' + (m === mode ? ' on' : '')}
-                onClick={() => set({ mode: m, topic: 'all' })}
+                onClick={() => changeFilters({ mode: m, topic: 'all' })}
               >
                 {MODE_LABEL[m]}
               </button>
             ))}
           </div>
 
-          {mode === 'questions' && (
+          {mode === 'questions' && pack.id !== 'interview' && (
             <div className="modes">
               <button
                 type="button" className={'md' + (reveal ? ' on' : '')}
@@ -247,7 +264,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
             className="search"
             placeholder="Поиск…  (/)"
             value={filters.query}
-            onChange={(e) => set({ query: e.target.value })}
+            onChange={(e) => changeFilters({ query: e.target.value })}
           />
           <button
             type="button"
@@ -317,14 +334,14 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
       {/* В режиме плана сайдбар не нужен — и его нельзя просто спрятать:
           сетка осталась бы двухколоночной, а main уехал бы в колонку сайдбара. */}
-      <div className={'wrap' + (showSidebar ? '' : ' wrap-full')}>
+      <div className={'wrap' + (showSidebar ? '' : ' wrap-full')} data-pack={pack.id}>
         {showSidebar && (
         <aside className="side" ref={sideRef}>
           <div className="side-box">
             <h4>Темы</h4>
             <button
               type="button" className={'tp' + (filters.topic === 'all' ? ' on' : '')}
-              onClick={() => set({ topic: 'all' })}
+              onClick={() => changeFilters({ topic: 'all' })}
             >
               <span>Все темы</span><b>{totalInMode}</b>
             </button>
@@ -338,7 +355,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                   <button
                     key={t} type="button"
                     className={'tp' + (filters.topic === t ? ' on' : '')}
-                    onClick={() => set({ topic: t })}
+                    onClick={() => changeFilters({ topic: t })}
                   >
                     <span>{t}</span><b>{topicCounts.get(t) ?? 0}</b>
                   </button>
@@ -353,7 +370,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 <h4>Формат</h4>
                 <button
                   type="button" className={'tp' + (filters.kind === 'all' ? ' on' : '')}
-                  onClick={() => set({ kind: 'all' })}
+                  onClick={() => changeFilters({ kind: 'all' })}
                 >
                   <span>Любой формат</span>
                 </button>
@@ -361,7 +378,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                   <button
                     key={k} type="button"
                     className={'tp' + (filters.kind === k ? ' on' : '')}
-                    onClick={() => set({ kind: k })}
+                      onClick={() => changeFilters({ kind: k })}
                   >
                     <span>{TYPE_LABEL[k]}</span>
                     <b>{pack.questions.filter((q) => q.type === k).length}</b>
@@ -373,7 +390,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                       <button
                         key={l} type="button"
                         className={'tp' + (filters.level === l ? ' on' : '')}
-                        onClick={() => set({ level: l })}
+                        onClick={() => changeFilters({ level: l })}
                       >
                         <span>{l === 'all' ? 'все' : l}</span>
                       </button>
@@ -389,7 +406,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                     <button
                       key={v} type="button"
                       className={'tp' + (filters.status === v ? ' on' : '')}
-                      onClick={() => set({ status: v })}
+                      onClick={() => changeFilters({ status: v })}
                     >
                       <span>{label}</span>
                     </button>
@@ -413,7 +430,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
               reviews={reviews}
               notes={notes}
               cardsKnown={cardsKnown}
-              planDone={planDone}
               known={known}
               repeat={repeat}
               onNavigate={goToLink}
@@ -460,7 +476,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
               {grouped.map((group) => (
                 <div key={group.topic}>
                   <div className="grp">{group.topic}</div>
-                  {group.items.map((item, i) =>
+                  {group.items.map((item, i) => {
+                    const isRandomQuestion = pack.id === 'interview'
+                      && randomPick?.filterKey === randomFilterKey
+                      && randomPick.id === item.id
+                    return (
                     mode === 'theory'
                       ? (
                         <TheoryCard
@@ -472,19 +492,22 @@ function Trainer({ pack }: { pack: ContentPack }) {
                       )
                       : (
                         <QuestionCard
-                          key={item.id}
+                          key={item.id + (isRandomQuestion ? `-random-${randomPick?.nonce ?? 0}` : '')}
                           item={item as Question}
                           index={i}
                           mark={marks[item.id]}
                           onToggleMark={toggleMark}
-                          reveal={reveal}
+                          reveal={pack.id === 'interview' ? false : reveal}
                           demos={pack.demos}
+                          highlighted={isRandomQuestion}
+                          autoOpen={isRandomQuestion}
                           note={pack.id === 'interview' ? notes[item.id] : undefined}
                           onNoteChange={pack.id === 'interview' ? (value) => setNote(item.id, value) : undefined}
                           notesEnabled={pack.id === 'interview'}
                         />
-                      ),
-                  )}
+                      )
+                    )
+                  })}
                 </div>
               ))}
             </>

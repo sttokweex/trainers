@@ -1,5 +1,5 @@
 /* Стили перенесены из старых тренажёров и разложены по назначению.
-   Порядок важен: токены первыми, специфика audit последней. */
+   Порядок важен: токены первыми, точечные стили interview после старых общих стилей audit. */
 
 @import './tokens.css';
 @import './header.css';
@@ -10,3 +10,5 @@
 @import './article.css';
 @import './study.css';
 @import './audit.css';
+@import './interview-reading.css';
+@import './question-flow.css';

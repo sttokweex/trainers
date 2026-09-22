@@ -233,7 +233,7 @@ export const javascriptQuestions: Question[] = [
   <li>Обработка ошибок: сейчас первая ошибка «схлопнет» Promise.all, а остальные воркеры продолжат работать вхолостую. Часто нужен режим allSettled.</li>
   <li>Готовые решения: <code class="i">p-limit</code>, <code class="i">p-map</code> (Sindre Sorhus), в Nest — Bull с <code class="i">concurrency</code>.</li>
   </ul>
-  <div class="hint">Связанный вопрос: «в чём разница <code class="i">for (const x of arr) await f(x)</code> и <code class="i">await Promise.all(arr.map(f))</code>?» — первый последовательный (N×задержка), второй параллельный (1×задержка, но N одновременных соединений). pLimit — золотая середина.</div>` },
+  <div class="hint">Связанный вопрос: «в чём разница <code class="i">for (const x of arr) await f(x)</code> и <code class="i">await Promise.all(arr.map(f))</code>?» — первый последовательный (N×задержка), второй параллельный (1×задержка, но N одновременных соединений). <strong class="reading-note">pLimit — золотая середина.</strong></div>` },
   { id:'js-retry', topic:'JavaScript', type:'code', level:'middle',
     q:'Реализуйте <code class="i">retry(fn, { retries, delay })</code> с экспоненциальной задержкой: пытаемся выполнить <code class="i">fn</code>, при ошибке ждём <code class="i">delay</code>, потом <code class="i">delay*2</code>, <code class="i">delay*4</code>…',
     starter:`async function retry(fn, { retries = 3, delay = 100 } = {}) {
@@ -763,7 +763,7 @@ export const javascriptQuestions: Question[] = [
   const b = await p2</pre>
   <h5>Золотая середина</h5>
   <p>Для больших списков — ограничение параллельности (p-limit / пул воркеров): 500 одновременных запросов положат и ваш сервер, и чужой API (и упрутся в лимит соединений браузера — 6 на домен для HTTP/1.1).</p>
-  <div class="hint">На собесе почти всегда просят «оптимизируй» кусок кода с последовательными await — узнавайте этот паттерн сразу.</div>` },
+  <div class="hint">На собесе почти всегда просят «оптимизируй» кусок кода с <strong class="reading-note">последовательными await</strong> — узнавайте этот паттерн сразу.</div>` },
   { id:'js-modules', topic:'JavaScript', type:'theory', level:'middle',
     q:'ESM vs CommonJS: в чём разница? Почему в ваших проектах клиент <code class="i">"type":"module"</code>, а сервер <code class="i">"type":"commonjs"</code>?',
     answer:`<h5>Сравнение</h5>

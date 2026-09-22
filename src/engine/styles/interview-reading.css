@@ -1,0 +1,35 @@
+/* Цветные врезки только в собеседованиях. Цвет дополняет существующие
+   подписи и полужирное выделение: смысл не зависит от различения цветов. */
+[data-pack="interview"] :is(.th-b,.ans,.session-result) .note{
+  --reading-text:#bed8f2; --reading-emphasis:#94ccff;
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) .key{
+  --reading-text:#c3dfca; --reading-emphasis:#8be6a2;
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) :is(.warn,.hint){
+  --reading-text:#e4d3ae; --reading-emphasis:#ffdb85;
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) .trap{
+  --reading-text:#e7c3c1; --reading-emphasis:#ffb4ae;
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) :is(.note,.key,.warn,.hint,.trap){
+  color:var(--reading-text);
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) :is(.note,.key,.warn,.hint,.trap) :is(b,strong){
+  color:var(--reading-emphasis); font-weight:700;
+}
+[data-pack="interview"] :is(.th-b,.ans,.session-result) :is(.note,.key,.warn)::before{
+  color:var(--reading-emphasis);
+}
+[data-pack="interview"] .demo-note{color:#aab9ca}
+[data-pack="interview"] .demo-note :is(b,strong){color:#ffdb85; font-weight:700}
+
+/* Кодовые пояснения остаются спокойными, а комментарии с решением или
+   ограничением заметны сразу — это тот же визуальный язык, что и у врезок. */
+[data-pack="interview"] pre.code .code-comment{color:#91b899}
+[data-pack="interview"] pre.code .code-comment-key{color:#ffd27d; font-weight:600}
+
+/* Редакторские акценты на отдельных фразах, без раскрашивания абзацев. */
+[data-pack="interview"] :is(b,strong).reading-key{--reading-emphasis:#8be6a2; color:var(--reading-emphasis); font-weight:700}
+[data-pack="interview"] :is(b,strong).reading-note{--reading-emphasis:#94ccff; color:var(--reading-emphasis); font-weight:700}
+[data-pack="interview"] :is(b,strong).reading-warn{--reading-emphasis:#ffdb85; color:var(--reading-emphasis); font-weight:700}

@@ -1,0 +1,25 @@
+/* Small study-flow affordances shared by interview question cards. */
+[data-pack="interview"] .card.random-highlight {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent), 0 8px 26px color-mix(in srgb, var(--acc) 12%, transparent);
+  animation: random-card-pulse 1.1s ease-out 1;
+}
+
+[data-pack="interview"] .card.random-highlight .c-head {
+  background: color-mix(in srgb, var(--acc) 8%, transparent);
+}
+
+[data-pack="interview"] .chip.random {
+  color: var(--acc);
+  border-color: var(--acc);
+  background: #10243a;
+}
+
+@keyframes random-card-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 42%, transparent); }
+  100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent), 0 8px 26px color-mix(in srgb, var(--acc) 12%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pack="interview"] .card.random-highlight { animation: none; }
+}

@@ -9,6 +9,8 @@
 .demo-b.pri{background:var(--acc-d); border-color:var(--acc-d); color:#fff; font-weight:600}
 .demo-b:disabled{opacity:.4; cursor:not-allowed}
 .demo-b.sm{padding:4px 9px; font-size:12px}
+.demo-b.main-action{box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 22%,transparent),0 5px 16px rgba(31,111,235,.22); font-weight:700}
+.demo-b.main-action:hover{transform:translateY(-1px); box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent),0 7px 20px rgba(31,111,235,.3)}
 .demo-note{font:12px var(--mono); color:var(--mut2); margin-top:10px; line-height:1.6}
 .demo-note b{color:var(--yel)}
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { RichContent } from './RichContent'
+import { CodeBlock } from './CodeBlock'
 import { Markers } from './Markers'
 import { ChoiceAnswer } from './answers/ChoiceAnswer'
 import { CodeAnswer, ManualAnswer } from './answers/CodeAnswer'
@@ -18,6 +19,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 
 export function QuestionCard({
   item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
+  highlighted = false, autoOpen = false,
 }: {
   item: Question
   index: number
@@ -30,8 +32,12 @@ export function QuestionCard({
   note?: string
   onNoteChange?: (value: string) => void
   notesEnabled?: boolean
+  /** A random pick gets a persistent visual marker until another pick/filter. */
+  highlighted?: boolean
+  /** Opens the card when the user jumps to a random question. */
+  autoOpen?: boolean
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(autoOpen)
   const [answerShown, setAnswerShown] = useState(false)
 
   /**
@@ -40,7 +46,9 @@ export function QuestionCard({
    * Интерактив при этом остаётся: ячейки, редактор и варианты никуда не деваются.
    */
   const showAnswer = reveal || answerShown
-  const cls = 'card' + (open ? ' open' : '') + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
+  const cls = 'card' + (open ? ' open' : '')
+    + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
+    + (highlighted ? ' random-highlight' : '')
 
   return (
     <div className={cls} id={'q-' + item.id}>
@@ -52,6 +60,7 @@ export function QuestionCard({
             <span className="chip t">{item.topic}</span>
             <span className={'chip ' + TYPE_CLASS[item.type]}>{TYPE_LABEL[item.type]}</span>
             {item.level && <span className="chip lv">{item.level}</span>}
+            {highlighted && <span className="chip random">🎲 выбран</span>}
             {mark === 'know' && <span className="chip code">✓ знаю</span>}
             {mark === 'repeat' && <span className="chip man">↻ повторить</span>}
           </div>
@@ -64,7 +73,7 @@ export function QuestionCard({
           {item.code && (
             <>
               <div className="sec-t">Код</div>
-              <pre className="code">{item.code}</pre>
+              <CodeBlock code={item.code} />
             </>
           )}
 

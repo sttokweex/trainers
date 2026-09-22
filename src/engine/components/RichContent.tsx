@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Demo } from './Demo'
+import { highlightCodeBlocks } from './codeHighlight'
 import type { LegacyDemo } from '@/engine/types'
 
 const SPLIT = /<div\s+data-demo="([^"]+)"\s*><\/div>/g
@@ -28,7 +29,7 @@ export function RichContent({ html, demos }: { html: string; demos: Record<strin
         p.type === 'html'
           // класс нужен стилям: из-за этой обёртки текстовые блоки перестали
           // быть прямыми потомками .th-b, и селекторы ширины строки их теряли
-          ? <div key={i} className="rc" dangerouslySetInnerHTML={{ __html: p.value }} />
+          ? <div key={i} className="rc" dangerouslySetInnerHTML={{ __html: highlightCodeBlocks(p.value) }} />
           : <Demo key={i} name={p.name} mount={demos[p.name]} />,
       )}
     </>

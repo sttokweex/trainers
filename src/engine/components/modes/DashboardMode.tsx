@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { ContentPack, Mark, PlanLink, ReviewState } from '@/engine/types'
 
 export function DashboardMode({
-  pack, marks, reviews, notes, cardsKnown, planDone, known, repeat,
+  pack, marks, reviews, notes, cardsKnown, known, repeat,
   onNavigate, onExport, onImport,
 }: {
   pack: ContentPack
@@ -10,7 +10,6 @@ export function DashboardMode({
   reviews: Record<string, ReviewState>
   notes: Record<string, string>
   cardsKnown: Record<string, boolean>
-  planDone: Record<string, boolean>
   known: number
   repeat: number
   onNavigate: (link: PlanLink) => void
@@ -30,8 +29,6 @@ export function DashboardMode({
     }).length
     return { topic, total: list.length, done, weak }
   }).sort((a, b) => b.weak - a.weak || a.done - b.done)
-  const planTotal = pack.plan?.reduce((sum, week) => sum + week.items.length, 0) ?? 0
-  const planDoneCount = pack.plan?.reduce((sum, week) => sum + week.items.filter((_, i) => planDone[`${week.n}-${i}`]).length, 0) ?? 0
   const noteCount = Object.values(notes).filter(Boolean).length
 
   const download = () => {
@@ -79,12 +76,6 @@ export function DashboardMode({
             <button type="button" className="btn pri" onClick={() => onNavigate({ mode: 'session' })}>{due.length ? '15 минут практики' : 'Новый пробник'}</button>
             <button type="button" className="btn" onClick={() => onNavigate({ mode: 'questions' })}>Открыть весь банк</button>
           </div>
-        </section>
-        <section className="dash-panel">
-          <div className="dash-panel-head"><h3>Маршрут</h3><span>{planDoneCount}/{planTotal}</span></div>
-          <div className="dash-progress"><i style={{ width: `${planTotal ? (planDoneCount / planTotal) * 100 : 0}%` }} /></div>
-          <p>В плане подготовки отмечены выполненные пункты. Продолжайте с первой незакрытой недели.</p>
-          <button type="button" className="btn" onClick={() => onNavigate({ mode: 'plan' })}>Открыть план →</button>
         </section>
       </div>
 

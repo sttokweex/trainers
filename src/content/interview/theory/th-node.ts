@@ -31,7 +31,7 @@ export const node: TheoryArticle = { id:'th-node', topic:'Node / Nest', title:'N
 <li>Внутри callback вы поставили <code class="i">setImmediate</code> и <code class="i">setTimeout(fn, 0)</code>. Первый попадает в ящик <code class="i">check</code>, второй — в ящик <code class="i">timers</code>.</li>
 <li>После callback Node сначала быстро разбирает маленькие срочные записки <code class="i">nextTick</code> и Promise, и только потом берёт следующую обычную записку.</li>
 </ol>
-<div class="key"><b>Запомните одну фразу:</b> фаза — это «какой ящик сейчас обслуживаем». Node не перескакивает внутрь выполняющегося callback: один callback закончился → микрозадачи → следующий callback.</div>
+<div class="key"><b>Запомните одну фразу:</b> <strong class="reading-key">фаза — это «какой ящик сейчас обслуживаем»</strong>. Node не перескакивает внутрь выполняющегося callback: один callback закончился → микрозадачи → следующий callback.</div>
 <h5>Что именно делает каждая фаза</h5>
 <p>Теперь переведём бытовую модель в названия Node. Колбэк выполняется синхронно в том же JS-потоке; пока он не завершился, следующая фаза не начнётся.</p>
 <table>
@@ -62,7 +62,7 @@ process.nextTick(() =&gt; console.log('nextTick'))
 Promise.resolve().then(() =&gt; console.log('promise'))
 console.log('sync')</pre>
 <p>Вывод: <code class="i">sync</code> → <code class="i">nextTick</code> → <code class="i">promise</code> → дальше <b>timeout и immediate в непредсказуемом порядке</b>. Это не подвох, а честный факт: на старте главного модуля порядок зависит от того, успела ли пройти миллисекунда таймера к моменту входа в цикл.</p>
-<div class="key">А вот <b>внутри I/O-колбэка порядок детерминирован</b>: <code class="i">setImmediate</code> всегда сработает раньше <code class="i">setTimeout(fn, 0)</code>, потому что фаза check идёт сразу после poll, а до фазы timers надо пройти целый круг. Это любимый уточняющий вопрос.</div>
+<div class="key">А вот <strong class="reading-key">внутри I/O-колбэка порядок детерминирован</strong>: <code class="i">setImmediate</code> всегда сработает раньше <code class="i">setTimeout(fn, 0)</code>, потому что фаза check идёт сразу после poll, а до фазы timers надо пройти целый круг. Это любимый уточняющий вопрос.</div>
 <p><code class="i">process.nextTick</code> имеет приоритет выше промисов, и рекурсивный <code class="i">nextTick</code> способен полностью заморозить цикл — I/O никогда не получит управление. В прикладном коде его практически не используют.</p>
 
 <div data-demo="node-phases"></div>
@@ -122,7 +122,7 @@ await pipeline(
 )</pre>
 <p><b>Backpressure</b> — ситуация, когда источник отдаёт данные быстрее, чем приёмник успевает их принимать. Без обратного давления буфер растёт бесконечно и память кончается.</p>
 <p>Механизм: <code class="i">writable.write()</code> возвращает <code class="i">false</code>, когда внутренний буфер превысил <code class="i">highWaterMark</code> (по умолчанию 64 КБ). Правильная реакция — приостановить чтение и возобновить по событию <code class="i">'drain'</code>. <code class="i">pipe()</code> и <code class="i">pipeline()</code> делают это автоматически.</p>
-<div class="warn">Используйте <code class="i">pipeline()</code>, а не <code class="i">pipe()</code>. <code class="i">pipe</code> <b>не пробрасывает ошибки</b> и не закрывает остальные стримы при сбое — получаются висящие файловые дескрипторы и утечки. <code class="i">stream.pipeline</code> корректно разрушает всю цепочку и отдаёт ошибку.</div>
+<div class="warn">Используйте <code class="i">pipeline()</code>, а не <code class="i">pipe()</code>. <code class="i">pipe</code> <strong class="reading-warn">не пробрасывает ошибки</strong> и не закрывает остальные стримы при сбое — получаются висящие файловые дескрипторы и утечки. <code class="i">stream.pipeline</code> корректно разрушает всю цепочку и отдаёт ошибку.</div>
 <p>Самый читаемый способ обработки — асинхронный итератор: <code class="i">for await (const chunk of stream)</code>.</p>
 
 <h5>AsyncLocalStorage: контекст запроса</h5>
