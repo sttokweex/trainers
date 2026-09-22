@@ -31,6 +31,8 @@ import { answerTimer } from './answer-timer'
 import { fluxFlow } from './flux-flow'
 import { bundleSize } from './bundle-size'
 import { nodePhases } from './node-phases'
+import { mockInterview } from './mock-interview'
+import { designBudget } from './design-budget'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -67,4 +69,6 @@ export const demos: Record<string, LegacyDemo> = {
   'flux-flow': fluxFlow,
   'bundle-size': bundleSize,
   'node-phases': nodePhases,
+  'mock-interview': mockInterview,
+  'design-budget': designBudget,
 }

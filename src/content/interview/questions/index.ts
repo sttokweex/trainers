@@ -18,6 +18,7 @@ import { uxIDostupnostyQuestions } from './ux-i-dostupnosty'
 import { testirovanieQuestions } from './testirovanie'
 import { sistemnyDizaynQuestions } from './sistemny-dizayn'
 import { softSkillQuestions } from './soft-skill'
+import { advancedQuestions } from './advanced'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -41,4 +42,5 @@ export const questions: Question[] = [
   ...testirovanieQuestions,
   ...sistemnyDizaynQuestions,
   ...softSkillQuestions,
+  ...advancedQuestions,
 ]

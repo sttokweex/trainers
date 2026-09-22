@@ -42,30 +42,42 @@ function ToolCard({
 
 /** Практикум: калькуляторы и тренажёры — каждая карточка это одно демо. */
 export function ToolsMode({
-  items, demos, openId,
+  items, demos, openId, context = 'audit',
 }: {
   items: Tool[]
   demos: Record<string, LegacyDemo>
   openId?: string
+  context?: 'interview' | 'audit'
 }) {
   if (!items.length) return <div className="empty">Ничего не найдено</div>
 
+  // Тема может встретиться в разных местах реестра (например, API-инструменты
+  // стоят рядом с GraphQL). Собираем её целиком, чтобы заголовок не дублировался.
   const groups: { topic: string; list: Tool[] }[] = []
+  const byTopic = new Map<string, { topic: string; list: Tool[] }>()
   for (const t of items) {
-    const last = groups[groups.length - 1]
-    if (last && last.topic === t.topic) last.list.push(t)
-    else groups.push({ topic: t.topic, list: [t] })
+    let group = byTopic.get(t.topic)
+    if (!group) {
+      group = { topic: t.topic, list: [] }
+      byTopic.set(t.topic, group)
+      groups.push(group)
+    }
+    group.list.push(t)
   }
 
   return (
     <>
       <div className="intro">
         <h2>Практикум</h2>
-        <p>
-          {items.length} калькуляторов и тренажёров: существенность и выборка, амортизация и аренда,
-          ПБУ&nbsp;18/02 и НДС, cut-off, старение дебиторки, журнальные проводки, дерево аудиторского
-          мнения. Считайте по данным своих клиентов — это быстрее, чем читать про формулы.
-        </p>
+        {context === 'interview' ? (
+          <p>{items.length} интерактивных сценариев: тренируйте производительность, сети, кэш, capacity, релизы и ответы вслух. Короткое действие помогает закрепить идею быстрее, чем повторное чтение.</p>
+        ) : (
+          <p>
+            {items.length} калькуляторов и тренажёров: существенность и выборка, амортизация и аренда,
+            ПБУ&nbsp;18/02 и НДС, cut-off, старение дебиторки, журнальные проводки, дерево аудиторского
+            мнения. Считайте по данным своих клиентов — это быстрее, чем читать про формулы.
+          </p>
+        )}
       </div>
       {groups.map((g) => (
         <div key={g.topic}>

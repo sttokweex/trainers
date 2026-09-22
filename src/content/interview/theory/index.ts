@@ -29,6 +29,10 @@ import { node } from './th-node'
 import { security } from './th-security'
 import { cache } from './th-cache'
 import { build } from './th-build'
+import { performance } from './th-performance'
+import { graphql } from './th-graphql'
+import { reliability } from './th-reliability'
+import { delivery } from './th-delivery'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -63,4 +67,8 @@ export const theory: TheoryArticle[] = [
   security,
   cache,
   build,
+  performance,
+  graphql,
+  reliability,
+  delivery,
 ]

@@ -118,12 +118,13 @@ function ProgressChart({ weeks, done }: { weeks: PlanWeek[]; done: Record<string
 }
 
 export function PlanMode({
-  weeks, done, onToggle, onNavigate,
+  weeks, done, onToggle, onNavigate, context = 'audit',
 }: {
   weeks: PlanWeek[]
   done: Record<string, boolean>
   onToggle: (key: string, value: boolean) => void
   onNavigate: (link: PlanLink) => void
+  context?: 'interview' | 'audit'
 }) {
   const total = weeks.reduce((sum, w) => sum + w.items.length, 0)
   const completed = weeks.reduce(
@@ -134,11 +135,18 @@ export function PlanMode({
     <>
       <div className="intro">
         <h2>План на {weeks.length} недель</h2>
-        <p>
-          Порядок выбран так, чтобы каждая следующая неделя опиралась на предыдущую: сначала учёт и
-          отчётность (иначе аудиторские процедуры не к чему привязать), затем стандарты и методология,
-          затем участки и завершение. Отметки сохраняются в браузере. Выполнено <b>{completed}</b> из {total} пунктов.
-        </p>
+        {context === 'interview' ? (
+          <p>
+            Маршрут идёт от диагностики и фундаментальных тем к производительности, системному дизайну,
+            доставке и финальной симуляции. Отметки сохраняются в браузере. Выполнено <b>{completed}</b> из {total} пунктов.
+          </p>
+        ) : (
+          <p>
+            Порядок выбран так, чтобы каждая следующая неделя опиралась на предыдущую: сначала учёт и
+            отчётность (иначе аудиторские процедуры не к чему привязать), затем стандарты и методология,
+            затем участки и завершение. Отметки сохраняются в браузере. Выполнено <b>{completed}</b> из {total} пунктов.
+          </p>
+        )}
       </div>
       <ProgressChart weeks={weeks} done={done} />
       {weeks.map((w) => (

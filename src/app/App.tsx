@@ -348,13 +348,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
         <main id="list">
           {mode === 'plan' && pack.plan && (
             <PlanMode
-              weeks={pack.plan} done={planDone}
+              weeks={pack.plan} done={planDone} context={pack.id === 'interview' ? 'interview' : 'audit'}
               onToggle={togglePlan} onNavigate={goToLink}
             />
           )}
 
           {mode === 'tools' && (
-            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} />
+            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} context={pack.id === 'interview' ? 'interview' : 'audit'} />
           )}
 
           {mode === 'cards' && (
@@ -363,6 +363,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
               total={pack.cards?.length ?? 0}
               known={cardsKnown}
               onToggleKnown={toggleCard}
+              context={pack.id === 'interview' ? 'interview' : 'audit'}
             />
           )}
 

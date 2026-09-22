@@ -6,13 +6,14 @@ import type { Card } from '@/engine/types'
  * Отметка «знаю» сразу переводит на следующую — так проходить быстрее.
  */
 export function CardsMode({
-  items, total, known, onToggleKnown,
+  items, total, known, onToggleKnown, context = 'audit',
 }: {
   items: Card[]
   /** Сколько карточек в паке всего — для счётчика «освоено N из M». */
   total: number
   known: Record<string, boolean>
   onToggleKnown: (term: string) => void
+  context?: 'interview' | 'audit'
 }) {
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -47,7 +48,7 @@ export function CardsMode({
     <>
       <div className="intro">
         <h2>Карточки</h2>
-        <p>{total} терминов с английскими эквивалентами. Клик по карточке переворачивает её, стрелки листают, пробел переворачивает.</p>
+        <p>{total} терминов с английскими эквивалентами. Клик по карточке переворачивает её, стрелки листают, пробел переворачивает.{context === 'interview' ? ' Используйте их, чтобы быстро восстановить язык профессии перед звонком.' : ''}</p>
       </div>
 
       <div className="fc" onClick={() => setFlipped((v) => !v)}>
@@ -79,9 +80,8 @@ export function CardsMode({
 
       <div className="intro">
         <p>
-          Карточки — про <b>язык профессии</b>. В крупной фирме половина методологии звучит
-          по-английски, и знание пары «термин — термин» экономит время на любом обсуждении.
-          Отметки сохраняются в браузере.
+          Карточки — про <b>язык профессии</b>. В крупной команде половина технических обсуждений
+          звучит по-английски, и знание пары «термин — термин» экономит время. Отметки сохраняются в браузере.
         </p>
       </div>
     </>
