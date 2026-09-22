@@ -15,6 +15,32 @@
   background: #10243a;
 }
 
+/* Progress markers in interview questions are deliberately explicit: clicking
+   them stores a status, it does not collapse or advance the card. */
+[data-pack="interview"] .interview-markers {
+  align-items: center;
+}
+
+[data-pack="interview"] .interview-markers .marks-caption {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--mut);
+  font-size: 12px;
+}
+
+[data-pack="interview"] .interview-markers .marks-caption small {
+  color: var(--mut2);
+  font-size: 11px;
+}
+
+[data-pack="interview"] .interview-markers .mk:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
 @keyframes random-card-pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 42%, transparent); }
   100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent), 0 8px 26px color-mix(in srgb, var(--acc) 12%, transparent); }

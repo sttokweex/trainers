@@ -504,6 +504,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           note={pack.id === 'interview' ? notes[item.id] : undefined}
                           onNoteChange={pack.id === 'interview' ? (value) => setNote(item.id, value) : undefined}
                           notesEnabled={pack.id === 'interview'}
+                          context={pack.id === 'interview' ? 'interview' : 'audit'}
                         />
                       )
                     )

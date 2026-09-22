@@ -19,7 +19,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 
 export function QuestionCard({
   item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
-  highlighted = false, autoOpen = false,
+  highlighted = false, autoOpen = false, context = 'audit',
 }: {
   item: Question
   index: number
@@ -36,6 +36,8 @@ export function QuestionCard({
   highlighted?: boolean
   /** Opens the card when the user jumps to a random question. */
   autoOpen?: boolean
+  /** Adds interview-only explanations to progress markers. */
+  context?: 'interview' | 'audit'
 }) {
   const [open, setOpen] = useState(autoOpen)
   const [answerShown, setAnswerShown] = useState(false)
@@ -103,7 +105,7 @@ export function QuestionCard({
           )}
 
           {(showAnswer || item.type === 'code' || item.type === 'manual') && (
-            <Markers mark={mark} onToggle={(m) => onToggleMark(item.id, m)} />
+            <Markers context={context} mark={mark} onToggle={(m) => onToggleMark(item.id, m)} />
           )}
 
           {notesEnabled && onNoteChange && (

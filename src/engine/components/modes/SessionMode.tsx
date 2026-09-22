@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RichContent } from '../RichContent'
+import { CodeBlock } from '../CodeBlock'
 import type { ContentPack, Mark, Question, ReviewState } from '@/engine/types'
 
 const LIMIT = 10
 const MINUTES = 15
 const norm = (value: string) => value.trim().replace(/[\s]+/g, ' ').replace(/["'`]/g, '').toLowerCase()
+
+function makeQueue(questions: Question[], reviews: Record<string, ReviewState>, marks: Record<string, Mark>) {
+  const now = Date.now()
+  const due = questions.filter((q) => reviews[q.id]?.next !== undefined && (reviews[q.id]?.next ?? 0) <= now)
+  const fresh = questions.filter((q) => !reviews[q.id] && !marks[q.id])
+  const rest = questions.filter((q) => !due.includes(q) && !fresh.includes(q))
+  return [...due, ...fresh, ...rest].slice(0, LIMIT)
+}
 
 function isAutoQuestion(item: Question): item is Extract<Question, { type: 'choice' | 'num' | 'output' }> {
   return item.type === 'choice' || item.type === 'num' || item.type === 'output'
@@ -21,7 +30,6 @@ export function SessionMode({
   onNavigate: (link: { mode: 'questions'; status?: 'repeat' | 'all' }) => void
 }) {
   const [startedAt] = useState(() => Date.now())
-  const [queueNow] = useState(() => Date.now())
   const [left, setLeft] = useState(MINUTES * 60)
   const [index, setIndex] = useState(0)
   const [finished, setFinished] = useState(false)
@@ -30,16 +38,9 @@ export function SessionMode({
   const [choice, setChoice] = useState<Set<number>>(new Set())
   const [checked, setChecked] = useState(false)
   const [showSolution, setShowSolution] = useState(false)
-  const [selectedMark, setSelectedMark] = useState<Mark | undefined>()
-
-  const queue = useMemo(() => {
-    const due = pack.questions.filter((q) => reviews[q.id]?.next !== undefined && (reviews[q.id]?.next ?? 0) <= queueNow)
-    const fresh = pack.questions.filter((q) => !reviews[q.id] && !marks[q.id])
-    const rest = pack.questions.filter((q) => !due.includes(q) && !fresh.includes(q))
-    const source = [...due, ...fresh, ...rest]
-    return source.slice(0, LIMIT)
-  }, [pack.questions, reviews, marks, queueNow])
+  const [queue] = useState(() => makeQueue(pack.questions, reviews, marks))
   const current = queue[index]
+  const [selectedMark, setSelectedMark] = useState<Mark | undefined>(() => current ? marks[current.id] : undefined)
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -52,13 +53,17 @@ export function SessionMode({
   }, [startedAt])
 
   const finish = () => { setFinished(true); setChecked(false) }
-  const markAndContinue = (mark: Mark) => {
+  const chooseMark = (mark: Mark) => {
     if (!current) return
     onToggleMark(current.id, mark)
-    setSelectedMark(mark)
+    setSelectedMark((previous) => previous === mark ? undefined : mark)
+  }
+  const nextQuestion = () => {
+    if (!current) return
     if (index + 1 >= queue.length) finish()
     else {
       setAnswer(''); setChoice(new Set()); setChecked(false); setShowSolution(false)
+      setSelectedMark(undefined)
       setIndex((value) => value + 1)
     }
   }
@@ -92,7 +97,7 @@ export function SessionMode({
         <h2>{correct} из {answered || queue.length}</h2>
         <p>Ошибки и вопросы, которые вы отметили для повтора, останутся в обычном банке и попадут в следующую очередь.</p>
         <div className="session-actions">
-          <button type="button" className="btn pri" onClick={() => { setIndex(0); setFinished(false); setResult({}); setLeft(MINUTES * 60); setAnswer(''); setChoice(new Set()); setChecked(false); setShowSolution(false) }}>Пройти ещё раз</button>
+          <button type="button" className="btn pri" onClick={() => { setIndex(0); setFinished(false); setResult({}); setLeft(MINUTES * 60); setAnswer(''); setChoice(new Set()); setChecked(false); setShowSolution(false); setSelectedMark(undefined) }}>Пройти ещё раз</button>
           <button type="button" className="btn" onClick={() => onNavigate({ mode: 'questions', status: 'repeat' })}>Открыть повторы</button>
         </div>
       </div>
@@ -116,7 +121,7 @@ export function SessionMode({
       <article className="session-card">
         <div className="chips"><span className="chip t">{current.topic}</span><span className="chip">{current.type}</span>{current.level && <span className="chip lv">{current.level}</span>}</div>
         <h3 dangerouslySetInnerHTML={{ __html: current.q }} />
-        {current.code && <pre className="code">{current.code}</pre>}
+        {current.code && <CodeBlock code={current.code} />}
         {current.type === 'choice' && (
           <div className="session-options">
             {current.options.map((option, i) => <button key={i} type="button" className={'session-option' + (choice.has(i) ? ' selected' : '')} disabled={checked} onClick={() => setChoice((prev) => { const next = new Set(prev); if (current.multi) { if (next.has(i)) next.delete(i); else next.add(i) } else { next.clear(); next.add(i) } return next })}><b>{String.fromCharCode(65 + i)}</b><span dangerouslySetInnerHTML={{ __html: option.t }} /></button>)}
@@ -131,11 +136,15 @@ export function SessionMode({
         {checked && <div className="session-result"><RichContent html={current.answer} demos={pack.demos} /></div>}
       </article>
       <div className="session-bottom">
-        <span>{selectedMark ? (selectedMark === 'know' ? 'Отмечено: знаю' : 'Отмечено: повторить') : 'После ответа выберите отметку'}</span>
+        <div className="session-mark-state">
+          <span>{selectedMark ? (selectedMark === 'know' ? 'Отмечено: знаю' : 'Отмечено: повторить') : 'Отметьте результат, когда будете готовы'}</span>
+          <small>Отметка сохраняется на этой карточке. Переход выполняется отдельной кнопкой.</small>
+        </div>
         <div className="session-actions">
-          <button type="button" className={'btn' + (selectedMark === 'know' ? ' active' : '')} onClick={() => markAndContinue('know')}>Знаю</button>
-          <button type="button" className={'btn' + (selectedMark === 'repeat' ? ' active' : '')} onClick={() => markAndContinue('repeat')}>Нужно повторить</button>
-          <button type="button" className="btn gho" onClick={finish}>Закончить</button>
+          <button type="button" className={'btn' + (selectedMark === 'know' ? ' active' : '')} aria-pressed={selectedMark === 'know'} onClick={() => chooseMark('know')}>✓ Знаю</button>
+          <button type="button" className={'btn' + (selectedMark === 'repeat' ? ' active' : '')} aria-pressed={selectedMark === 'repeat'} onClick={() => chooseMark('repeat')}>↻ Нужно повторить</button>
+          <button type="button" className="btn pri" onClick={nextQuestion}>{index + 1 >= queue.length ? 'Завершить пробник' : 'Следующий вопрос →'}</button>
+          <button type="button" className="btn gho" onClick={finish}>Закончить сейчас</button>
         </div>
       </div>
     </div>

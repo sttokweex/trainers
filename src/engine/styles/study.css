@@ -44,6 +44,9 @@
 .session-verdict.ok{background:#0e1c13; color:#9be8a8; border:1px solid #1f4d2e}
 .session-verdict.no{background:#1a0f0f; color:#ffb4ae; border:1px solid #63302d}
 .session-bottom{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; color:var(--mut); font-size:13px}
+.session-mark-state{display:flex; flex-direction:column; gap:3px; min-width:190px}
+.session-mark-state span{color:var(--tx); font-weight:600}
+.session-mark-state small{color:var(--mut2); font-size:11px; line-height:1.4}
 .session-bottom .btn.active{border-color:var(--acc-d); color:var(--acc)}
 .session-finish{max-width:700px; padding:40px 20px; text-align:center; align-items:center}
 .session-finish h2{font-size:48px; margin:0}
@@ -51,6 +54,38 @@
 .question-note{display:block; margin-top:15px; padding-top:13px; border-top:1px solid var(--bd); color:var(--mut); font:11px var(--mono); text-transform:uppercase; letter-spacing:.08em}
 .question-note textarea{display:block; width:100%; margin-top:6px; padding:8px 10px; resize:vertical; border:1px solid var(--bd2); border-radius:7px; background:var(--panel2); color:var(--tx); font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-transform:none; letter-spacing:normal; outline:none}
 .question-note textarea:focus{border-color:var(--acc-d)}
+
+/* Flash-card flow for interviews. Audit keeps the original compact controls. */
+[data-pack="interview"] .cards-mode-interview .fc-progress{
+  margin:4px 0 12px; padding:11px 13px; background:var(--panel); border:1px solid var(--bd); border-radius:10px;
+}
+[data-pack="interview"] .cards-mode-interview .fc-progress-head{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--mut); font:11px var(--mono); text-transform:uppercase; letter-spacing:.04em;
+}
+[data-pack="interview"] .cards-mode-interview .fc-progress-track{
+  height:6px; margin-top:8px; background:var(--panel2); border:1px solid var(--bd2); border-radius:99px; overflow:hidden;
+}
+[data-pack="interview"] .cards-mode-interview .fc-progress-track span{
+  display:block; height:100%; background:linear-gradient(90deg,var(--acc-d),var(--grn)); border-radius:inherit; transition:width .2s ease;
+}
+[data-pack="interview"] .cards-mode-interview .fc-known{
+  border-color:#2f7d48; box-shadow:0 0 0 2px color-mix(in srgb,var(--grn) 14%,transparent);
+}
+[data-pack="interview"] .cards-mode-interview .fc-know{
+  border-color:#315a3b; color:#a8e6b1; background:#0d1a12;
+}
+[data-pack="interview"] .cards-mode-interview .fc-know:hover{border-color:var(--grn); background:#102419}
+[data-pack="interview"] .cards-mode-interview .fc-know.is-known{
+  border-color:var(--grn); color:#baf3c1; background:#13321c; box-shadow:0 0 0 2px color-mix(in srgb,var(--grn) 15%,transparent);
+}
+[data-pack="interview"] .cards-mode-interview .fc-bar{align-items:center}
+[data-pack="interview"] .cards-mode-interview .fc-status{
+  margin-top:9px; padding:9px 12px; border-left:3px solid var(--acc); border-radius:7px; background:#0f1d2e; color:#b8cbea; font-size:13px;
+}
+@media(max-width:560px){
+  [data-pack="interview"] .cards-mode-interview .fc-progress-head{align-items:flex-start; flex-direction:column; gap:3px}
+  [data-pack="interview"] .cards-mode-interview .fc-bar .fc-cnt{display:none}
+}
 @media(max-width:680px){
   .dashboard-hero,.session-bottom{align-items:stretch; flex-direction:column}
   .dash-kpis{grid-template-columns:repeat(2,1fr)}
