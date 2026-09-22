@@ -22,7 +22,12 @@ const save = (key: string, value: unknown) => {
  */
 export function useProgress(pack: ContentPack) {
   const keys = pack.id === 'interview'
-    ? { marks: 'interview-trainer-v1', reveal: 'interview-trainer-reveal', cards: '', plan: '' }
+    ? {
+        marks: 'interview-trainer-v1',
+        reveal: 'interview-trainer-reveal',
+        cards: 'interview-trainer-cards',
+        plan: 'interview-trainer-plan',
+      }
     : {
         marks: `${pack.storagePrefix}:marks`,
         reveal: `${pack.storagePrefix}:reveal`,

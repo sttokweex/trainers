@@ -37,6 +37,7 @@ expect(screen.getByRole('dialog')).toBeVisible()</pre>
 <div class="key">Побочный бонус, о котором редко думают: если <code class="i">getByRole('button', { name: 'Сохранить' })</code> не находит элемент — скорее всего, у вас проблема с доступностью. Один и тот же приём улучшает и тестируемость, и a11y.</div>
 
 <div data-demo="test-selectors"></div>
+<div data-demo="testing-strategy"></div>
 <h5>Структура теста: AAA</h5>
 <pre class="code">it('возвращает 409 при дубликате email', async () =&gt; {
   // Arrange — подготовка

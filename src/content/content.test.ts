@@ -11,7 +11,7 @@ import type { CodeQuestion, ContentPack, OutputQuestion, Question } from '@/engi
 
 /** Обновляется осознанно вместе с добавлением контента. */
 const EXPECTED = {
-  interview: { questions: 168, theory: 35, demos: 35 },
+  interview: { questions: 168, theory: 35, demos: 39 },
   audit: { questions: 111, theory: 52, demos: 60, tools: 46, cards: 139, plan: 17 },
 } as const
 

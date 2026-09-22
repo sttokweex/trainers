@@ -33,6 +33,7 @@ import { bundleSize } from './bundle-size'
 import { nodePhases } from './node-phases'
 import { mockInterview } from './mock-interview'
 import { designBudget } from './design-budget'
+import { performanceDiagnosis, consistencyTradeoff, securityThreatModel, testingStrategy } from './theory-checkpoints'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -71,4 +72,8 @@ export const demos: Record<string, LegacyDemo> = {
   'node-phases': nodePhases,
   'mock-interview': mockInterview,
   'design-budget': designBudget,
+  'performance-diagnosis': performanceDiagnosis,
+  'consistency-tradeoff': consistencyTradeoff,
+  'security-threat-model': securityThreatModel,
+  'testing-strategy': testingStrategy,
 }

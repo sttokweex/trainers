@@ -57,6 +57,7 @@ const dir = direction?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'</pre>
 <p>Рядом живут инъекции в NoSQL (объект вместо строки в фильтре Mongo), инъекции команд (<code class="i">exec</code> с пользовательским вводом) и path traversal (<code class="i">../../etc/passwd</code> в имени файла).</p>
 
 <div data-demo="jwt"></div>
+<div data-demo="security-threat-model"></div>
 <h5>Аутентификация и JWT</h5>
 <p>JWT состоит из <code class="i">header.payload.signature</code> в base64url. <b>Payload не зашифрован</b> — его читает кто угодно, секреты туда класть нельзя. Подпись гарантирует только то, что токен не изменяли.</p>
 <p><b>Главный недостаток:</b> JWT невозможно отозвать — сервер не хранит состояние. Забаненный пользователь останется с валидным токеном до истечения срока. Отсюда конструкция:</p>
