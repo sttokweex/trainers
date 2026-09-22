@@ -21,6 +21,29 @@ export const node: TheoryArticle = { id:'th-node', topic:'Node / Nest', title:'N
 │  ├───────────────────────────┤
 │  │     close callbacks       │  socket.on('close')
 └──┴───────────────────────────┘</pre>
+<h5>Что именно делает каждая фаза</h5>
+<p>Фаза — это не отдельный поток и не «режим JavaScript». Это участок одного оборота libuv, в котором Node берёт колбэки определённого типа. Колбэк выполняется синхронно в том же JS-потоке; пока он не завершился, следующая фаза не начнётся.</p>
+<table>
+<tr><th>Фаза</th><th>Что попадает внутрь</th><th>Что важно сказать на собеседовании</th></tr>
+<tr><td><b>timers</b></td><td>Колбэки <code class="i">setTimeout</code> и <code class="i">setInterval</code>, чей минимальный срок уже прошёл.</td><td>Срок — нижняя граница, а не точный момент. Длинный JS и занятый цикл задержат выполнение. В Node 20+ (libuv 1.45) timers обычно проверяются после poll; старые схемы рисуют timers до и после poll.</td></tr>
+<tr><td><b>pending callbacks</b></td><td>Некоторые системные I/O-колбэки, отложенные до следующего оборота, например отдельные ошибки TCP.</td><td>Это не обычная очередь всех сетевых ответов. Большинство готовых I/O сначала обслуживается в poll.</td></tr>
+<tr><td><b>idle, prepare</b></td><td>Внутренние хуки libuv перед poll.</td><td>Пользовательский код сюда не планирует. На интервью достаточно знать их существование и не приписывать им бизнес-логику.</td></tr>
+<tr><td><b>poll</b></td><td>Получение готовых I/O-событий и запуск их колбэков: сокеты, HTTP, часть DNS/файловых операций после завершения.</td><td>Главная рабочая фаза. Если очередь пуста, Node может ждать здесь; если есть timers или check, ожидание ограничивается ближайшей задачей.</td></tr>
+<tr><td><b>check</b></td><td>Колбэки <code class="i">setImmediate</code>.</td><td>Идёт сразу после poll. Поэтому внутри I/O-колбэка <code class="i">setImmediate</code> обычно опережает <code class="i">setTimeout(fn, 0)</code>.</td></tr>
+<tr><td><b>close callbacks</b></td><td>События закрытия ресурсов: например, <code class="i">socket.on('close')</code>.</td><td>Это финал жизненного цикла handle. Здесь освобождают связанные ресурсы и уведомляют код о закрытии.</td></tr>
+</table>
+<p>Упрощённая схема переходов: timers → pending callbacks → idle/prepare → poll → check → close callbacks → следующий оборот. Реальный libuv может пропускать пустые фазы, а Node 20+ изменил момент запуска timers относительно poll, поэтому абсолютную схему нельзя использовать как гарантию миллисекундного порядка.</p>
+
+<h5>Что происходит внутри poll</h5>
+<ol>
+<li>Node выполняет уже готовые I/O-колбэки до лимита, чтобы один поток не был захвачен бесконечной очередью.</li>
+<li>Если готовых событий нет, цикл проверяет ближайший дедлайн timer и наличие <code class="i">setImmediate</code>.</li>
+<li>Если ждать можно, поток блокируется внутри системного ожидания (epoll/kqueue/IOCP), а не крутится в busy-loop.</li>
+<li>Когда событие приходит или дедлайн наступает, poll возвращает управление, после чего цикл идёт к check или timers по правилам текущей версии Node.</li>
+</ol>
+<p>Именно поэтому «Node однопоточный» не означает «Node постоянно занят опросом». JS-код один, а ожидание сокетов выполняет ОС; libuv будит цикл только при готовом событии.</p>
+
+<h5>Микрозадачи между колбэками</h5>
 <p><b>Между каждым колбэком</b> (а не только между фазами) Node разгребает две очереди микрозадач по порядку: сначала <code class="i">process.nextTick</code>, затем промисы.</p>
 <pre class="code">setTimeout(() =&gt; console.log('timeout'), 0)
 setImmediate(() =&gt; console.log('immediate'))
@@ -28,10 +51,32 @@ process.nextTick(() =&gt; console.log('nextTick'))
 Promise.resolve().then(() =&gt; console.log('promise'))
 console.log('sync')</pre>
 <p>Вывод: <code class="i">sync</code> → <code class="i">nextTick</code> → <code class="i">promise</code> → дальше <b>timeout и immediate в непредсказуемом порядке</b>. Это не подвох, а честный факт: на старте главного модуля порядок зависит от того, успела ли пройти миллисекунда таймера к моменту входа в цикл.</p>
-<div class="key">А вот <b>внутри I/O-колбэка порядок детерминирован</b>: <code class="i">setImmediate</code> всегда сработает раньше <code class="i">setTimeout(fn, 0)</code>, потому что фаза check идёт сразу после poll, а до фазы timers надо пройти целый круг. Это любимый уточняющий вопрос.</p>
+<div class="key">А вот <b>внутри I/O-колбэка порядок детерминирован</b>: <code class="i">setImmediate</code> всегда сработает раньше <code class="i">setTimeout(fn, 0)</code>, потому что фаза check идёт сразу после poll, а до фазы timers надо пройти целый круг. Это любимый уточняющий вопрос.</div>
 <p><code class="i">process.nextTick</code> имеет приоритет выше промисов, и рекурсивный <code class="i">nextTick</code> способен полностью заморозить цикл — I/O никогда не получит управление. В прикладном коде его практически не используют.</p>
 
 <div data-demo="node-phases"></div>
+<h5>Три коротких эксперимента, которые объясняют переходы</h5>
+<pre class="code">import fs from 'node:fs'
+
+// 1. В верхнем уровне порядок не обещан
+setTimeout(() =&gt; console.log('timer'), 0)
+setImmediate(() =&gt; console.log('check'))
+
+// 2. Внутри I/O сначала check
+fs.readFile(__filename, () =&gt; {
+  setTimeout(() =&gt; console.log('timer'), 0)
+  setImmediate(() =&gt; console.log('check'))
+})
+
+// 3. nextTick может не выпустить poll
+function starve() { process.nextTick(starve) }
+// starve() — так случайно блокируют I/O</pre>
+<ol>
+<li>В корневом скрипте Node ещё не находится внутри poll, поэтому состязание таймера и <code class="i">setImmediate</code> зависит от момента старта.</li>
+<li>Колбэк <code class="i">fs.readFile</code> приходит из I/O и выполняется в poll; после него цикл идёт в check, поэтому <code class="i">setImmediate</code> выигрывает у нулевого timer.</li>
+<li>После каждого колбэка сначала выгребается очередь <code class="i">nextTick</code>, затем очередь Promise/<code class="i">queueMicrotask</code>. Рекурсивный <code class="i">nextTick</code> не даёт вернуться в poll и превращается в starvation.</li>
+</ol>
+<p>На практике полезно рисовать не «одну очередь макрозадач», а решение poll: есть готовый I/O — выполнить его; очередь пуста и есть immediate — перейти в check; наступил дедлайн timer — обработать timers; иначе уснуть в системном ожидании до следующего события.</p>
 <h5>libuv и пул потоков</h5>
 <p>Ключевая деталь, которую редко знают: не всякий асинхронный ввод-вывод работает одинаково.</p>
 <ul>

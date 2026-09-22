@@ -21,18 +21,28 @@ function checkpoint(root: HTMLElement, title: string, checks: Check[]): void {
     question.style.fontSize = '13px'
     host.appendChild(question)
     const choices = dEl('div', 'demo-ctl')
-    item.options.forEach((label, i) => {
-      choices.appendChild(dBtn(label, null, () => {
+    // Варианты меняют порядок по шагам: правильный ответ не должен всегда быть первым.
+    const order = index % 3 === 0 ? [0, 1, 2] : index % 3 === 1 ? [1, 0, 2] : [2, 1, 0]
+    order.forEach((originalIndex) => {
+      choices.appendChild(dBtn(item.options[originalIndex], null, () => {
         choices.querySelectorAll('button').forEach((b) => { b.disabled = true })
-        const ok = i === item.answer
+        const ok = originalIndex === item.answer
         if (ok) score++
+        progress.innerHTML = 'Checkpoint <b>' + (index + 1) + '</b> из ' + checks.length + ' · счёт ' + score
         const result = dEl('div', 'demo-note', (ok ? '✓ Верно. ' : '→ Разберите ход мысли. ') + item.why)
         result.style.color = ok ? 'var(--grn)' : 'var(--yel)'
         host.appendChild(result)
-        const next = dBtn(index === checks.length - 1 ? 'Завершить' : 'Следующий checkpoint', 'pri', () => {
+        const next = dBtn(index === checks.length - 1 ? 'Пройти заново' : 'Следующий checkpoint', 'pri', () => {
           if (index === checks.length - 1) {
-            index = 0; score = 0
-          } else index++
+            host.innerHTML = ''
+            const summary = dEl('div', 'pb-res ok', 'Итог: <b>' + score + '/' + checks.length + '</b>. ' + (score === checks.length ? 'Все решения разобраны.' : 'Повторите спорные trade-off и попробуйте ещё раз.'))
+            host.appendChild(summary)
+            const restart = dBtn('Начать сначала', 'pri', () => { index = 0; score = 0; render() })
+            host.appendChild(restart)
+            progress.innerHTML = 'Checkpoint завершён · итог <b>' + score + '/' + checks.length + '</b>'
+            return
+          }
+          index++
           render()
         })
         host.appendChild(next)
