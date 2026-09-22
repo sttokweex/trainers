@@ -11,7 +11,7 @@ export const practicePoolQuestions: Question[] = [
     code: `const config = { retries: 0, timeout: null }
 const { retries = 3, timeout = 1000, debug = false } = config
 
-console.log([retries, timeout, debug].join('|'))
+console.log([retries, timeout, debug].map(String).join('|'))
 console.log([config.retries ?? 1000, config.retries || 1000].join('|'))`,
     expected: '0|null|false\n0|1000',
     hint: 'Значение после = подставляется только для undefined. Отдельно сравните ?? и ||: ноль — это false, но не nullish.',
@@ -74,7 +74,7 @@ render() // React применяет очередь и рендерит снов
     topic: 'Node / Nest',
     type: 'output',
     level: 'middle',
-    q: 'Что выведет Node.js? Сопоставьте синхронный <code class="i">EventEmitter</code> с очередями микрозадач.',
+    q: 'Что выведет эта упрощённая модель <code class="i">EventEmitter</code> в Node.js? Сопоставьте синхронных слушателей с очередью микрозадач.',
     code: `class EventEmitter {
   listeners = []
   on(listener) { this.listeners.push(listener) }
@@ -84,19 +84,19 @@ render() // React применяет очередь и рендерит снов
 const bus = new EventEmitter()
 bus.on(() => {
   console.log('A')
-  process.nextTick(() => console.log('nextTick'))
+  queueMicrotask(() => console.log('microtask from A'))
 })
 bus.on(() => console.log('B'))
 
 bus.emit()
 Promise.resolve().then(() => console.log('promise'))
 console.log('sync')`,
-    expected: 'A\nB\nsync\nnextTick\npromise',
-    hint: 'emit вызывает слушателей синхронно. После текущего стека Node сначала очищает process.nextTick, затем очередь промисов.',
+    expected: 'A\nB\nsync\nmicrotask from A\npromise',
+    hint: 'emit вызывает слушателей сразу. Сначала закончится весь синхронный код, а затем выполнится общая FIFO-очередь микрозадач.',
     answer: `<h5>Разбор</h5>
-  <p><code class="i">EventEmitter.emit</code> не откладывает слушателей: они выполняются сразу и в порядке регистрации. Поэтому сначала <code class="i">A</code>, затем <code class="i">B</code>.</p>
-  <p>После <code class="i">emit</code> планируются две микрозадачи, но текущий синхронный код ещё не закончился — сначала печатается <code class="i">sync</code>. Когда стек освобождается, Node обрабатывает <code class="i">process.nextTick</code>, а затем callback промиса: <code class="i">nextTick</code> → <code class="i">promise</code>.</p>
-  <div class="trap"><code class="i">setImmediate</code> и <code class="i">setTimeout</code> здесь вообще не участвуют: это макрозадачи следующих фаз цикла.</div>`,
+  <p><code class="i">EventEmitter.emit</code> не откладывает слушателей: они выполняются сразу и в порядке регистрации. Поэтому сначала <code class="i">A</code>, затем <code class="i">B</code>, а после завершения <code class="i">emit</code> печатается <code class="i">sync</code>.</p>
+  <p>Во время слушателя A в очередь микрозадач добавилась <code class="i">queueMicrotask</code>. Затем туда добавился callback от <code class="i">Promise.then</code>. Обе задачи идут в одной очереди по порядку добавления: <code class="i">microtask from A</code>, затем <code class="i">promise</code>.</p>
+  <div class="trap"><code class="i">queueMicrotask</code> и callback промиса относятся к очереди микрозадач; таймеры идут отдельными макрозадачами.</div>`,
   },
   {
     id: 'api-output-url-search-params',
