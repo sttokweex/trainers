@@ -6,6 +6,8 @@ import { TheoryCard } from '@/engine/components/TheoryCard'
 import { CardsMode } from '@/engine/components/modes/CardsMode'
 import { PlanMode } from '@/engine/components/modes/PlanMode'
 import { ToolsMode } from '@/engine/components/modes/ToolsMode'
+import { DashboardMode } from '@/engine/components/modes/DashboardMode'
+import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -13,6 +15,7 @@ import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
   questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',
+  dashboard: 'Обзор', session: 'Пробник',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
   theory: 'теория', code: 'код', output: 'вывод', manual: 'написать', choice: 'выбор', num: 'расчёт',
@@ -40,6 +43,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const {
     marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan,
     reset, reveal, setReveal, known, repeat,
+    notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
   } = useProgress(pack)
 
   const searchRef = useRef<HTMLInputElement>(null)
@@ -85,7 +89,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack.title, mode])
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
-  const showSidebar = mode !== 'plan'
+  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session'
 
   /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
       не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
@@ -161,7 +165,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
       query: '',
       kind: 'all',
       level: 'all',
-      status: 'all',
+      status: link.status ?? 'all',
     })
     window.scrollTo({ top: 0 })
   }
@@ -259,7 +263,12 @@ function Trainer({ pack }: { pack: ContentPack }) {
           )}
           <button
             type="button" className="btn gho"
-            onClick={() => { if (confirm('Сбросить отметки по вопросам, карточкам и плану?')) reset() }}
+            onClick={() => {
+              const message = pack.id === 'interview'
+                ? 'Сбросить весь прогресс собеседований?'
+                : 'Сбросить отметки по вопросам, карточкам и плану?'
+              if (confirm(message)) reset()
+            }}
           >
             Сброс
           </button>
@@ -397,6 +406,33 @@ function Trainer({ pack }: { pack: ContentPack }) {
         )}
 
         <main id="list">
+          {mode === 'dashboard' && pack.id === 'interview' && (
+            <DashboardMode
+              pack={pack}
+              marks={marks}
+              reviews={reviews}
+              notes={notes}
+              cardsKnown={cardsKnown}
+              planDone={planDone}
+              known={known}
+              repeat={repeat}
+              onNavigate={goToLink}
+              onExport={exportProgress}
+              onImport={importProgress}
+            />
+          )}
+
+          {mode === 'session' && pack.id === 'interview' && (
+            <SessionMode
+              pack={pack}
+              reviews={reviews}
+              marks={marks}
+              onAttempt={recordAttempt}
+              onToggleMark={toggleMark}
+              onNavigate={goToLink}
+            />
+          )}
+
           {mode === 'plan' && pack.plan && (
             <PlanMode
               weeks={pack.plan} done={planDone} context={pack.id === 'interview' ? 'interview' : 'audit'}
@@ -443,6 +479,9 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           onToggleMark={toggleMark}
                           reveal={reveal}
                           demos={pack.demos}
+                          note={pack.id === 'interview' ? notes[item.id] : undefined}
+                          onNoteChange={pack.id === 'interview' ? (value) => setNote(item.id, value) : undefined}
+                          notesEnabled={pack.id === 'interview'}
                         />
                       ),
                   )}

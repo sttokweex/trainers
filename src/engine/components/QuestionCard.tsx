@@ -17,7 +17,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 }
 
 export function QuestionCard({
-  item, index, mark, onToggleMark, reveal, demos,
+  item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
 }: {
   item: Question
   index: number
@@ -26,6 +26,10 @@ export function QuestionCard({
   /** В режиме «Изучение» у чистой теории ответ раскрыт сразу — проверять там нечего. */
   reveal: boolean
   demos: Record<string, LegacyDemo>
+  /** Personal note is intentionally opt-in: audit keeps its original UI. */
+  note?: string
+  onNoteChange?: (value: string) => void
+  notesEnabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [answerShown, setAnswerShown] = useState(false)
@@ -91,6 +95,19 @@ export function QuestionCard({
 
           {(showAnswer || item.type === 'code' || item.type === 'manual') && (
             <Markers mark={mark} onToggle={(m) => onToggleMark(item.id, m)} />
+          )}
+
+          {notesEnabled && onNoteChange && (
+            <label className="question-note">
+              <span>Личная заметка</span>
+              <textarea
+                rows={2}
+                value={note ?? ''}
+                placeholder="Что важно не забыть…"
+                onChange={(e) => onNoteChange(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </label>
           )}
         </div>
       )}

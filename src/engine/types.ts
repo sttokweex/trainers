@@ -122,6 +122,8 @@ export interface PlanLink {
   id?: string
   /** Тема — когда пункт ссылается на группу материалов, а не на один. */
   topic?: string
+  /** Optional question status filter when linking back to the bank. */
+  status?: 'all' | 'new' | 'repeat' | 'know'
 }
 
 export interface PlanItem {
@@ -145,7 +147,7 @@ export interface PlanWeek {
  */
 export type LegacyDemo = (root: HTMLElement) => void
 
-export type PackMode = 'questions' | 'theory' | 'tools' | 'cards' | 'plan'
+export type PackMode = 'questions' | 'theory' | 'tools' | 'cards' | 'plan' | 'dashboard' | 'session'
 
 /** Группировка тем в сайдбаре. Если не задана — темы выводятся плоским списком. */
 export interface TopicCategory {
@@ -174,3 +176,11 @@ export interface ContentPack {
 
 /** Отметка пользователя по вопросу. */
 export type Mark = 'know' | 'repeat'
+
+/** Spaced repetition metadata for a question. */
+export interface ReviewState {
+  attempts: number
+  correct: number
+  next: number
+  last: number
+}

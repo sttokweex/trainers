@@ -1,0 +1,61 @@
+/* Interview-only study surfaces: dashboard, mock session and notes. */
+.dashboard{display:flex; flex-direction:column; gap:14px}
+.dashboard-hero{display:flex; align-items:flex-end; justify-content:space-between; gap:18px; padding:22px; background:linear-gradient(135deg,#12243a,#111823 65%); border:1px solid #23476d; border-radius:var(--r)}
+.dashboard-hero h2,.session h2{margin:2px 0 5px; font-size:clamp(22px,3vw,32px); letter-spacing:-.02em}
+.dashboard-hero p{max-width:660px; margin:0; color:var(--mut)}
+.eyebrow{font:600 10px var(--mono); color:var(--acc); text-transform:uppercase; letter-spacing:.13em}
+.dashboard-actions,.dash-actions,.session-actions{display:flex; flex-wrap:wrap; gap:8px}
+.dash-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+.dash-kpi{padding:14px 16px; background:var(--panel); border:1px solid var(--bd); border-radius:var(--r)}
+.dash-kpi b{display:block; font:700 25px var(--mono); color:var(--acc)}
+.dash-kpi span{color:var(--mut); font-size:12px}
+.dash-kpi.warn b{color:var(--yel)}
+.dash-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px}
+.dash-panel{padding:17px; background:var(--panel); border:1px solid var(--bd); border-radius:var(--r)}
+.dash-panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
+.dash-panel-head h3{margin:0; font-size:16px}
+.dash-panel-head span{font:11px var(--mono); color:var(--mut2)}
+.dash-panel p{margin:7px 0 14px; color:var(--mut); font-size:13px}
+.dash-progress,.session-progress{height:8px; background:var(--panel2); border:1px solid var(--bd); border-radius:99px; overflow:hidden}
+.dash-progress i,.session-progress i{display:block; height:100%; background:linear-gradient(90deg,var(--acc-d),var(--grn)); border-radius:inherit; transition:width .25s}
+.topic-bars{display:flex; flex-direction:column; gap:5px}
+.topic-bar{display:grid; grid-template-columns:minmax(120px,1fr) minmax(100px,2fr) auto; align-items:center; gap:10px; padding:8px 9px; border:1px solid transparent; border-radius:8px; background:transparent; color:var(--tx); text-align:left; cursor:pointer}
+.topic-bar:hover{background:var(--panel2); border-color:var(--bd)}
+.topic-bar > span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
+.topic-bar i{height:7px; background:var(--panel2); border:1px solid var(--bd); border-radius:99px; overflow:hidden}
+.topic-bar i b{display:block; height:100%; background:var(--grn); border-radius:inherit}
+.topic-bar em{font:11px var(--mono); color:var(--mut2); font-style:normal; white-space:nowrap}
+.session{max-width:880px; margin:0 auto; display:flex; flex-direction:column; gap:13px}
+.session-top{display:flex; justify-content:space-between; align-items:flex-end; gap:12px}
+.session-timer{padding:7px 12px; border:1px solid #2b4a6b; border-radius:9px; color:var(--acc); font:700 20px var(--mono); background:#0f1d2e}
+.session-timer.danger{color:var(--red); border-color:#63302d; background:#1a0f0f}
+.session-progress{height:6px}
+.session-card{padding:22px; background:var(--panel); border:1px solid var(--bd); border-radius:var(--r)}
+.session-card h3{margin:15px 0; font-size:clamp(18px,2.5vw,24px); line-height:1.4}
+.session-options{display:flex; flex-direction:column; gap:8px; margin:14px 0}
+.session-option{display:flex; gap:10px; align-items:flex-start; padding:11px 13px; border:1px solid var(--bd2); border-radius:8px; background:var(--panel2); color:var(--tx); text-align:left; cursor:pointer}
+.session-option:hover,.session-option.selected{border-color:var(--acc-d); background:#13253a}
+.session-option b{color:var(--acc); font:600 12px var(--mono)}
+.session-input,.session-textarea{display:block; width:100%; max-width:520px; margin:14px 0; padding:10px 12px; background:#05080c; border:1px solid var(--bd2); border-radius:8px; color:var(--tx); font:14px var(--mono); outline:none}
+.session-input:focus,.session-textarea:focus{border-color:var(--acc-d)}
+.session-textarea{resize:vertical; line-height:1.55}
+.session-result{margin-top:14px; padding:3px 16px 14px; border-left:3px solid var(--grn); border-radius:8px; background:var(--panel2); color:var(--mut)}
+.session-verdict{margin-top:14px; padding:9px 12px; border-radius:8px; font-weight:600}
+.session-verdict.ok{background:#0e1c13; color:#9be8a8; border:1px solid #1f4d2e}
+.session-verdict.no{background:#1a0f0f; color:#ffb4ae; border:1px solid #63302d}
+.session-bottom{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; color:var(--mut); font-size:13px}
+.session-bottom .btn.active{border-color:var(--acc-d); color:var(--acc)}
+.session-finish{max-width:700px; padding:40px 20px; text-align:center; align-items:center}
+.session-finish h2{font-size:48px; margin:0}
+.session-finish p{max-width:560px; color:var(--mut)}
+.question-note{display:block; margin-top:15px; padding-top:13px; border-top:1px solid var(--bd); color:var(--mut); font:11px var(--mono); text-transform:uppercase; letter-spacing:.08em}
+.question-note textarea{display:block; width:100%; margin-top:6px; padding:8px 10px; resize:vertical; border:1px solid var(--bd2); border-radius:7px; background:var(--panel2); color:var(--tx); font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-transform:none; letter-spacing:normal; outline:none}
+.question-note textarea:focus{border-color:var(--acc-d)}
+@media(max-width:680px){
+  .dashboard-hero,.session-bottom{align-items:stretch; flex-direction:column}
+  .dash-kpis{grid-template-columns:repeat(2,1fr)}
+  .dash-grid{grid-template-columns:1fr}
+  .topic-bar{grid-template-columns:1fr auto}
+  .topic-bar i{grid-column:1/-1; grid-row:2}
+  .session-card{padding:16px}
+}
