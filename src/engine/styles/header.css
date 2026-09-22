@@ -27,6 +27,17 @@
 .btn.pri:hover{background:#2b7ef5}
 .btn.gho{background:transparent}
 .btn.sm{padding:5px 9px; font-size:12px}
+.help-btn{width:34px; padding-left:0; padding-right:0; font-weight:700; color:var(--acc)}
+
+.help-backdrop{position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:18px; background:rgba(0,0,0,.58)}
+.help-dialog{width:min(520px,100%); background:var(--panel); border:1px solid var(--bd2); border-radius:var(--r); box-shadow:0 20px 70px rgba(0,0,0,.45); padding:18px}
+.help-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+.help-head h2{font-size:18px; margin:0}
+.help-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.help-grid > div{display:flex; align-items:center; gap:8px; min-height:38px; color:var(--mut); font-size:13px}
+.help-grid kbd{min-width:30px; padding:3px 7px; text-align:center; border:1px solid var(--bd2); border-bottom-width:2px; border-radius:6px; background:var(--panel2); color:var(--tx); font:12px var(--mono)}
+.help-note{margin:16px 0 0; padding-top:12px; border-top:1px solid var(--bd); color:var(--mut2); font-size:12px; line-height:1.55}
+@media(max-width:520px){.help-grid{grid-template-columns:1fr}.help-dialog{padding:15px}}
 
 @media(max-width:640px){
   .top-in{padding:10px 14px}

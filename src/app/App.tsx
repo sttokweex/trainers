@@ -45,6 +45,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const searchRef = useRef<HTMLInputElement>(null)
   const topRef = useRef<HTMLElement>(null)
   const sideRef = useRef<HTMLElement>(null)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   /** Высота липкой шапки уезжает в CSS — от неё считается высота сайдбара. */
   useEffect(() => {
@@ -65,6 +66,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
         e.preventDefault()
         searchRef.current?.focus()
       }
+      if (e.key === '?' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault()
+        setHelpOpen(true)
+      }
+      if (e.key === 'Escape') setHelpOpen(false)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -239,6 +245,15 @@ function Trainer({ pack }: { pack: ContentPack }) {
             value={filters.query}
             onChange={(e) => set({ query: e.target.value })}
           />
+          <button
+            type="button"
+            className="btn help-btn"
+            aria-label="Горячие клавиши и возможности"
+            title="Горячие клавиши (?)"
+            onClick={() => setHelpOpen(true)}
+          >
+            ?
+          </button>
           {mode === 'questions' && (
             <button type="button" className="btn" onClick={pickRandom}>🎲 Случайный</button>
           )}
@@ -260,6 +275,36 @@ function Trainer({ pack }: { pack: ContentPack }) {
           </div>
         </div>
       </header>
+
+      {helpOpen && (
+        <div
+          className="help-backdrop"
+          role="presentation"
+          onMouseDown={() => setHelpOpen(false)}
+        >
+          <div
+            className="help-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="help-head">
+              <h2 id="help-title">Быстрые действия</h2>
+              <button type="button" className="btn" aria-label="Закрыть" onClick={() => setHelpOpen(false)}>×</button>
+            </div>
+            <div className="help-grid">
+              <div><kbd>/</kbd><span>Фокус на поиск</span></div>
+              <div><kbd>?</kbd><span>Открыть эту подсказку</span></div>
+              <div><kbd>Esc</kbd><span>Закрыть окно</span></div>
+              <div><kbd>←</kbd> <kbd>→</kbd><span>Листать карточки</span></div>
+              <div><kbd>Space</kbd><span>Перевернуть карточку</span></div>
+              <div><kbd>🎲</kbd><span>Взять случайный вопрос</span></div>
+            </div>
+            <p className="help-note">Выбранные темы, поиск и режим сохраняются в URL — ссылкой можно поделиться. Отметки, карточки и план сохраняются в браузере.</p>
+          </div>
+        </div>
+      )}
 
       {/* В режиме плана сайдбар не нужен — и его нельзя просто спрятать:
           сетка осталась бы двухколоночной, а main уехал бы в колонку сайдбара. */}
