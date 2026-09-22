@@ -72,6 +72,12 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   const mode = pack.modes.includes(filters.mode) ? filters.mode : pack.defaultMode
 
+  /** В заголовке вкладки сразу видно, какой пак и режим открыт. */
+  useEffect(() => {
+    document.title = `${pack.title} · ${MODE_LABEL[mode]} — Тренажёры`
+    return () => { document.title = 'Тренажёры' }
+  }, [pack.title, mode])
+
   /** План — единственный режим без фильтров: там нечего фильтровать. */
   const showSidebar = mode !== 'plan'
 
