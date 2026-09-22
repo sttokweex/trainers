@@ -12,4 +12,7 @@ export const tools: Tool[] = [
   { id: 'tool-git-release', topic: 'Git и CI/CD', t: 'Граф релиза', d: 'Потренируйте rebase, merge, hotfix и откат, объясняя, как история помогает в инциденте.', demo: 'git-graph' },
   { id: 'tool-rate-limit', topic: 'API и сеть', t: 'Backoff и ограничение нагрузки', d: 'Сравните повторные запросы и ограничение параллелизма, затем назовите защиту от thundering herd.', demo: 'cache-stampede' },
   { id: 'tool-mock', topic: 'Подготовка', t: 'Симуляция ответа', d: 'Случайный вопрос, таймер и рубрика самооценки: структура, глубина, цифры.', demo: 'mock-interview' },
+  { id: 'tool-event-delivery', topic: 'Кеш и очереди', t: 'Сбой и повторная доставка', d: 'Проверьте, что случится при падении consumer между побочным эффектом и сохранением offset. Включите дедупликацию и сравните результат.', demo: 'event-delivery' },
+  { id: 'tool-auth-flow', topic: 'Безопасность', t: 'Защита OAuth callback', d: 'Выберите угрозу и выключайте state, PKCE или nonce, чтобы увидеть, какой шаг остановит атаку.', demo: 'auth-flow' },
+  { id: 'tool-pwa-offline', topic: 'Браузер', t: 'План офлайн-режима', d: 'Подберите стратегию для файла, статьи и критичных данных, затем проверьте очередь действий без сети.', demo: 'pwa-offline' },
 ]

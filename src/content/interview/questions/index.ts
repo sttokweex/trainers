@@ -20,6 +20,7 @@ import { sistemnyDizaynQuestions } from './sistemny-dizayn'
 import { softSkillQuestions } from './soft-skill'
 import { advancedQuestions } from './advanced'
 import { practicePoolQuestions } from './practice-pool'
+import { adjacentScenarioQuestions } from './adjacent-scenarios'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -45,4 +46,5 @@ export const questions: Question[] = [
   ...softSkillQuestions,
   ...advancedQuestions,
   ...practicePoolQuestions,
+  ...adjacentScenarioQuestions,
 ]

@@ -34,6 +34,9 @@ import { nodePhases } from './node-phases'
 import { mockInterview } from './mock-interview'
 import { designBudget } from './design-budget'
 import { performanceDiagnosis, consistencyTradeoff, securityThreatModel, testingStrategy } from './theory-checkpoints'
+import { eventDeliveryDemo } from './event-delivery'
+import { authFlow } from './auth-flow'
+import { pwaOffline } from './pwa-offline'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -76,4 +79,7 @@ export const demos: Record<string, LegacyDemo> = {
   'consistency-tradeoff': consistencyTradeoff,
   'security-threat-model': securityThreatModel,
   'testing-strategy': testingStrategy,
+  'event-delivery': eventDeliveryDemo,
+  'auth-flow': authFlow,
+  'pwa-offline': pwaOffline,
 }

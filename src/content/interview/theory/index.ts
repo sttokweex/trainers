@@ -33,6 +33,9 @@ import { performance } from './th-performance'
 import { graphql } from './th-graphql'
 import { reliability } from './th-reliability'
 import { delivery } from './th-delivery'
+import { eventDelivery } from './th-event-delivery'
+import { authProtocols } from './th-auth-protocols'
+import { pwaOffline } from './th-pwa-offline'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -71,4 +74,7 @@ export const theory: TheoryArticle[] = [
   graphql,
   reliability,
   delivery,
+  eventDelivery,
+  authProtocols,
+  pwaOffline,
 ]
