@@ -45,6 +45,7 @@ import { electronIpcLab } from './electron-ipc'
 import { networkPathLab } from './network-path'
 import { protocolLab } from './protocol-lab'
 import { vpsRunbookLab } from './vps-runbook'
+import { k8sDiagnosticsLab } from './k8s-diagnostics'
 
 export const demos: Record<string, LegacyDemo> = {
   'event-loop': eventLoop,
@@ -96,4 +97,5 @@ export const demos: Record<string, LegacyDemo> = {
   'network-path-lab': networkPathLab,
   'protocol-lab': protocolLab,
   'vps-runbook': vpsRunbookLab,
+  'k8s-diagnostics': k8sDiagnosticsLab,
 }

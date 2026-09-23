@@ -66,6 +66,7 @@ import { networkingAdmin } from './th-networking-admin'
 import { networkProtocols } from './th-network-protocols'
 import { infraRoadmap } from './th-infra-roadmap'
 import { linuxVps } from './th-linux-vps'
+import { containersKubernetes } from './th-containers-kubernetes'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -137,4 +138,5 @@ export const theory: TheoryArticle[] = [
   networkProtocols,
   infraRoadmap,
   linuxVps,
+  containersKubernetes,
 ]

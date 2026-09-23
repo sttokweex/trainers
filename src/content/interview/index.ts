@@ -16,7 +16,7 @@ export const interviewPack: ContentPack = {
   hasLevelFilter: true,
   categories: [
     { name: 'Фронтенд', topics: ['База: переменные и значения', 'База: типы и операторы', 'База: условия и циклы', 'База: функции', 'База: массивы и объекты', 'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue', 'Nuxt', 'Состояние', 'CSS и вёрстка', 'Tailwind и Sass', 'UX и доступность', 'Браузер', 'Архитектура фронта'] },
-    { name: 'Бэкенд', topics: ['Node / Nest', 'Express и Fastify', 'API и сеть', 'Базы данных', 'Кеш и очереди', 'Безопасность', 'GraphQL и realtime', 'Надёжность и эксплуатация', 'Контейнеры и облако'] },
+    { name: 'Бэкенд', topics: ['Node / Nest', 'Express и Fastify', 'API и сеть', 'Базы данных', 'Кеш и очереди', 'Безопасность', 'GraphQL и realtime', 'Надёжность и эксплуатация', 'Контейнеры и облако', 'Docker и Kubernetes'] },
     { name: 'Сети и администрирование', topics: ['Сети и системное администрирование', 'Сетевые протоколы', 'Linux и VPS'] },
     { name: 'Информатика', topics: ['Алгоритмы', 'Лайвкодинг', 'ООП и принципы', 'Системный дизайн', 'Тестирование'] },
     { name: 'Инфраструктура UI', topics: ['Three.js', 'Electron и desktop'] },
