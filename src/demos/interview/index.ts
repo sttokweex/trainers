@@ -38,6 +38,7 @@ import { eventDeliveryDemo } from './event-delivery'
 import { authFlow } from './auth-flow'
 import { pwaOffline } from './pwa-offline'
 import { adaptiveInterview } from './adaptive-interview'
+import { jsFoundationLab } from './js-foundation-lab'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -84,4 +85,5 @@ export const demos: Record<string, LegacyDemo> = {
   'auth-flow': authFlow,
   'pwa-offline': pwaOffline,
   'adaptive-interview': adaptiveInterview,
+  'js-foundation-lab': jsFoundationLab,
 }

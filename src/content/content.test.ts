@@ -11,7 +11,7 @@ import type { CodeQuestion, ContentPack, OutputQuestion, Question } from '@/engi
 
 /** Обновляется осознанно вместе с добавлением контента. */
 const EXPECTED = {
-  interview: { questions: 179, theory: 38, demos: 43 },
+  interview: { questions: 189, theory: 43, demos: 44, cards: 67 },
   audit: { questions: 111, theory: 52, demos: 60, tools: 46, cards: 139, plan: 17 },
 } as const
 
@@ -26,6 +26,7 @@ describe('счётчики совпадают с исходными файлам
     expect(p.questions).toHaveLength(EXPECTED.interview.questions)
     expect(p.theory).toHaveLength(EXPECTED.interview.theory)
     expect(Object.keys(p.demos)).toHaveLength(EXPECTED.interview.demos)
+    expect(p.cards).toHaveLength(EXPECTED.interview.cards)
   })
 
   it('audit', () => {

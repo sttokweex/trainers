@@ -36,9 +36,19 @@ import { delivery } from './th-delivery'
 import { eventDelivery } from './th-event-delivery'
 import { authProtocols } from './th-auth-protocols'
 import { pwaOffline } from './th-pwa-offline'
+import { basicsVariables } from './th-basics-variables'
+import { basicsTypes } from './th-basics-types'
+import { basicsControl } from './th-basics-control'
+import { basicsFunctions } from './th-basics-functions'
+import { basicsCollections } from './th-basics-collections'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
+  basicsVariables,
+  basicsTypes,
+  basicsControl,
+  basicsFunctions,
+  basicsCollections,
   async,
   jscore,
   ts,
