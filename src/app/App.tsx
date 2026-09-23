@@ -9,6 +9,7 @@ import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryGameMode } from '@/engine/components/modes/TheoryGameMode'
+import { ExamMode } from '@/engine/components/modes/ExamMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -237,7 +238,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 className={'md' + (m === mode ? ' on' : '')}
                 onClick={() => changeFilters({ mode: m, topic: 'all' })}
               >
-                {MODE_LABEL[m]}
+                {m === 'theory-game' && pack.id === 'audit' ? 'Экзамен' : MODE_LABEL[m]}
               </button>
             ))}
           </div>
@@ -457,6 +458,10 @@ function Trainer({ pack }: { pack: ContentPack }) {
               pack={pack}
               onOpenClassic={() => changeFilters({ mode: 'theory', topic: 'all', query: '', open: '' })}
             />
+          )}
+
+          {mode === 'theory-game' && pack.id === 'audit' && (
+            <ExamMode pack={pack} />
           )}
 
           {mode === 'plan' && pack.plan && (

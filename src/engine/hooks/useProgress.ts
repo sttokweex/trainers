@@ -128,6 +128,10 @@ export function useProgress(pack: ContentPack) {
       try { localStorage.removeItem('interview-trainer-theory-game-v1') } catch { /* ignore */ }
       window.dispatchEvent(new Event('interview-trainer-progress-reset'))
     }
+    if (pack.id === 'audit') {
+      try { localStorage.removeItem('audit-trainer-exam-progress-v1') } catch { /* ignore */ }
+      window.dispatchEvent(new Event('audit-trainer-progress-reset'))
+    }
   }, [pack.id])
 
   const exportProgress = useCallback(() => JSON.stringify({
