@@ -49,6 +49,9 @@ import { microservices } from './th-microservices'
 import { microfrontends } from './th-microfrontends'
 import { postMessageTabs } from './th-postmessage-tabs'
 import { ssr } from './th-ssr'
+import { browserExtensions } from './th-browser-extensions'
+import { telegramBots } from './th-telegram-bots'
+import { telegramMiniApps } from './th-telegram-mini-apps'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -103,4 +106,7 @@ export const theory: TheoryArticle[] = [
   microfrontends,
   postMessageTabs,
   ssr,
+  browserExtensions,
+  telegramBots,
+  telegramMiniApps,
 ]

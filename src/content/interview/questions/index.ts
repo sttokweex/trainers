@@ -25,6 +25,7 @@ import { javascriptBasicsQuestions } from './javascript-basics'
 import { theoryPracticeQuestions } from './theory-practice'
 import { buildToolsQuestions } from './build-tools'
 import { distributedFrontendQuestions } from './distributed-frontend'
+import { browserTelegramQuestions } from './browser-telegram'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -55,4 +56,5 @@ export const questions: Question[] = [
   ...theoryPracticeQuestions,
   ...buildToolsQuestions,
   ...distributedFrontendQuestions,
+  ...browserTelegramQuestions,
 ]
