@@ -28,6 +28,7 @@ import { distributedFrontendQuestions } from './distributed-frontend'
 import { browserTelegramQuestions } from './browser-telegram'
 import { databasesDeepQuestions } from './databases-deep'
 import { frameworksInfraQuestions } from './frameworks-infra'
+import { nuxtNetworkingQuestions } from './nuxt-networking'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -61,4 +62,5 @@ export const questions: Question[] = [
   ...browserTelegramQuestions,
   ...databasesDeepQuestions,
   ...frameworksInfraQuestions,
+  ...nuxtNetworkingQuestions,
 ]

@@ -60,6 +60,9 @@ import { vue } from './th-vue'
 import { styleSystems } from './th-stylesystems'
 import { threejs } from './th-threejs'
 import { electron } from './th-electron'
+import { nuxt } from './th-nuxt'
+import { expressFastify } from './th-express-fastify'
+import { networkingAdmin } from './th-networking-admin'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -125,4 +128,7 @@ export const theory: TheoryArticle[] = [
   styleSystems,
   threejs,
   electron,
+  nuxt,
+  expressFastify,
+  networkingAdmin,
 ]

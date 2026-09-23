@@ -42,6 +42,7 @@ import { jsFoundationLab } from './js-foundation-lab'
 import type { LegacyDemo } from '@/engine/types'
 import { frameworkReactivityLab } from './framework-reactivity'
 import { electronIpcLab } from './electron-ipc'
+import { networkPathLab } from './network-path'
 
 export const demos: Record<string, LegacyDemo> = {
   'event-loop': eventLoop,
@@ -90,4 +91,5 @@ export const demos: Record<string, LegacyDemo> = {
   'js-foundation-lab': jsFoundationLab,
   'framework-reactivity-lab': frameworkReactivityLab,
   'electron-ipc-lab': electronIpcLab,
+  'network-path-lab': networkPathLab,
 }

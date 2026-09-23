@@ -10,7 +10,7 @@ import type { CodeQuestion, ContentPack, OutputQuestion, Question } from '@/engi
 
 /** Обновляется осознанно вместе с добавлением контента. */
 const EXPECTED = {
-  interview: { questions: 249, theory: 62, demos: 46, cards: 176 },
+  interview: { questions: 265, theory: 65, demos: 47, cards: 197 },
 } as const
 
 const packById = (id: string) => PACKS.find((p) => p.id === id) as ContentPack
