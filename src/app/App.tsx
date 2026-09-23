@@ -7,7 +7,6 @@ import { PlanMode } from '@/engine/components/modes/PlanMode'
 import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
-import { TheoryGameMode } from '@/engine/components/modes/TheoryGameMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
@@ -16,7 +15,7 @@ import { theoryForQuestion } from '@/engine/theoryLinks'
 import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
-  questions: 'Вопросы', theory: 'Теория', 'theory-game': '🎮 Теория-игра', tools: 'Практикум', cards: 'Карточки', plan: 'План',
+  questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',
   dashboard: 'Обзор', session: 'Пробник',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
@@ -100,7 +99,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack.title, mode])
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
-  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'theory-game'
+  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session'
 
   /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
       не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
@@ -263,13 +262,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
           <button
             type="button" className="btn gho"
             onClick={() => {
-              if (confirm('Сбросить прогресс вопросов, карточек, теории и игрового пути собеседования?')) reset()
+              if (confirm('Сбросить прогресс вопросов, карточек и теории?')) reset()
             }}
           >
             Сброс
           </button>
 
-          {mode !== 'theory-game' && <div className="bar">
+          <div className="bar">
             <div className="bar-track">
               <div
                 className="bar-fill"
@@ -277,7 +276,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
               />
             </div>
             <div className="bar-num">{known} / {pack.questions.length}</div>
-          </div>}
+          </div>
         </div>
       </header>
 
@@ -426,13 +425,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
               onAttempt={recordAttempt}
               onToggleMark={toggleMark}
               onNavigate={goToLink}
-            />
-          )}
-
-          {mode === 'theory-game' && (
-            <TheoryGameMode
-              pack={pack}
-              onOpenClassic={() => changeFilters({ mode: 'theory', topic: 'all', query: '', open: '' })}
             />
           )}
 

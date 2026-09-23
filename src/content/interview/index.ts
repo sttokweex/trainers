@@ -11,7 +11,7 @@ export const interviewPack: ContentPack = {
   title: 'Собеседование',
   accent: '#58a6ff',
   storagePrefix: 'interview-trainer',
-  modes: ['dashboard', 'questions', 'theory', 'theory-game', 'tools', 'cards', 'session'],
+  modes: ['dashboard', 'questions', 'theory', 'tools', 'cards', 'session'],
   defaultMode: 'questions',
   hasLevelFilter: true,
   categories: [

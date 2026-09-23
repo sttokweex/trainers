@@ -83,7 +83,7 @@ export function TheoryStudyMode({
   }
 
   if (article && stage === 'read') return (
-    <div className="theory-game">
+    <div className="theory-study">
       <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам</button><span>{article.topic}</span></div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · затем проверка и практика</div><h2>{article.title}</h2><p>{article.lead}</p></div>
       <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} />
@@ -97,7 +97,7 @@ export function TheoryStudyMode({
       ? theoryForQuestion(task, pack.theory).map((item) => ({ id: item.id, title: item.title, topic: item.topic }))
       : undefined
     return (
-      <div className="theory-game">
+      <div className="theory-study">
         <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('read')}>← Вернуться к теории</button><span>Закрепление · {article.topic}</span></div>
         <section className="tg-quest">
           <div className="tg-eyebrow">Задача {taskIndex + 1} из {Math.max(2, tasks.length)}</div>
@@ -132,7 +132,7 @@ export function TheoryStudyMode({
 
   const completedCount = articles.filter((item) => done[item.id]).length
   return (
-    <div className="theory-game">
+    <div className="theory-study">
       <section className="tg-hero"><div className="tg-hero-copy"><div className="tg-eyebrow">Теория и закрепление</div><h1>Изучи тему и проверь себя</h1><p>Прочитай главу, затем реши два вопроса из банка практики по этой теме.</p></div><div className="tg-avatar" aria-hidden="true">↗</div></section>
       <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс</span><b>{completedCount} из {articles.length} тем пройдено</b></div><strong>{articles.length ? `${Math.round(completedCount / articles.length * 100)}%` : '0%'}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс теории" aria-valuemin={0} aria-valuemax={articles.length} aria-valuenow={completedCount}><span style={{ width: `${articles.length ? completedCount / articles.length * 100 : 0}%` }} /></div><div className="tg-stats"><div><b>{articles.length}</b><span>глав</span></div><div><b>{pack.questions.length}</b><span>вопросов в банке</span></div><div><b>2</b><span>задачи после главы</span></div></div></section>
       <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>Порядок свободный</span></div>

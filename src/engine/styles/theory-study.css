@@ -1,5 +1,5 @@
-/* Interview-only experimental wrapper around the existing theory library. */
-.theory-game{max-width:1040px; margin:0 auto; padding:6px 0 36px; color:var(--tx)}
+/* Reading and practice flow used by the theory section. */
+.theory-study{max-width:1040px; margin:0 auto; padding:6px 0 36px; color:var(--tx)}
 .tg-hero{display:flex; align-items:center; justify-content:space-between; gap:24px; padding:clamp(20px,4vw,36px); border:1px solid #384477; border-radius:16px; background:radial-gradient(circle at 86% 15%,#3c2d67 0,transparent 32%),linear-gradient(135deg,#172944,#171b2d 72%); box-shadow:0 16px 44px #080b1238}
 .tg-hero-copy{max-width:740px}
 .tg-eyebrow{color:#a99afb; font:700 10px var(--mono); text-transform:uppercase; letter-spacing:.1em}
@@ -49,7 +49,7 @@
 .tg-reading-head{margin:0 0 15px; padding:20px; border:1px solid #393458; border-radius:12px; background:linear-gradient(120deg,#171b2b,#11151d)}
 .tg-reading-head h2{margin:6px 0; font-size:clamp(21px,3vw,29px); line-height:1.3}
 .tg-reading-head p{margin:0; color:var(--mut); line-height:1.55}
-.theory-game .th-card{margin-bottom:12px}
+.theory-study .th-card{margin-bottom:12px}
 .tg-reading-action{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; border:1px solid #44396b; border-radius:10px; background:#151426}
 .tg-reading-action span{color:var(--mut); font-size:12px; line-height:1.5}
 .tg-quest{padding:clamp(17px,3vw,27px); border:1px solid #494274; border-radius:14px; background:radial-gradient(circle at 100% 0,#2d2548 0,transparent 30%),var(--panel)}

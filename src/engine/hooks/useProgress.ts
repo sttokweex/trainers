@@ -106,7 +106,6 @@ export function useProgress(pack: ContentPack) {
 
   const reset = useCallback(() => {
     setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({})
-    try { localStorage.removeItem('interview-trainer-theory-game-v1') } catch { /* ignore */ }
     window.dispatchEvent(new Event('interview-trainer-progress-reset'))
   }, [])
 
