@@ -8,6 +8,7 @@ import { PlanMode } from '@/engine/components/modes/PlanMode'
 import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
+import { TheoryGameMode } from '@/engine/components/modes/TheoryGameMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -15,7 +16,7 @@ import { theoryForQuestion } from '@/engine/theoryLinks'
 import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
-  questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',
+  questions: 'Вопросы', theory: 'Теория', 'theory-game': '🎮 Теория-игра', tools: 'Практикум', cards: 'Карточки', plan: 'План',
   dashboard: 'Обзор', session: 'Пробник',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
@@ -99,7 +100,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack.title, mode])
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
-  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session'
+  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'theory-game'
 
   /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
       не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
@@ -283,7 +284,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
             type="button" className="btn gho"
             onClick={() => {
               const message = pack.id === 'interview'
-                ? 'Сбросить весь прогресс собеседований?'
+                ? 'Сбросить прогресс вопросов, карточек, теории и игрового пути собеседования?'
                 : 'Сбросить отметки по вопросам, карточкам и плану?'
               if (confirm(message)) reset()
             }}
@@ -448,6 +449,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
               onAttempt={recordAttempt}
               onToggleMark={toggleMark}
               onNavigate={goToLink}
+            />
+          )}
+
+          {mode === 'theory-game' && pack.id === 'interview' && (
+            <TheoryGameMode
+              pack={pack}
+              onOpenClassic={() => changeFilters({ mode: 'theory', topic: 'all', query: '', open: '' })}
             />
           )}
 

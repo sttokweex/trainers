@@ -148,7 +148,7 @@ export interface PlanWeek {
  */
 export type LegacyDemo = (root: HTMLElement) => void
 
-export type PackMode = 'questions' | 'theory' | 'tools' | 'cards' | 'plan' | 'dashboard' | 'session'
+export type PackMode = 'questions' | 'theory' | 'theory-game' | 'tools' | 'cards' | 'plan' | 'dashboard' | 'session'
 
 /** Группировка тем в сайдбаре. Если не задана — темы выводятся плоским списком. */
 export interface TopicCategory {

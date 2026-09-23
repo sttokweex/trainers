@@ -124,7 +124,11 @@ export function useProgress(pack: ContentPack) {
 
   const reset = useCallback(() => {
     setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({})
-  }, [])
+    if (pack.id === 'interview') {
+      try { localStorage.removeItem('interview-trainer-theory-game-v1') } catch { /* ignore */ }
+      window.dispatchEvent(new Event('interview-trainer-progress-reset'))
+    }
+  }, [pack.id])
 
   const exportProgress = useCallback(() => JSON.stringify({
     pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews,
