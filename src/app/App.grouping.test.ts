@@ -21,7 +21,7 @@ async function renderAt(path: string) {
   document.body.appendChild(container)
   const router = createMemoryRouter([{ path: '/:packId', element: createElement(App) }], { initialEntries: [path] })
   const root = createRoot(container)
-  await act(async () => { root.render(createElement(RouterProvider, { router })) })
+  await act(async () => { root.render(createElement(RouterProvider, { router, future: { v7_startTransition: true } })) })
   // На CI холодный импорт пака (динамический import()) заметно медленнее, чем локально —
   // бюджет ожидания должен быть щедрым, чтобы тест не был флаки-падающим.
   for (let i = 0; i < 100 && !container.querySelector('.grp'); i++) {
