@@ -44,6 +44,7 @@ import { frameworkReactivityLab } from './framework-reactivity'
 import { electronIpcLab } from './electron-ipc'
 import { networkPathLab } from './network-path'
 import { protocolLab } from './protocol-lab'
+import { vpsRunbookLab } from './vps-runbook'
 
 export const demos: Record<string, LegacyDemo> = {
   'event-loop': eventLoop,
@@ -94,4 +95,5 @@ export const demos: Record<string, LegacyDemo> = {
   'electron-ipc-lab': electronIpcLab,
   'network-path-lab': networkPathLab,
   'protocol-lab': protocolLab,
+  'vps-runbook': vpsRunbookLab,
 }
