@@ -1,4 +1,5 @@
 import type { ChoiceQuestion, Question, TheoryArticle } from '@/engine/types'
+import { examSources } from './exam-sources'
 
 /** Темы, модули и содержание ниже составлены по программе из файла пользователя. */
 const baseExamPrepArticles: TheoryArticle[] = [
@@ -159,9 +160,27 @@ const examDeepDive: Record<string, string> = {
 <h5>Практика к блоку</h5><p>АО платит зарубежному агенту, связанному с участником общества; договор подписан сотрудником без очевидных полномочий, конечный получатель — третье лицо. Подготовьте правовую карту: корпоративное одобрение и конфликт интересов, полномочия/последующее одобрение, реальность услуги, бенефициар, валютные документы/банк, экспортный контроль, 115-ФЗ/273-ФЗ, фиксация решения и основания приостановить эскалацию до завершения проверки.</p>`,
 }
 
+const escapeSourceText = (value: string) => value
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;')
+
+const sourceListHtml = (topic: string) => {
+  const sources = examSources[topic]
+  if (!sources) return ''
+  const items = sources.map((source) => {
+    const safe = escapeSourceText(source)
+    const linked = safe.replace(/https?:\/\/[^\s&]+/g, (url) => `<a href="${url}" target="_blank" rel="noreferrer">${url}</a>`)
+    return `<li>${linked}</li>`
+  }).join('')
+  return `<h5>Источники для подготовки</h5><p>Полный перечень рекомендованных ЕАК источников по модулю: ${sources.length} позиций. Перечень взят из редакции от 1 июля 2026 года. Для нормативных актов сверяйте действующую редакцию и дату вступления изменений в силу.</p><details class="exam-sources"><summary>Показать нормативные акты, стандарты и литературу (${sources.length})</summary><ol>${items}</ol></details>`
+}
+
 export const examPrepArticles: TheoryArticle[] = baseExamPrepArticles.map((article) => ({
   ...article,
-  body: `${article.body}${examDeepDive[article.id] ?? ''}`,
+  body: `${article.body}${examDeepDive[article.id] ?? ''}${sourceListHtml(article.topic)}`,
 }))
 
 const examChoices: ChoiceQuestion[] = [
