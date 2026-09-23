@@ -3,6 +3,7 @@ import { examSources } from './exam-sources'
 import { examLawGuides } from './exam-law-guides'
 import { migratedExamPractice } from './exam-practice-migrated'
 import { examProgramExpansion } from './exam-program-expansion'
+import { examOfficialSyllabus } from './exam-official-syllabus'
 
 /** Темы, модули и содержание ниже составлены по программе из файла пользователя. */
 const baseExamPrepArticles: TheoryArticle[] = [
@@ -183,7 +184,7 @@ const sourceListHtml = (topic: string) => {
 
 export const examPrepArticles: TheoryArticle[] = baseExamPrepArticles.map((article) => ({
   ...article,
-  body: `${article.body}${examDeepDive[article.id] ?? ''}${examLawGuides[article.topic] ?? ''}${examProgramExpansion[article.topic] ?? ''}${sourceListHtml(article.topic)}`,
+  body: `${article.body}${examDeepDive[article.id] ?? ''}${examLawGuides[article.topic] ?? ''}${examProgramExpansion[article.topic] ?? ''}${examOfficialSyllabus[article.topic] ?? ''}${sourceListHtml(article.topic)}`,
 }))
 
 const examChoices: ChoiceQuestion[] = [
