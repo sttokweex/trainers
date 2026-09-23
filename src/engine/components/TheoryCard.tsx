@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RichContent } from './RichContent'
-import type { LegacyDemo, TheoryArticle } from '@/engine/types'
+import type { LegacyDemo, Question, TheoryArticle } from '@/engine/types'
 
 /** Грубая оценка времени чтения: ~180 слов в минуту, код считаем медленнее. */
 function readTime(html: string) {
@@ -19,7 +19,7 @@ const plural = (n: number, one: string, few: string, many: string) => {
 }
 
 export function TheoryCard({
-  item, demos, autoOpen = false, done = false, onToggleDone,
+  item, demos, autoOpen = false, done = false, onToggleDone, examQuestions,
 }: {
   item: TheoryArticle
   demos: Record<string, LegacyDemo>
@@ -28,6 +28,7 @@ export function TheoryCard({
   /** Interview-only progress marker. Omit to keep the compact audit card unchanged. */
   done?: boolean
   onToggleDone?: () => void
+  examQuestions?: Question[]
 }) {
   const [open, setOpen] = useState(autoOpen)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -101,7 +102,7 @@ export function TheoryCard({
               </ol>
             </nav>
           )}
-          <RichContent html={item.body} demos={demos} />
+          <RichContent html={item.body} demos={demos} examQuestions={examQuestions} />
         </div>
       )}
     </div>

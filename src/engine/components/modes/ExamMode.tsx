@@ -128,7 +128,7 @@ export function ExamMode({ pack }: { pack: ContentPack }) {
     <div className="theory-game">
       <div className="tg-topline"><button type="button" className="btn" onClick={() => { setArticle(null); setStage('map'); updateExamLocation({ examTopic: null }, true) }}>← К темам экзамена</button><span>{article.topic}</span></div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · затем отдельные практические задачи</div><h2>{article.title}</h2><p>{article.lead}</p></div>
-      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen />
+      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen examQuestions={exam.questions.filter((question) => question.topic === article.topic)} />
       <ExamPracticeList questions={exam.questions.filter((question) => question.topic === article.topic)} demos={pack.demos} onFinish={finishChapter} />
     </div>
   )
