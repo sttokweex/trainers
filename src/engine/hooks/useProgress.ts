@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { ContentPack, Mark, ReviewState } from '@/engine/types'
+import type { ContentPack, Mark, ReviewState, TheoryBookmark } from '@/engine/types'
 
 type Marks = Record<string, Mark>
 type Flags = Record<string, boolean>
@@ -35,12 +35,14 @@ export function useProgress(pack: ContentPack) {
   const [cardsKnown, setCardsKnown] = useState<Flags>(() => (keys.cards ? read<Flags>(keys.cards, {}) : {}))
   const [planDone, setPlanDone] = useState<Flags>(() => (keys.plan ? read<Flags>(keys.plan, {}) : {}))
   const [theoryDone, setTheoryDone] = useState<Flags>(() => (keys.theory ? read<Flags>(keys.theory, {}) : {}))
+  const [bookmarks, setBookmarks] = useState<Record<string, TheoryBookmark>>(() => read<Record<string, TheoryBookmark>>('interview-trainer-theory-bookmarks', {}))
   const [notes, setNotes] = useState<Record<string, string>>(() => (keys.notes ? read<Record<string, string>>(keys.notes, {}) : {}))
   const [reviews, setReviews] = useState<Reviews>(() => (keys.reviews ? read<Reviews>(keys.reviews, {}) : {}))
   useEffect(() => { save(keys.marks, marks) }, [keys.marks, marks])
   useEffect(() => { if (keys.cards) save(keys.cards, cardsKnown) }, [keys.cards, cardsKnown])
   useEffect(() => { if (keys.plan) save(keys.plan, planDone) }, [keys.plan, planDone])
   useEffect(() => { if (keys.theory) save(keys.theory, theoryDone) }, [keys.theory, theoryDone])
+  useEffect(() => { save('interview-trainer-theory-bookmarks', bookmarks) }, [bookmarks])
   useEffect(() => { if (keys.notes) save(keys.notes, notes) }, [keys.notes, notes])
   useEffect(() => { if (keys.reviews) save(keys.reviews, reviews) }, [keys.reviews, reviews])
 
@@ -87,6 +89,18 @@ export function useProgress(pack: ContentPack) {
     })
   }, [])
 
+  const addBookmark = useCallback((bookmark: TheoryBookmark) => {
+    setBookmarks((prev) => ({ ...prev, [bookmark.key]: bookmark }))
+  }, [])
+
+  const removeBookmark = useCallback((key: string) => {
+    setBookmarks((prev) => {
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }, [])
+
   /** Результат ответа двигает вопрос по простой лестнице повторений. */
   const recordAttempt = useCallback((id: string, correct: boolean) => {
     setReviews((prev) => {
@@ -105,20 +119,20 @@ export function useProgress(pack: ContentPack) {
   }, [])
 
   const reset = useCallback(() => {
-    setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({})
+    setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({}); setBookmarks({})
     window.dispatchEvent(new Event('interview-trainer-progress-reset'))
   }, [])
 
   const exportProgress = useCallback(() => JSON.stringify({
-    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews,
-  }, null, 2), [pack.id, marks, cardsKnown, planDone, theoryDone, notes, reviews])
+    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks,
+  }, null, 2), [pack.id, marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks])
 
   const importProgress = useCallback((raw: string) => {
     try {
       const data = JSON.parse(raw) as Partial<{
         pack: string; version: number
         marks: Marks; cardsKnown: Flags; planDone: Flags; theoryDone: Flags
-        notes: Record<string, string>; reviews: Reviews
+        notes: Record<string, string>; reviews: Reviews; bookmarks: Record<string, TheoryBookmark>
       }>
       if (!data || typeof data !== 'object') return false
       if (data.pack && data.pack !== pack.id) return false
@@ -129,6 +143,7 @@ export function useProgress(pack: ContentPack) {
       if (data.theoryDone && typeof data.theoryDone === 'object') setTheoryDone(data.theoryDone)
       if (data.notes && typeof data.notes === 'object') setNotes(data.notes)
       if (data.reviews && typeof data.reviews === 'object') setReviews(data.reviews)
+      if (data.bookmarks && typeof data.bookmarks === 'object') setBookmarks(data.bookmarks)
       return true
     } catch {
       return false
@@ -142,7 +157,7 @@ export function useProgress(pack: ContentPack) {
     marks, toggleMark,
     cardsKnown, toggleCard,
     planDone, togglePlan, theoryDone, toggleTheory,
-    notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
+    notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, exportProgress, importProgress,
     reset, known, repeat,
   }
 }

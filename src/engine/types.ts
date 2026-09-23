@@ -187,3 +187,15 @@ export interface ReviewState {
   next: number
   last: number
 }
+
+/** Закладка на конкретный раздел статьи теории. */
+export interface TheoryBookmark {
+  key: string
+  articleId: string
+  articleTitle: string
+  sectionIndex: number
+  sectionTitle: string
+  label: string
+  excerpt: string
+  savedAt: number
+}

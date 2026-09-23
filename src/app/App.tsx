@@ -44,7 +44,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const {
     marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan, theoryDone, toggleTheory,
     reset, known, repeat,
-    notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
+    notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, exportProgress, importProgress,
   } = useProgress(pack)
 
   const searchRef = useRef<HTMLInputElement>(null)
@@ -262,7 +262,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
           <button
             type="button" className="btn gho"
             onClick={() => {
-              if (confirm('Сбросить прогресс вопросов, карточек и теории?')) reset()
+              if (confirm('Сбросить прогресс, заметки и закладки?')) reset()
             }}
           >
             Сброс
@@ -459,6 +459,9 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 onNoteChange={setNote}
                 done={theoryDone}
                 onToggleDone={toggleTheory}
+                bookmarks={bookmarks}
+                onAddBookmark={addBookmark}
+                onRemoveBookmark={removeBookmark}
                 openId={filters.open}
               />}
               {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
