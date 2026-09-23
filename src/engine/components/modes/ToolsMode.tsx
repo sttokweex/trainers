@@ -42,12 +42,11 @@ function ToolCard({
 
 /** Практикум: калькуляторы и тренажёры — каждая карточка это одно демо. */
 export function ToolsMode({
-  items, demos, openId, context = 'audit',
+  items, demos, openId,
 }: {
   items: Tool[]
   demos: Record<string, LegacyDemo>
   openId?: string
-  context?: 'interview' | 'audit'
 }) {
   if (!items.length) return <div className="empty">Ничего не найдено</div>
 
@@ -69,15 +68,7 @@ export function ToolsMode({
     <>
       <div className="intro">
         <h2>Практикум</h2>
-        {context === 'interview' ? (
-          <p>{items.length} интерактивных сценариев: тренируйте производительность, сети, кэш, capacity, релизы и ответы вслух. В симуляции собеседования интервьюер меняет вводные в зависимости от вашего решения.</p>
-        ) : (
-          <p>
-            {items.length} калькуляторов и тренажёров: существенность и выборка, амортизация и аренда,
-            ПБУ&nbsp;18/02 и НДС, cut-off, старение дебиторки, журнальные проводки, дерево аудиторского
-            мнения. Считайте по данным своих клиентов — это быстрее, чем читать про формулы.
-          </p>
-        )}
+        <p>{items.length} интерактивных сценариев: тренируйте производительность, сети, кэш, capacity, релизы и ответы вслух. В симуляции собеседования интервьюер меняет вводные в зависимости от вашего решения.</p>
       </div>
       {groups.map((g) => (
         <div key={g.topic}>

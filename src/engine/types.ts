@@ -169,13 +169,6 @@ export interface ContentPack {
   /** Показывать ли фильтр по уровню (есть смысл только там, где уровни размечены). */
   hasLevelFilter: boolean
   categories?: TopicCategory[]
-  /** Материалы квалификационного экзамена, изолированные от обычных режимов. */
-  examPrep?: {
-    categories: TopicCategory[]
-    questions: Question[]
-    theory: TheoryArticle[]
-    cards: Card[]
-  }
   questions: Question[]
   theory: TheoryArticle[]
   tools?: Tool[]

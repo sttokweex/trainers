@@ -8,18 +8,12 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
  * с file://, потому что инлайн-модуль не упирается в CORS (в отличие от
  * внешнего <script type="module" src>, который браузер блокирует).
  *
- * PACK=audit оставляет в сборке только один пак: файл для человека без Node
- * не должен тащить чужой контент. Заодно вдвое легче.
  */
 const single = process.env.SINGLE === '1'
-const onlyPack = process.env.PACK ?? ''
 
 export default defineConfig({
   base: './',
   plugins: [react(), ...(single ? [viteSingleFile()] : [])],
-  define: {
-    __ONLY_PACK__: JSON.stringify(onlyPack),
-  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

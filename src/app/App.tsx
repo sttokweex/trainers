@@ -8,7 +8,6 @@ import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryGameMode } from '@/engine/components/modes/TheoryGameMode'
-import { ExamMode } from '@/engine/components/modes/ExamMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
@@ -45,7 +44,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const { filters, set } = useFilters(pack)
   const {
     marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan, theoryDone, toggleTheory,
-    reset, reveal, setReveal, known, repeat,
+    reset, known, repeat,
     notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
   } = useProgress(pack)
 
@@ -187,13 +186,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
     const src = pool.length ? pool : questions
     const item = src[Math.floor(Math.random() * src.length)]
     if (!item) return
-    if (pack.id === 'interview') {
-      setRandomPick((previous) => ({
-        id: item.id,
-        filterKey: randomFilterKey,
-        nonce: (previous?.nonce ?? 0) + 1,
-      }))
-    }
+    setRandomPick((previous) => ({
+      id: item.id,
+      filterKey: randomFilterKey,
+      nonce: (previous?.nonce ?? 0) + 1,
+    }))
     document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
@@ -238,29 +235,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 className={'md' + (m === mode ? ' on' : '')}
                 onClick={() => changeFilters({ mode: m, topic: 'all' })}
               >
-                {m === 'theory-game' && pack.id === 'audit' ? 'Экзамен' : MODE_LABEL[m]}
+                {MODE_LABEL[m]}
               </button>
             ))}
           </div>
 
-          {mode === 'questions' && pack.id !== 'interview' && (
-            <div className="modes">
-              <button
-                type="button" className={'md' + (reveal ? ' on' : '')}
-                onClick={() => setReveal(true)}
-                title="Ответ на теоретические вопросы виден сразу"
-              >
-                Изучение
-              </button>
-              <button
-                type="button" className={'md' + (!reveal ? ' on' : '')}
-                onClick={() => setReveal(false)}
-                title="Сначала ответьте сами"
-              >
-                Проверка
-              </button>
-            </div>
-          )}
 
           <input
             ref={searchRef}
@@ -284,10 +263,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
           <button
             type="button" className="btn gho"
             onClick={() => {
-              const message = pack.id === 'interview'
-                ? 'Сбросить прогресс вопросов, карточек, теории и игрового пути собеседования?'
-                : 'Сбросить отметки по вопросам, карточкам, теории и подготовке к экзамену?'
-              if (confirm(message)) reset()
+              if (confirm('Сбросить прогресс вопросов, карточек, теории и игрового пути собеседования?')) reset()
             }}
           >
             Сброс
@@ -426,7 +402,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
         )}
 
         <main id="list">
-          {mode === 'dashboard' && pack.id === 'interview' && (
+          {mode === 'dashboard' && (
             <DashboardMode
               pack={pack}
               marks={marks}
@@ -442,7 +418,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
             />
           )}
 
-          {mode === 'session' && pack.id === 'interview' && (
+          {mode === 'session' && (
             <SessionMode
               pack={pack}
               reviews={reviews}
@@ -453,26 +429,22 @@ function Trainer({ pack }: { pack: ContentPack }) {
             />
           )}
 
-          {mode === 'theory-game' && pack.id === 'interview' && (
+          {mode === 'theory-game' && (
             <TheoryGameMode
               pack={pack}
               onOpenClassic={() => changeFilters({ mode: 'theory', topic: 'all', query: '', open: '' })}
             />
           )}
 
-          {mode === 'theory-game' && pack.id === 'audit' && (
-            <ExamMode pack={pack} />
-          )}
-
           {mode === 'plan' && pack.plan && (
             <PlanMode
-              weeks={pack.plan} done={planDone} context={pack.id === 'interview' ? 'interview' : 'audit'}
+              weeks={pack.plan} done={planDone}
               onToggle={togglePlan} onNavigate={goToLink}
             />
           )}
 
           {mode === 'tools' && (
-            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} context={pack.id === 'interview' ? 'interview' : 'audit'} />
+            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} />
           )}
 
           {mode === 'cards' && (
@@ -481,7 +453,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
               total={pack.cards?.length ?? 0}
               known={cardsKnown}
               onToggleKnown={toggleCard}
-              context={pack.id === 'interview' ? 'interview' : 'audit'}
             />
           )}
 
@@ -503,8 +474,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 <div key={group.topic}>
                   <div className="grp">{group.topic}</div>
                   {group.items.map((item, i) => {
-                    const isRandomQuestion = pack.id === 'interview'
-                      && randomPick?.filterKey === randomFilterKey
+                    const isRandomQuestion = randomPick?.filterKey === randomFilterKey
                       && randomPick.id === item.id
                     return (
                         <QuestionCard
@@ -513,17 +483,16 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           index={i}
                           mark={marks[item.id]}
                           onToggleMark={toggleMark}
-                          reveal={pack.id === 'interview' ? false : reveal}
+                          reveal={false}
                           demos={pack.demos}
                           highlighted={isRandomQuestion}
                           autoOpen={isRandomQuestion}
-                          note={pack.id === 'interview' ? notes[item.id] : undefined}
-                          onNoteChange={pack.id === 'interview' ? (value) => setNote(item.id, value) : undefined}
-                          notesEnabled={pack.id === 'interview'}
-                          context={pack.id === 'interview' ? 'interview' : 'audit'}
-                          hint={pack.id === 'interview' ? (item as Question).hint : undefined}
-                          theoryLinks={pack.id === 'interview' ? theoryForQuestion(item as Question, pack.theory).map((article) => ({ id: article.id, title: article.title, topic: article.topic })) : undefined}
-                          onOpenTheory={pack.id === 'interview' ? (id) => goToLink({ mode: 'theory', id }) : undefined}
+                          note={notes[item.id]}
+                          onNoteChange={(value) => setNote(item.id, value)}
+                          notesEnabled
+                          hint={(item as Question).hint}
+                          theoryLinks={theoryForQuestion(item as Question, pack.theory).map((article) => ({ id: article.id, title: article.title, topic: article.topic }))}
+                          onOpenTheory={(id) => goToLink({ mode: 'theory', id })}
                         />
                     )
                   })}

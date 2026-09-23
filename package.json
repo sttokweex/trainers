@@ -14,12 +14,9 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "extract": "node scripts/extract.mjs",
-    "extract:check": "node scripts/extract.mjs --check",
-    "build:single:audit": "tsc --noEmit && SINGLE=1 PACK=audit vite build --outDir dist-audit",
-    "build:single:interview": "tsc --noEmit && SINGLE=1 PACK=interview vite build --outDir dist-interview",
-    "lint": "eslint src scripts",
-    "lint:fix": "eslint src scripts --fix"
+    "build:single:interview": "tsc --noEmit && SINGLE=1 vite build --outDir dist-interview",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",

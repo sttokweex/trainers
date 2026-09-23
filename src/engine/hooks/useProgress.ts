@@ -22,25 +22,14 @@ const save = (key: string, value: unknown) => {
  * поэтому уже проставленные отметки не теряются.
  */
 export function useProgress(pack: ContentPack) {
-  const keys = pack.id === 'interview'
-    ? {
-        marks: 'interview-trainer-v1',
-        reveal: 'interview-trainer-reveal',
-        cards: 'interview-trainer-cards',
-        plan: 'interview-trainer-plan',
-        theory: 'interview-trainer-theory',
-        notes: 'interview-trainer-notes',
-        reviews: 'interview-trainer-reviews',
-      }
-    : {
-        marks: `${pack.storagePrefix}:marks`,
-        reveal: `${pack.storagePrefix}:reveal`,
-        cards: `${pack.storagePrefix}:cards`,
-        plan: `${pack.storagePrefix}:plan`,
-        theory: '',
-        notes: '',
-        reviews: '',
-      }
+  const keys = {
+    marks: 'interview-trainer-v1',
+    cards: 'interview-trainer-cards',
+    plan: 'interview-trainer-plan',
+    theory: 'interview-trainer-theory',
+    notes: 'interview-trainer-notes',
+    reviews: 'interview-trainer-reviews',
+  }
 
   const [marks, setMarks] = useState<Marks>(() => read<Marks>(keys.marks, {}))
   const [cardsKnown, setCardsKnown] = useState<Flags>(() => (keys.cards ? read<Flags>(keys.cards, {}) : {}))
@@ -48,19 +37,12 @@ export function useProgress(pack: ContentPack) {
   const [theoryDone, setTheoryDone] = useState<Flags>(() => (keys.theory ? read<Flags>(keys.theory, {}) : {}))
   const [notes, setNotes] = useState<Record<string, string>>(() => (keys.notes ? read<Record<string, string>>(keys.notes, {}) : {}))
   const [reviews, setReviews] = useState<Reviews>(() => (keys.reviews ? read<Reviews>(keys.reviews, {}) : {}))
-  const [reveal, setReveal] = useState<boolean>(() => {
-    try { return localStorage.getItem(keys.reveal) !== 'hide' } catch { return true }
-  })
-
   useEffect(() => { save(keys.marks, marks) }, [keys.marks, marks])
   useEffect(() => { if (keys.cards) save(keys.cards, cardsKnown) }, [keys.cards, cardsKnown])
   useEffect(() => { if (keys.plan) save(keys.plan, planDone) }, [keys.plan, planDone])
   useEffect(() => { if (keys.theory) save(keys.theory, theoryDone) }, [keys.theory, theoryDone])
   useEffect(() => { if (keys.notes) save(keys.notes, notes) }, [keys.notes, notes])
   useEffect(() => { if (keys.reviews) save(keys.reviews, reviews) }, [keys.reviews, reviews])
-  useEffect(() => {
-    try { localStorage.setItem(keys.reveal, reveal ? 'show' : 'hide') } catch { /* ignore */ }
-  }, [keys.reveal, reveal])
 
   /** Повторный клик по той же отметке снимает её. */
   const toggleMark = useCallback((id: string, mark: Mark) => {
@@ -124,15 +106,9 @@ export function useProgress(pack: ContentPack) {
 
   const reset = useCallback(() => {
     setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({})
-    if (pack.id === 'interview') {
-      try { localStorage.removeItem('interview-trainer-theory-game-v1') } catch { /* ignore */ }
-      window.dispatchEvent(new Event('interview-trainer-progress-reset'))
-    }
-    if (pack.id === 'audit') {
-      try { localStorage.removeItem('audit-trainer-exam-progress-v1') } catch { /* ignore */ }
-      window.dispatchEvent(new Event('audit-trainer-progress-reset'))
-    }
-  }, [pack.id])
+    try { localStorage.removeItem('interview-trainer-theory-game-v1') } catch { /* ignore */ }
+    window.dispatchEvent(new Event('interview-trainer-progress-reset'))
+  }, [])
 
   const exportProgress = useCallback(() => JSON.stringify({
     pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews,
@@ -168,6 +144,6 @@ export function useProgress(pack: ContentPack) {
     cardsKnown, toggleCard,
     planDone, togglePlan, theoryDone, toggleTheory,
     notes, setNote, reviews, recordAttempt, exportProgress, importProgress,
-    reset, reveal, setReveal, known, repeat,
+    reset, known, repeat,
   }
 }

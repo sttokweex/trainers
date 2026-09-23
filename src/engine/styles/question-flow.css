@@ -42,7 +42,7 @@
 }
 
 /* Small, deliberate affordances inside interview cards. They are scoped to
-   the interview pack so audit keeps its original compact question UI. */
+   the interview pack. */
 [data-pack="interview"] .question-tools {
   display: flex;
   flex-direction: column;

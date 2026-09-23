@@ -71,16 +71,16 @@ describe('группировка карточек по теме (App.tsx grouped
     expect(onButtons[0]?.textContent).toContain('Все темы')
   })
 
-  it.each(['interview', 'audit'])('ни один заголовок группы не повторяется в паке «%s» (теория)', async (packId) => {
-    const c = await renderAt(`/${packId}?mode=theory`)
+  it('ни один заголовок группы не повторяется в теории собеседований', async () => {
+    const c = await renderAt('/interview?mode=theory')
     containers.push(c)
     const groups = groupsOf(c)
     expect(groups.length).toBeGreaterThan(0)
     expect(new Set(groups).size).toBe(groups.length)
   })
 
-  it.each(['interview', 'audit'])('ни один заголовок группы не повторяется в паке «%s» (вопросы)', async (packId) => {
-    const c = await renderAt(`/${packId}?mode=questions`)
+  it('ни один заголовок группы не повторяется в вопросах собеседований', async () => {
+    const c = await renderAt('/interview?mode=questions')
     containers.push(c)
     const groups = groupsOf(c)
     expect(groups.length).toBeGreaterThan(0)

@@ -7,14 +7,13 @@ import type { Card } from '@/engine/types'
  * кнопкой, чтобы карточка не исчезала из-под курсора неожиданно.
  */
 export function CardsMode({
-  items, total, known, onToggleKnown, context = 'audit',
+  items, total, known, onToggleKnown,
 }: {
   items: Card[]
   /** Сколько карточек в паке всего — для счётчика «освоено N из M». */
   total: number
   known: Record<string, boolean>
   onToggleKnown: (term: string) => void
-  context?: 'interview' | 'audit'
 }) {
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -22,7 +21,6 @@ export function CardsMode({
   // список мог отфильтроваться — не выходим за границы
   const safeIndex = items.length ? Math.min(index, items.length - 1) : 0
   const card = items[safeIndex]
-  const isInterview = context === 'interview'
 
   const go = (delta: number) => {
     if (!items.length) return
@@ -50,13 +48,13 @@ export function CardsMode({
   const markLabel = isKnown ? '✓ Знаю · отмечено' : '✓ Знаю'
 
   return (
-    <div className={isInterview ? 'cards-mode cards-mode-interview' : 'cards-mode'}>
+    <div className="cards-mode cards-mode-interview">
       <div className="intro">
         <h2>Карточки</h2>
-        <p>{total} терминов с английскими эквивалентами. Клик по карточке переворачивает её, стрелки листают, пробел переворачивает.{isInterview ? ' Используйте их, чтобы быстро восстановить язык профессии перед звонком.' : ''}</p>
+        <p>{total} терминов с английскими эквивалентами. Клик по карточке переворачивает её, стрелки листают, пробел переворачивает. Используйте их, чтобы быстро восстановить язык профессии перед звонком.</p>
       </div>
 
-      {isInterview && (
+      {
         <div className="fc-progress" aria-label={`Карточка ${safeIndex + 1} из ${items.length}`}>
           <div className="fc-progress-head">
             <span>Карточка {safeIndex + 1} из {items.length}</span>
@@ -66,9 +64,9 @@ export function CardsMode({
             <span style={{ width: `${items.length ? ((safeIndex + 1) / items.length) * 100 : 0}%` }} />
           </div>
         </div>
-      )}
+      }
 
-      <div className={'fc' + (isInterview && isKnown ? ' fc-known' : '')} onClick={() => setFlipped((v) => !v)}>
+      <div className={'fc' + (isKnown ? ' fc-known' : '')} onClick={() => setFlipped((v) => !v)}>
         <div className="side">{flipped ? 'определение' : 'термин — нажмите, чтобы увидеть определение'}</div>
         <div className="term">{card.term}</div>
         <div className="en">{card.en}</div>
@@ -79,14 +77,13 @@ export function CardsMode({
         <button type="button" className="btn" onClick={() => go(-1)}>← Назад</button>
         <button
           type="button"
-          className={'btn fc-know' + (isInterview && isKnown ? ' is-known' : '')}
+          className={'btn fc-know' + (isKnown ? ' is-known' : '')}
           aria-pressed={isKnown}
           onClick={() => {
             onToggleKnown(card.term)
-            if (!isInterview) go(1)
           }}
         >
-          {isInterview ? markLabel : (isKnown ? '✓ В освоенных' : '✓ Знаю')}
+          {markLabel}
         </button>
         <button type="button" className="btn pri" onClick={() => go(1)}>Дальше →</button>
         <button
@@ -95,16 +92,16 @@ export function CardsMode({
         >
           🎲 Случайная
         </button>
-        {!isInterview && <div className="fc-cnt">{safeIndex + 1} / {items.length} · освоено {knownCount} из {total}</div>}
+        <div className="fc-cnt">{safeIndex + 1} / {items.length} · освоено {knownCount} из {total}</div>
       </div>
 
-      {isInterview && (
+      {
         <div className="fc-status" role="status" aria-live="polite">
           {isKnown
             ? '✓ Отметка сохранена. Нажмите «Знаю» ещё раз, чтобы снять её, или переходите «Дальше». '
             : 'Сначала переверните карточку, затем отметьте «Знаю», если термин знаком.'}
         </div>
-      )}
+      }
 
       <div className="intro">
         <p>

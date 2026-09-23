@@ -55,9 +55,7 @@
 .question-note textarea{display:block; width:100%; margin-top:6px; padding:8px 10px; resize:vertical; border:1px solid var(--bd2); border-radius:7px; background:var(--panel2); color:var(--tx); font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; text-transform:none; letter-spacing:normal; outline:none}
 .question-note textarea:focus{border-color:var(--acc-d)}
 
-/* Theory reading progress is enabled only for the interview pack. Keeping the
-   controls in a separate side column makes the completion state readable even
-   when an article is collapsed, while audit cards keep their original header. */
+/* Theory reading progress for interview preparation. */
 [data-pack="interview"] .th-side{display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:0 0 auto}
 [data-pack="interview"] .th-done-btn{border:1px solid #315a3b; border-radius:8px; padding:6px 9px; background:#0d1a12; color:#a8e6b1; cursor:pointer; font-size:11px; white-space:nowrap; transition:.15s}
 [data-pack="interview"] .th-done-btn:hover{border-color:var(--grn); background:#102419}
@@ -69,7 +67,7 @@
   [data-pack="interview"] .th-done-btn{font-size:10px; padding:5px 7px}
 }
 
-/* Flash-card flow for interviews. Audit keeps the original compact controls. */
+/* Flash-card flow for interviews. */
 [data-pack="interview"] .cards-mode-interview .fc-progress{
   margin:4px 0 12px; padding:11px 13px; background:var(--panel); border:1px solid var(--bd); border-radius:10px;
 }

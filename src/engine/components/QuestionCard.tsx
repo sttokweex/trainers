@@ -20,7 +20,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 
 export function QuestionCard({
   item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
-  highlighted = false, autoOpen = false, context = 'audit', hint, theoryLinks, onOpenTheory,
+  highlighted = false, autoOpen = false, hint, theoryLinks, onOpenTheory,
 }: {
   item: Question
   index: number
@@ -29,7 +29,7 @@ export function QuestionCard({
   /** В режиме «Изучение» у чистой теории ответ раскрыт сразу — проверять там нечего. */
   reveal: boolean
   demos: Record<string, LegacyDemo>
-  /** Personal note is intentionally opt-in: audit keeps its original UI. */
+  /** Personal note for interview preparation. */
   note?: string
   onNoteChange?: (value: string) => void
   notesEnabled?: boolean
@@ -37,11 +37,9 @@ export function QuestionCard({
   highlighted?: boolean
   /** Opens the card when the user jumps to a random question. */
   autoOpen?: boolean
-  /** Adds interview-only explanations to progress markers. */
-  context?: 'interview' | 'audit'
   /** Short nudge shown without exposing the complete answer. */
   hint?: string
-  /** Related interview theory articles. Audit intentionally never receives these. */
+  /** Related interview theory articles. */
   theoryLinks?: { id: string; title: string; topic?: string }[]
   /** Opens a related article in the theory mode. */
   onOpenTheory?: (id: string) => void
@@ -56,8 +54,7 @@ export function QuestionCard({
    * Интерактив при этом остаётся: ячейки, редактор и варианты никуда не деваются.
    */
   const showAnswer = reveal || answerShown
-  const isInterview = context === 'interview'
-  const visibleHint = isInterview ? questionHint({ ...item, hint }) : hint?.trim()
+  const visibleHint = questionHint({ ...item, hint })
   const cls = 'card' + (open ? ' open' : '')
     + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
     + (highlighted ? ' random-highlight' : '')
@@ -82,7 +79,7 @@ export function QuestionCard({
 
       {open && (
         <div className="c-body">
-          {isInterview && (visibleHint || theoryLinks?.length) && (
+          {(visibleHint || theoryLinks?.length) && (
             <div className="question-tools" onClick={(e) => e.stopPropagation()}>
               {visibleHint && (
                 <div className="question-hint">
@@ -149,7 +146,7 @@ export function QuestionCard({
           )}
 
           {(showAnswer || item.type === 'code' || item.type === 'manual') && (
-            <Markers context={context} mark={mark} onToggle={(m) => onToggleMark(item.id, m)} />
+            <Markers mark={mark} onToggle={(m) => onToggleMark(item.id, m)} />
           )}
 
           {notesEnabled && onNoteChange && (
