@@ -1,5 +1,6 @@
 import type { ChoiceQuestion, Question, TheoryArticle } from '@/engine/types'
 import { examSources } from './exam-sources'
+import { examLawGuides } from './exam-law-guides'
 
 /** Темы, модули и содержание ниже составлены по программе из файла пользователя. */
 const baseExamPrepArticles: TheoryArticle[] = [
@@ -180,7 +181,7 @@ const sourceListHtml = (topic: string) => {
 
 export const examPrepArticles: TheoryArticle[] = baseExamPrepArticles.map((article) => ({
   ...article,
-  body: `${article.body}${examDeepDive[article.id] ?? ''}${sourceListHtml(article.topic)}`,
+  body: `${article.body}${examDeepDive[article.id] ?? ''}${examLawGuides[article.topic] ?? ''}${sourceListHtml(article.topic)}`,
 }))
 
 const examChoices: ChoiceQuestion[] = [
