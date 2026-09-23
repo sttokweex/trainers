@@ -37,6 +37,7 @@ import { performanceDiagnosis, consistencyTradeoff, securityThreatModel, testing
 import { eventDeliveryDemo } from './event-delivery'
 import { authFlow } from './auth-flow'
 import { pwaOffline } from './pwa-offline'
+import { adaptiveInterview } from './adaptive-interview'
 import type { LegacyDemo } from '@/engine/types'
 
 export const demos: Record<string, LegacyDemo> = {
@@ -82,4 +83,5 @@ export const demos: Record<string, LegacyDemo> = {
   'event-delivery': eventDeliveryDemo,
   'auth-flow': authFlow,
   'pwa-offline': pwaOffline,
+  'adaptive-interview': adaptiveInterview,
 }
