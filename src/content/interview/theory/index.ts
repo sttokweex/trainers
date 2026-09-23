@@ -52,6 +52,9 @@ import { ssr } from './th-ssr'
 import { browserExtensions } from './th-browser-extensions'
 import { telegramBots } from './th-telegram-bots'
 import { telegramMiniApps } from './th-telegram-mini-apps'
+import { postgresMysql } from './th-postgres-mysql'
+import { redisDeep } from './th-redis-deep'
+import { kafkaDeep } from './th-kafka-deep'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -109,4 +112,7 @@ export const theory: TheoryArticle[] = [
   browserExtensions,
   telegramBots,
   telegramMiniApps,
+  postgresMysql,
+  redisDeep,
+  kafkaDeep,
 ]

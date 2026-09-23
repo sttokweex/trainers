@@ -26,6 +26,7 @@ import { theoryPracticeQuestions } from './theory-practice'
 import { buildToolsQuestions } from './build-tools'
 import { distributedFrontendQuestions } from './distributed-frontend'
 import { browserTelegramQuestions } from './browser-telegram'
+import { databasesDeepQuestions } from './databases-deep'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -57,4 +58,5 @@ export const questions: Question[] = [
   ...buildToolsQuestions,
   ...distributedFrontendQuestions,
   ...browserTelegramQuestions,
+  ...databasesDeepQuestions,
 ]
