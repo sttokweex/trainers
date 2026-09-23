@@ -29,6 +29,7 @@ import { browserTelegramQuestions } from './browser-telegram'
 import { databasesDeepQuestions } from './databases-deep'
 import { frameworksInfraQuestions } from './frameworks-infra'
 import { nuxtNetworkingQuestions } from './nuxt-networking'
+import { protocolsDeepQuestions } from './protocols-deep'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -63,4 +64,5 @@ export const questions: Question[] = [
   ...databasesDeepQuestions,
   ...frameworksInfraQuestions,
   ...nuxtNetworkingQuestions,
+  ...protocolsDeepQuestions,
 ]

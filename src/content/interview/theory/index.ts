@@ -63,6 +63,8 @@ import { electron } from './th-electron'
 import { nuxt } from './th-nuxt'
 import { expressFastify } from './th-express-fastify'
 import { networkingAdmin } from './th-networking-admin'
+import { networkProtocols } from './th-network-protocols'
+import { infraRoadmap } from './th-infra-roadmap'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -131,4 +133,6 @@ export const theory: TheoryArticle[] = [
   nuxt,
   expressFastify,
   networkingAdmin,
+  networkProtocols,
+  infraRoadmap,
 ]
