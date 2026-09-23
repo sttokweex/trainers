@@ -8,6 +8,8 @@ export type Level = 'junior' | 'middle' | 'senior'
 interface QuestionBase {
   id: string
   topic: string
+  /** Optional exact theory article for article-specific practice sets. */
+  theoryId?: string
   level?: Level
   /** Текст вопроса. Может содержать HTML. */
   q: string
@@ -167,6 +169,13 @@ export interface ContentPack {
   /** Показывать ли фильтр по уровню (есть смысл только там, где уровни размечены). */
   hasLevelFilter: boolean
   categories?: TopicCategory[]
+  /** Материалы квалификационного экзамена, изолированные от обычных режимов. */
+  examPrep?: {
+    categories: TopicCategory[]
+    questions: Question[]
+    theory: TheoryArticle[]
+    cards: Card[]
+  }
   questions: Question[]
   theory: TheoryArticle[]
   tools?: Tool[]

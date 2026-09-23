@@ -50,7 +50,6 @@ import { anaRatios } from './ana-ratios'
 import { ifrsDiff } from './ifrs-diff'
 import { toolExcel } from './tool-excel'
 import { toolDocs } from './tool-docs'
-import { examPrepArticles } from '../exam-prep'
 import type { TheoryArticle } from '@/engine/types'
 
 /**
@@ -125,5 +124,4 @@ export const theory: TheoryArticle[] = [
   ifrsDiff,
   toolExcel,
   toolDocs,
-  ...examPrepArticles,
 ]

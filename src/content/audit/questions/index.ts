@@ -9,7 +9,6 @@ import { zavershenieQuestions } from './zavershenie'
 import { analizQuestions } from './analiz'
 import { msfoQuestions } from './msfo'
 import { instrumentQuestions } from './instrument'
-import { examPrepQuestions } from '../exam-prep'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -24,5 +23,4 @@ export const questions: Question[] = [
   ...analizQuestions,
   ...msfoQuestions,
   ...instrumentQuestions,
-  ...examPrepQuestions,
 ]

@@ -2,7 +2,6 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DEFAULT_PACK, PACK_META, loadPack } from '@/content'
 import { QuestionCard } from '@/engine/components/QuestionCard'
-import { TheoryCard } from '@/engine/components/TheoryCard'
 import { CardsMode } from '@/engine/components/modes/CardsMode'
 import { PlanMode } from '@/engine/components/modes/PlanMode'
 import { ToolsMode } from '@/engine/components/modes/ToolsMode'
@@ -10,6 +9,7 @@ import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryGameMode } from '@/engine/components/modes/TheoryGameMode'
 import { ExamMode } from '@/engine/components/modes/ExamMode'
+import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -286,14 +286,14 @@ function Trainer({ pack }: { pack: ContentPack }) {
             onClick={() => {
               const message = pack.id === 'interview'
                 ? 'Сбросить прогресс вопросов, карточек, теории и игрового пути собеседования?'
-                : 'Сбросить отметки по вопросам, карточкам и плану?'
+                : 'Сбросить отметки по вопросам, карточкам, теории и подготовке к экзамену?'
               if (confirm(message)) reset()
             }}
           >
             Сброс
           </button>
 
-          <div className="bar">
+          {mode !== 'theory-game' && <div className="bar">
             <div className="bar-track">
               <div
                 className="bar-fill"
@@ -301,7 +301,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
               />
             </div>
             <div className="bar-num">{known} / {pack.questions.length}</div>
-          </div>
+          </div>}
         </div>
       </header>
 
@@ -487,8 +487,19 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
           {(mode === 'questions' || mode === 'theory') && (
             <>
+              {mode === 'theory' && <TheoryStudyMode
+                pack={pack}
+                articles={theory}
+                marks={marks}
+                onToggleMark={toggleMark}
+                notes={notes}
+                onNoteChange={setNote}
+                done={theoryDone}
+                onToggleDone={toggleTheory}
+                openId={filters.open}
+              />}
               {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
-              {grouped.map((group) => (
+              {mode === 'questions' && grouped.map((group) => (
                 <div key={group.topic}>
                   <div className="grp">{group.topic}</div>
                   {group.items.map((item, i) => {
@@ -496,18 +507,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
                       && randomPick?.filterKey === randomFilterKey
                       && randomPick.id === item.id
                     return (
-                    mode === 'theory'
-                      ? (
-                        <TheoryCard
-                          key={item.id}
-                          item={item as TheoryArticle}
-                          demos={pack.demos}
-                          autoOpen={item.id === filters.open}
-                          done={pack.id === 'interview' ? Boolean(theoryDone[item.id]) : false}
-                          onToggleDone={pack.id === 'interview' ? () => toggleTheory(item.id) : undefined}
-                        />
-                      )
-                      : (
                         <QuestionCard
                           key={item.id + (isRandomQuestion ? `-random-${randomPick?.nonce ?? 0}` : '')}
                           item={item as Question}
@@ -526,7 +525,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           theoryLinks={pack.id === 'interview' ? theoryForQuestion(item as Question, pack.theory).map((article) => ({ id: article.id, title: article.title, topic: article.topic })) : undefined}
                           onOpenTheory={pack.id === 'interview' ? (id) => goToLink({ mode: 'theory', id }) : undefined}
                         />
-                      )
                     )
                   })}
                 </div>

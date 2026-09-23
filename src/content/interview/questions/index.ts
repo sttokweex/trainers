@@ -22,6 +22,7 @@ import { advancedQuestions } from './advanced'
 import { practicePoolQuestions } from './practice-pool'
 import { adjacentScenarioQuestions } from './adjacent-scenarios'
 import { javascriptBasicsQuestions } from './javascript-basics'
+import { theoryPracticeQuestions } from './theory-practice'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -49,4 +50,5 @@ export const questions: Question[] = [
   ...practicePoolQuestions,
   ...adjacentScenarioQuestions,
   ...javascriptBasicsQuestions,
+  ...theoryPracticeQuestions,
 ]

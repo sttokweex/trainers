@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TheoryCard } from '../TheoryCard'
 import { RichContent } from '../RichContent'
+import { CardsMode } from './CardsMode'
 import type { ChoiceQuestion, ContentPack, Question, TheoryArticle } from '@/engine/types'
 
-type Stage = 'map' | 'read' | 'challenge' | 'practice'
+type Stage = 'map' | 'read' | 'challenge' | 'practice' | 'cards'
 const STORAGE_KEY = 'audit-trainer-exam-progress-v1'
+const CARD_STORAGE_KEY = 'audit-trainer-exam-cards-v1'
+const EMPTY_EXAM: NonNullable<ContentPack['examPrep']> = { categories: [], theory: [], questions: [], cards: [] }
 
 function readDone(): string[] {
   try {
@@ -13,13 +16,22 @@ function readDone(): string[] {
   } catch { return [] }
 }
 
+function readKnownCards(): Record<string, boolean> {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(CARD_STORAGE_KEY) ?? '{}')
+    return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, boolean> : {}
+  } catch { return {} }
+}
+
 function pick<T,>(items: T[]): T | undefined {
   return items.length ? items[Math.floor(Math.random() * items.length)] : undefined
 }
 
 export function ExamMode({ pack }: { pack: ContentPack }) {
+  const exam = pack.examPrep ?? EMPTY_EXAM
   const [stage, setStage] = useState<Stage>('map')
   const [done, setDone] = useState<string[]>(readDone)
+  const [knownCards, setKnownCards] = useState<Record<string, boolean>>(readKnownCards)
   const [article, setArticle] = useState<TheoryArticle | null>(null)
   const [challenge, setChallenge] = useState<ChoiceQuestion | undefined>()
   const [practice, setPractice] = useState<Question | undefined>()
@@ -34,30 +46,34 @@ export function ExamMode({ pack }: { pack: ContentPack }) {
   }, [done])
 
   useEffect(() => {
-    const reset = () => setDone([])
+    try { localStorage.setItem(CARD_STORAGE_KEY, JSON.stringify(knownCards)) } catch { /* storage may be unavailable */ }
+  }, [knownCards])
+
+  useEffect(() => {
+    const reset = () => { setDone([]); setKnownCards({}) }
     window.addEventListener('audit-trainer-progress-reset', reset)
     return () => window.removeEventListener('audit-trainer-progress-reset', reset)
   }, [])
 
   const categoryByTopic = useMemo(() => {
     const map = new Map<string, string>()
-    for (const category of pack.categories ?? []) for (const topic of category.topics) map.set(topic, category.name)
+    for (const category of exam.categories) for (const topic of category.topics) map.set(topic, category.name)
     return map
-  }, [pack.categories])
+  }, [exam.categories])
 
   const worlds = useMemo(() => {
     const map = new Map<string, TheoryArticle[]>()
-    for (const item of pack.theory) {
+    for (const item of exam.theory) {
       const name = categoryByTopic.get(item.topic) ?? 'Дополнительные главы'
       map.set(name, [...(map.get(name) ?? []), item])
     }
     return [...map].map(([name, articles]) => ({ name, articles }))
-  }, [pack.theory, categoryByTopic])
+  }, [exam.theory, categoryByTopic])
 
-  const allComplete = done.length >= pack.theory.length
+  const allComplete = done.length >= exam.theory.length
 
   function openChapter(item: TheoryArticle) {
-    const pool = pack.questions.filter((q) => q.topic === item.topic)
+    const pool = exam.questions.filter((q) => q.topic === item.topic)
     setArticle(item)
     setChallenge(pick(pool.filter((q): q is ChoiceQuestion => q.type === 'choice' && !q.multi)))
     setPractice(pick(pool.filter((q) => q.type !== 'choice')) ?? pick(pool))
@@ -80,6 +96,8 @@ export function ExamMode({ pack }: { pack: ContentPack }) {
       <div className="tg-reading-action"><span>Сначала проверь понимание, затем реши отдельную практическую задачу.</span><button type="button" className="btn pri" onClick={() => { setPicked(null); setChecked(false); setStage(challenge ? 'challenge' : 'practice') }}>К проверке →</button></div>
     </div>
   )
+
+  if (stage === 'cards') return <div className="theory-game"><div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам экзамена</button><span>Карточки · экзаменационная программа</span></div><CardsMode items={exam.cards} total={exam.cards.length} known={knownCards} onToggleKnown={(term) => setKnownCards((previous) => { const next = { ...previous }; if (next[term]) delete next[term]; else next[term] = true; return next })} /></div>
 
   if (article && stage === 'challenge' && challenge) {
     const correct = picked !== null && challenge.options[picked]?.ok === true
@@ -120,9 +138,10 @@ export function ExamMode({ pack }: { pack: ContentPack }) {
   return (
     <div className="theory-game">
       <section className="tg-hero"><div className="tg-hero-copy"><div className="tg-eyebrow">Подготовка к квалификационному экзамену аудитора</div><h1>Теория и практика</h1><p>Выбери тему из экзаменационной программы. После теории система даст проверочный вопрос и отдельную практическую задачу из пула этой темы. При повторном заходе варианты выбираются заново.</p></div><div className="tg-avatar" aria-hidden="true">✓</div></section>
-      <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс подготовки</span><b>{done.length} из {pack.theory.length} тем пройдено</b></div><strong>{allComplete ? 'Готово' : `${Math.round((done.length / Math.max(1, pack.theory.length)) * 100)}%`}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс подготовки" aria-valuemin={0} aria-valuemax={pack.theory.length} aria-valuenow={Math.min(done.length, pack.theory.length)}><span style={{ width: `${Math.min(100, (done.length / Math.max(1, pack.theory.length)) * 100)}%` }} /></div><div className="tg-stats"><div><b>{pack.theory.length}</b><span>теоретических глав</span></div><div><b>{pack.questions.length}</b><span>вопросов в пуле</span></div><div><b>2</b><span>разных задания на тему</span></div></div></section>
+      <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс подготовки</span><b>{done.length} из {exam.theory.length} тем пройдено</b></div><strong>{allComplete ? 'Готово' : `${Math.round((done.length / Math.max(1, exam.theory.length)) * 100)}%`}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс подготовки" aria-valuemin={0} aria-valuemax={exam.theory.length} aria-valuenow={Math.min(done.length, exam.theory.length)}><span style={{ width: `${Math.min(100, (done.length / Math.max(1, exam.theory.length)) * 100)}%` }} /></div><div className="tg-stats"><div><b>{exam.theory.length}</b><span>теоретических глав</span></div><div><b>{exam.questions.length}</b><span>вопросов в пуле</span></div><div><b>{exam.cards.length}</b><span>карточек терминов</span></div></div></section>
       <div className="tg-map-heading"><div><div className="tg-eyebrow">Экзаменационные темы</div><h2>Выбери тему</h2></div><span>{allComplete ? 'Темы можно пройти повторно' : 'Порядок свободный'}</span></div>
-      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.articles.filter((item) => done.includes(item.id)).length}/{world.articles.length} тем</span></div><div className="tg-chapters">{world.articles.map((item, i) => <button key={item.id} type="button" className={['tg-chapter', done.includes(item.id) ? 'complete' : ''].filter(Boolean).join(' ')} onClick={() => openChapter(item)}><span className="tg-chapter-mark">{done.includes(item.id) ? '✓' : String(i + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{item.title}</b><small>{item.lead}</small></span><span className="tg-chapter-xp">{pack.questions.filter((q) => q.topic === item.topic).length} задач</span></button>)}</div></section>)}</div>
+      <button type="button" className="btn" onClick={() => setStage('cards')}>Открыть карточки терминов · {exam.cards.length}</button>
+      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.articles.filter((item) => done.includes(item.id)).length}/{world.articles.length} тем</span></div><div className="tg-chapters">{world.articles.map((item, i) => <button key={item.id} type="button" className={['tg-chapter', done.includes(item.id) ? 'complete' : ''].filter(Boolean).join(' ')} onClick={() => openChapter(item)}><span className="tg-chapter-mark">{done.includes(item.id) ? '✓' : String(i + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{item.title}</b><small>{item.lead}</small></span><span className="tg-chapter-xp">{exam.questions.filter((q) => q.topic === item.topic).length} задач</span></button>)}</div></section>)}</div>
       <p className="tg-footnote">Прогресс экзамена хранится отдельно от вкладки собеседования и обычных отметок по теории.</p>
     </div>
   )
