@@ -55,6 +55,11 @@ import { telegramMiniApps } from './th-telegram-mini-apps'
 import { postgresMysql } from './th-postgres-mysql'
 import { redisDeep } from './th-redis-deep'
 import { kafkaDeep } from './th-kafka-deep'
+import { angular } from './th-angular'
+import { vue } from './th-vue'
+import { styleSystems } from './th-stylesystems'
+import { threejs } from './th-threejs'
+import { electron } from './th-electron'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -115,4 +120,9 @@ export const theory: TheoryArticle[] = [
   postgresMysql,
   redisDeep,
   kafkaDeep,
+  angular,
+  vue,
+  styleSystems,
+  threejs,
+  electron,
 ]

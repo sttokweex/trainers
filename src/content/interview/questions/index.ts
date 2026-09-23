@@ -27,6 +27,7 @@ import { buildToolsQuestions } from './build-tools'
 import { distributedFrontendQuestions } from './distributed-frontend'
 import { browserTelegramQuestions } from './browser-telegram'
 import { databasesDeepQuestions } from './databases-deep'
+import { frameworksInfraQuestions } from './frameworks-infra'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -59,4 +60,5 @@ export const questions: Question[] = [
   ...distributedFrontendQuestions,
   ...browserTelegramQuestions,
   ...databasesDeepQuestions,
+  ...frameworksInfraQuestions,
 ]

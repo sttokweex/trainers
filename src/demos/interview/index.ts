@@ -40,6 +40,8 @@ import { pwaOffline } from './pwa-offline'
 import { adaptiveInterview } from './adaptive-interview'
 import { jsFoundationLab } from './js-foundation-lab'
 import type { LegacyDemo } from '@/engine/types'
+import { frameworkReactivityLab } from './framework-reactivity'
+import { electronIpcLab } from './electron-ipc'
 
 export const demos: Record<string, LegacyDemo> = {
   'event-loop': eventLoop,
@@ -86,4 +88,6 @@ export const demos: Record<string, LegacyDemo> = {
   'pwa-offline': pwaOffline,
   'adaptive-interview': adaptiveInterview,
   'js-foundation-lab': jsFoundationLab,
+  'framework-reactivity-lab': frameworkReactivityLab,
+  'electron-ipc-lab': electronIpcLab,
 }
