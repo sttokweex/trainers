@@ -54,7 +54,11 @@ export function TheoryStudyMode({
       const category = categoryByTopic.get(item.topic) ?? 'Другие темы'
       grouped.set(category, [...(grouped.get(category) ?? []), item])
     }
-    return [...grouped].map(([name, items]) => ({ name, items }))
+    return [...grouped].map(([name, items]) => {
+      const byTopic = new Map<string, TheoryArticle[]>()
+      for (const item of items) byTopic.set(item.topic, [...(byTopic.get(item.topic) ?? []), item])
+      return { name, topics: [...byTopic] }
+    })
   }, [articles, categoryByTopic])
 
   const openArticle = useCallback((item: TheoryArticle) => {
@@ -133,10 +137,10 @@ export function TheoryStudyMode({
       <section className="tg-hero"><div className="tg-hero-copy"><div className="tg-eyebrow">Теория и закрепление</div><h1>Изучи тему и проверь себя</h1><p>Прочитай главу, затем реши два вопроса из банка практики по этой теме. Экзаменационные материалы находятся отдельно во вкладке «Экзамен».</p></div><div className="tg-avatar" aria-hidden="true">↗</div></section>
       <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс</span><b>{completedCount} из {articles.length} тем пройдено</b></div><strong>{articles.length ? `${Math.round(completedCount / articles.length * 100)}%` : '0%'}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс теории" aria-valuemin={0} aria-valuemax={articles.length} aria-valuenow={completedCount}><span style={{ width: `${articles.length ? completedCount / articles.length * 100 : 0}%` }} /></div><div className="tg-stats"><div><b>{articles.length}</b><span>глав</span></div><div><b>{pack.questions.length}</b><span>вопросов в банке</span></div><div><b>2</b><span>задачи после главы</span></div></div></section>
       <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>Порядок свободный</span></div>
-      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.items.filter((item) => done[item.id]).length}/{world.items.length} глав</span></div><div className="tg-chapters">{world.items.map((item, index) => {
+      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.topics.flatMap(([, items]) => items).filter((item) => done[item.id]).length}/{world.topics.reduce((sum, [, items]) => sum + items.length, 0)} глав</span></div>{world.topics.map(([topic, items]) => <div key={topic}><div className="grp">{topic}</div><div className="tg-chapters">{items.map((item, index) => {
         const count = pack.questions.filter((question) => question.theoryId === item.id || (!question.theoryId && question.topic === item.topic)).length
         return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{item.title}</b><small>{item.lead}</small></span><span className="tg-chapter-xp">{count} вопросов</span></button>
-      })}</div></section>)}</div>
+      })}</div></div>)}</section>)}</div>
     </div>
   )
 }

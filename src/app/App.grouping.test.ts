@@ -80,7 +80,7 @@ describe('группировка карточек по теме (App.tsx grouped
   })
 
   it.each(['interview', 'audit'])('ни один заголовок группы не повторяется в паке «%s» (вопросы)', async (packId) => {
-    const c = await renderAt(`/${packId}`)
+    const c = await renderAt(`/${packId}?mode=questions`)
     containers.push(c)
     const groups = groupsOf(c)
     expect(groups.length).toBeGreaterThan(0)
