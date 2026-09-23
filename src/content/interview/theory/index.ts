@@ -45,6 +45,10 @@ import { basicsTypes } from './th-basics-types'
 import { basicsControl } from './th-basics-control'
 import { basicsFunctions } from './th-basics-functions'
 import { basicsCollections } from './th-basics-collections'
+import { microservices } from './th-microservices'
+import { microfrontends } from './th-microfrontends'
+import { postMessageTabs } from './th-postmessage-tabs'
+import { ssr } from './th-ssr'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -95,4 +99,8 @@ export const theory: TheoryArticle[] = [
   eventDelivery,
   authProtocols,
   pwaOffline,
+  microservices,
+  microfrontends,
+  postMessageTabs,
+  ssr,
 ]

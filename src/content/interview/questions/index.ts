@@ -24,6 +24,7 @@ import { adjacentScenarioQuestions } from './adjacent-scenarios'
 import { javascriptBasicsQuestions } from './javascript-basics'
 import { theoryPracticeQuestions } from './theory-practice'
 import { buildToolsQuestions } from './build-tools'
+import { distributedFrontendQuestions } from './distributed-frontend'
 import type { Question } from '@/engine/types'
 
 export const questions: Question[] = [
@@ -53,4 +54,5 @@ export const questions: Question[] = [
   ...javascriptBasicsQuestions,
   ...theoryPracticeQuestions,
   ...buildToolsQuestions,
+  ...distributedFrontendQuestions,
 ]
