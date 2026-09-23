@@ -36,6 +36,10 @@ import { delivery } from './th-delivery'
 import { eventDelivery } from './th-event-delivery'
 import { authProtocols } from './th-auth-protocols'
 import { pwaOffline } from './th-pwa-offline'
+import { loadBalancing } from './th-load-balancing'
+import { html } from './th-html'
+import { jsExecution } from './th-js-execution'
+import { glossary } from './th-glossary'
 import { basicsVariables } from './th-basics-variables'
 import { basicsTypes } from './th-basics-types'
 import { basicsControl } from './th-basics-control'
@@ -51,6 +55,7 @@ export const theory: TheoryArticle[] = [
   basicsCollections,
   async,
   jscore,
+  jsExecution,
   ts,
   tsAdvanced,
   lifecycle,
@@ -65,6 +70,7 @@ export const theory: TheoryArticle[] = [
   oop,
   fsd,
   css,
+  html,
   a11y,
   testing,
   sysdesign,
@@ -73,6 +79,7 @@ export const theory: TheoryArticle[] = [
   realtime,
   interview,
   plan,
+  glossary,
   patterns,
   archPatterns,
   libs,
@@ -83,6 +90,7 @@ export const theory: TheoryArticle[] = [
   performance,
   graphql,
   reliability,
+  loadBalancing,
   delivery,
   eventDelivery,
   authProtocols,

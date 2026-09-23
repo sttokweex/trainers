@@ -84,7 +84,7 @@ export function TheoryStudyMode({
 
   if (article && stage === 'read') return (
     <div className="theory-study">
-      <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам</button><span>{article.topic}</span></div>
+      <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" onClick={() => { const terms = articles.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Словарь терминов</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · затем проверка и практика</div><h2>{article.title}</h2><p>{article.lead}</p></div>
       <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} />
       <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
