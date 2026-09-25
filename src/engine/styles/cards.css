@@ -39,3 +39,24 @@ code.i{background:var(--panel2); border:1px solid var(--bd); border-radius:5px; 
 .ans th{background:var(--panel); color:var(--mut); font-weight:600}
 .hint{color:var(--yel); font-size:13px; background:#1c160910; border-left:3px solid var(--yel); padding:6px 12px; margin:10px 0; background:#15120a}
 .trap{color:#ffb4ae; font-size:13px; border-left:3px solid var(--red); padding:6px 12px; margin:10px 0; background:#1a0f0f}
+
+/* Варианты ответа: всегда столбик, иначе длинный пункт занимает строку,
+   а короткие садятся рядом и выглядят как сломанная сетка. */
+.opts{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+.opt{
+  display:flex; gap:10px; align-items:flex-start; width:100%; max-width:100%;
+  padding:11px 13px; border:1px solid var(--bd2); border-radius:8px;
+  background:var(--panel2); color:var(--tx); font:14px/1.5 inherit;
+  text-align:left; white-space:normal; cursor:pointer; transition:.15s;
+  appearance:none; -webkit-appearance:none;
+}
+.opt:hover{border-color:var(--acc-d); background:#13253a}
+.opt > b{
+  display:grid; place-items:center; flex:0 0 22px; width:22px; height:22px; margin-top:1px;
+  border:1px solid var(--bd2); border-radius:6px; color:var(--acc); font:700 10px var(--mono);
+}
+.opt > span{min-width:0; flex:1}
+.opt.on{border-color:var(--acc); background:#0f1d2e; box-shadow:0 0 0 1px var(--acc)}
+.opt.ok{border-color:var(--grn); background:#0d1a12; color:#c6f1cc}
+.opt.no{border-color:var(--red); background:#1a0f0f; color:#ffc8c4}
+.opt.miss{border-color:var(--yel); background:#1c1609}
