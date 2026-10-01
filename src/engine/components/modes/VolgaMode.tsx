@@ -29,7 +29,7 @@ export function VolgaMode({ query }: { query: string }) {
   const source = section === 'hr' ? hr : section === 'tricky' ? tricky : stack
   const needle = query.trim().toLocaleLowerCase('ru')
   const items = source.filter((item) => !needle || [item.title, item.requirement, item.answer, item.example].join(' ').toLocaleLowerCase('ru').includes(needle))
-  const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body]), ...chapter.check].join(' ').toLocaleLowerCase('ru').includes(needle))
+  const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body]), ...chapter.check.flatMap((item) => [item.question, item.answer])].join(' ').toLocaleLowerCase('ru').includes(needle))
 
   return <div className="volga">
     <section className="volga-hero">
@@ -45,12 +45,12 @@ export function VolgaMode({ query }: { query: string }) {
 
     {section === 'theory' ? <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Разбор тем вакансии</div><h2>Теория</h2></div><span>{chapters.length} / {theoryChapters.length}</span></div>
-      <p className="volga-note">Прочитайте главу, ответьте на вопросы в конце своими словами, затем откройте соседнюю вкладку с готовыми формулировками.</p>
+      <p className="volga-note">Прочитайте главу и ответьте на вопросы в конце своими словами. Затем раскройте ответы для сверки.</p>
       <div className="volga-list">{chapters.map((chapter) => <details className="volga-card volga-theory" key={chapter.id}>
         <summary><span>{chapter.title}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
           {chapter.points.map((point) => <div className="volga-theory-point" key={point.title}><h3>{point.title}</h3><p>{point.body}</p></div>)}
-          <div className="volga-check"><strong>Проверь себя</strong><ol>{chapter.check.map((question) => <li key={question}>{question}</li>)}</ol></div>
+          <div className="volga-check"><strong>Проверь себя</strong><ol>{chapter.check.map((item) => <li key={item.question}><details><summary>{item.question}</summary><p>{item.answer}</p></details></li>)}</ol></div>
         </div>
       </details>)}</div>
       {!chapters.length && <p className="empty">По запросу ничего не найдено.</p>}
