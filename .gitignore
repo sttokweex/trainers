@@ -3,3 +3,7 @@ dist
 dist-*
 .DS_Store
 *.local
+
+# Личное резюме для локальной подготовки к интервью
+src/content/interview/volga/resume-source.txt
+src/content/interview/volga/resume.md

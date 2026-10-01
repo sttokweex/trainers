@@ -8,6 +8,7 @@ import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
+import { VolgaMode } from '@/engine/components/modes/VolgaMode'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -16,7 +17,7 @@ import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
   questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',
-  dashboard: 'Обзор', session: 'Пробник',
+  dashboard: 'Обзор', session: 'Пробник', volga: 'Волга-Волга',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
   theory: 'теория', code: 'код', output: 'вывод', manual: 'написать', choice: 'выбор', num: 'расчёт',
@@ -99,7 +100,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack.title, mode])
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
-  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session'
+  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'volga'
 
   /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
       не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
@@ -427,6 +428,8 @@ function Trainer({ pack }: { pack: ContentPack }) {
               onNavigate={goToLink}
             />
           )}
+
+          {mode === 'volga' && <VolgaMode query={filters.query} />}
 
           {mode === 'plan' && pack.plan && (
             <PlanMode
