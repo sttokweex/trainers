@@ -19,7 +19,7 @@ function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
 export function TheoryStudyMode({
   pack, articles, marks, onToggleMark, notes, onNoteChange, done, onToggleDone,
   bookmarks, onAddBookmark, onRemoveBookmark,
-  openId,
+  openId, onOpenArticle,
 }: {
   pack: ContentPack
   articles: TheoryArticle[]
@@ -33,6 +33,7 @@ export function TheoryStudyMode({
   onAddBookmark: (bookmark: TheoryBookmark) => void
   onRemoveBookmark: (key: string) => void
   openId?: string
+  onOpenArticle: (article: TheoryArticle) => void
 }) {
   const [stage, setStage] = useState<Stage>('map')
   const [article, setArticle] = useState<TheoryArticle | null>(null)
@@ -68,6 +69,9 @@ export function TheoryStudyMode({
   }, [articles, categoryByTopic])
 
   const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string) => {
+    // Keep the URL's deep link in sync with the article selected from the map
+    // or a bookmark, so an older `open` id cannot pull the reader back.
+    onOpenArticle(item)
     setArticle(item)
     setOpenSectionIndex(sectionIndex)
     setOpenExcerpt(excerpt)
@@ -75,13 +79,15 @@ export function TheoryStudyMode({
     setTaskIndex(0)
     setStage('read')
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [pack.questions])
+  }, [onOpenArticle, pack.questions])
 
   useEffect(() => {
     if (!openId) return
-    const linked = pack.theory.find((item) => item.id === openId)
+    // Only resolve deep links against the currently visible articles. Looking
+    // in pack.theory ignores the topic filter and can reopen a stale chapter.
+    const linked = articles.find((item) => item.id === openId)
     if (linked && article?.id !== linked.id) openArticle(linked)
-  }, [openId, pack.theory, article?.id, openArticle])
+  }, [openId, articles, article?.id, openArticle])
 
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)

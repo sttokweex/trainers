@@ -90,6 +90,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const randomFilterKey = `${pack.id}|${filters.mode}|${filters.topic}|${filters.kind}|${filters.level}|${filters.status}|${filters.query}|${filters.open}`
   const changeFilters = (patch: Partial<typeof filters>) => {
     setRandomPick(null)
+    // Opening one topic must not keep auto-opening an article from the previous
+    // topic through the `open` URL parameter.
+    if ((patch.topic !== undefined || patch.mode !== undefined) && patch.open === undefined) {
+      patch = { ...patch, open: '' }
+    }
     set(patch)
   }
 
@@ -454,8 +459,10 @@ function Trainer({ pack }: { pack: ContentPack }) {
           {(mode === 'questions' || mode === 'theory') && (
             <>
               {mode === 'theory' && <TheoryStudyMode
+                key={filters.topic}
                 pack={pack}
                 articles={theory}
+                onOpenArticle={(item) => changeFilters({ mode: 'theory', topic: item.topic, open: item.id, query: '' })}
                 marks={marks}
                 onToggleMark={toggleMark}
                 notes={notes}
@@ -465,7 +472,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 bookmarks={bookmarks}
                 onAddBookmark={addBookmark}
                 onRemoveBookmark={removeBookmark}
-                openId={filters.open}
+                openId={theory.some((item) => item.id === filters.open) ? filters.open : ''}
               />}
               {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
               {mode === 'questions' && grouped.map((group) => (
