@@ -27,6 +27,7 @@
   .side{position:static; max-height:none; overflow:visible; padding-right:0}
 }
 .side h4{margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--mut2)}
+.topic-review-help{float:right; font-size:9px; font-weight:500; text-transform:none; letter-spacing:0; color:#a792e8}
 .side-box{background:var(--panel); border:1px solid var(--bd); border-radius:var(--r); padding:10px; margin-bottom:12px}
 .tp{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; background:none; border:0; color:var(--mut);
     padding:6px 8px; border-radius:7px; cursor:pointer; font-size:13px; text-align:left}
@@ -34,10 +35,20 @@
 .tp.on{background:#16293f; color:var(--acc); font-weight:600}
 .tp b{font:600 11px var(--mono); color:var(--mut2)}
 .tp.on b{color:var(--acc)}
+.topic-entry{position:relative; display:grid; grid-template-columns:minmax(0,1fr) 28px; align-items:center; gap:3px; width:100%; margin:1px 0}
+.topic-entry .tp-topic{display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto 3px; align-items:center; gap:4px 8px; min-width:0; margin:0; padding:6px 8px}
+.topic-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.topic-progress{grid-column:1/-1; display:block; height:3px; overflow:hidden; border-radius:99px; background:#202a38}
+.topic-progress i{display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#8064e8,#4da8ff); transition:width .2s}
+.topic-review{display:grid; place-items:center; width:26px; height:26px; padding:0; border:1px solid transparent; border-radius:7px; background:transparent; color:var(--mut2); font:16px var(--mono); cursor:pointer}
+.topic-review:hover{border-color:var(--bd2); color:var(--tx); background:var(--panel2)}
+.topic-review.on{border-color:#7254bc; color:#c1aaff; background:#211b35}
 @media(max-width:900px){
   .side-box{display:flex; flex-wrap:wrap; gap:6px}
   .side h4{flex:0 0 100%}
   .tp{width:auto; border:1px solid var(--bd2)}
+  .topic-entry{flex:1 1 100%; width:auto}
+  .topic-entry .tp-topic{width:100%; border:1px solid var(--bd2)}
 }
 
 /* ячейки ответа для задач на вывод */

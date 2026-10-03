@@ -38,6 +38,8 @@ export function useProgress(pack: ContentPack) {
   const [bookmarks, setBookmarks] = useState<Record<string, TheoryBookmark>>(() => read<Record<string, TheoryBookmark>>('interview-trainer-theory-bookmarks', {}))
   const [notes, setNotes] = useState<Record<string, string>>(() => (keys.notes ? read<Record<string, string>>(keys.notes, {}) : {}))
   const [reviews, setReviews] = useState<Reviews>(() => (keys.reviews ? read<Reviews>(keys.reviews, {}) : {}))
+  // Ручная пометка темы, к которой хочется вернуться позже.
+  const [topicReviews, setTopicReviews] = useState<Flags>(() => read<Flags>('interview-trainer-topic-reviews', {}))
   useEffect(() => { save(keys.marks, marks) }, [keys.marks, marks])
   useEffect(() => { if (keys.cards) save(keys.cards, cardsKnown) }, [keys.cards, cardsKnown])
   useEffect(() => { if (keys.plan) save(keys.plan, planDone) }, [keys.plan, planDone])
@@ -45,6 +47,7 @@ export function useProgress(pack: ContentPack) {
   useEffect(() => { save('interview-trainer-theory-bookmarks', bookmarks) }, [bookmarks])
   useEffect(() => { if (keys.notes) save(keys.notes, notes) }, [keys.notes, notes])
   useEffect(() => { if (keys.reviews) save(keys.reviews, reviews) }, [keys.reviews, reviews])
+  useEffect(() => { save('interview-trainer-topic-reviews', topicReviews) }, [topicReviews])
 
   /** Повторный клик по той же отметке снимает её. */
   const toggleMark = useCallback((id: string, mark: Mark) => {
@@ -79,6 +82,15 @@ export function useProgress(pack: ContentPack) {
       return next
     })
   }, [keys.theory])
+
+  const toggleTopicReview = useCallback((topic: string) => {
+    setTopicReviews((prev) => {
+      const next = { ...prev }
+      if (next[topic]) delete next[topic]
+      else next[topic] = true
+      return next
+    })
+  }, [])
 
   const setNote = useCallback((id: string, value: string) => {
     setNotes((prev) => {
@@ -119,20 +131,20 @@ export function useProgress(pack: ContentPack) {
   }, [])
 
   const reset = useCallback(() => {
-    setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({}); setBookmarks({})
+    setMarks({}); setCardsKnown({}); setPlanDone({}); setTheoryDone({}); setNotes({}); setReviews({}); setBookmarks({}); setTopicReviews({})
     window.dispatchEvent(new Event('interview-trainer-progress-reset'))
   }, [])
 
   const exportProgress = useCallback(() => JSON.stringify({
-    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks,
-  }, null, 2), [pack.id, marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks])
+    pack: pack.id, version: 1, exportedAt: new Date().toISOString(), marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks, topicReviews,
+  }, null, 2), [pack.id, marks, cardsKnown, planDone, theoryDone, notes, reviews, bookmarks, topicReviews])
 
   const importProgress = useCallback((raw: string) => {
     try {
       const data = JSON.parse(raw) as Partial<{
         pack: string; version: number
         marks: Marks; cardsKnown: Flags; planDone: Flags; theoryDone: Flags
-        notes: Record<string, string>; reviews: Reviews; bookmarks: Record<string, TheoryBookmark>
+        notes: Record<string, string>; reviews: Reviews; bookmarks: Record<string, TheoryBookmark>; topicReviews: Flags
       }>
       if (!data || typeof data !== 'object') return false
       if (data.pack && data.pack !== pack.id) return false
@@ -144,6 +156,7 @@ export function useProgress(pack: ContentPack) {
       if (data.notes && typeof data.notes === 'object') setNotes(data.notes)
       if (data.reviews && typeof data.reviews === 'object') setReviews(data.reviews)
       if (data.bookmarks && typeof data.bookmarks === 'object') setBookmarks(data.bookmarks)
+      if (data.topicReviews && typeof data.topicReviews === 'object') setTopicReviews(data.topicReviews)
       return true
     } catch {
       return false
@@ -157,7 +170,7 @@ export function useProgress(pack: ContentPack) {
     marks, toggleMark,
     cardsKnown, toggleCard,
     planDone, togglePlan, theoryDone, toggleTheory,
-    notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, exportProgress, importProgress,
+    notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, topicReviews, toggleTopicReview, exportProgress, importProgress,
     reset, known, repeat,
   }
 }

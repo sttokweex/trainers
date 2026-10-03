@@ -44,7 +44,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const { filters, set } = useFilters(pack)
   const {
     marks, toggleMark, cardsKnown, toggleCard, planDone, togglePlan, theoryDone, toggleTheory,
-    reset, known, repeat,
+    reset, known, repeat, topicReviews, toggleTopicReview,
     notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, exportProgress, importProgress,
   } = useProgress(pack)
 
@@ -153,6 +153,28 @@ function Trainer({ pack }: { pack: ContentPack }) {
     for (const x of src) map.set(x.topic, (map.get(x.topic) ?? 0) + 1)
     return map
   }, [pack, mode])
+
+  // Для теории и вопросов сайдбар показывает уже пройденное по каждой теме.
+  const topicProgress = useMemo(() => {
+    const result = new Map<string, { done: number; total: number; repeat: number }>()
+    if (mode === 'theory') {
+      for (const item of pack.theory) {
+        const row = result.get(item.topic) ?? { done: 0, total: 0, repeat: 0 }
+        row.total += 1
+        if (theoryDone[item.id]) row.done += 1
+        result.set(item.topic, row)
+      }
+    } else if (mode === 'questions') {
+      for (const item of pack.questions) {
+        const row = result.get(item.topic) ?? { done: 0, total: 0, repeat: 0 }
+        row.total += 1
+        if (marks[item.id] === 'know') row.done += 1
+        if (marks[item.id] === 'repeat') row.repeat += 1
+        result.set(item.topic, row)
+      }
+    }
+    return result
+  }, [mode, pack, theoryDone, marks])
 
   const listed: (Question | TheoryArticle)[] = mode === 'theory' ? theory : questions
   /** Группировка по теме целиком, а не по соседним элементам: если статьи одной
@@ -322,7 +344,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
         {showSidebar && (
         <aside className="side" ref={sideRef}>
           <div className="side-box">
-            <h4>Темы</h4>
+            <h4>Темы <span className="topic-review-help">↺ — хочу повторить</span></h4>
             <button
               type="button" className={'tp' + (filters.topic === 'all' ? ' on' : '')}
               onClick={() => changeFilters({ topic: 'all' })}
@@ -335,15 +357,31 @@ function Trainer({ pack }: { pack: ContentPack }) {
               // сжимается в одну колонку вместо того, чтобы её кнопки сами оборачивались.
               <Fragment key={cat.name || 'all'}>
                 {cat.name && cat.topics.length > 0 && <div className="cat">{cat.name}</div>}
-                {cat.topics.map((t) => (
-                  <button
-                    key={t} type="button"
-                    className={'tp' + (filters.topic === t ? ' on' : '')}
-                    onClick={() => changeFilters({ topic: t })}
-                  >
-                    <span>{t}</span><b>{topicCounts.get(t) ?? 0}</b>
-                  </button>
-                ))}
+                {cat.topics.map((t) => {
+                  const progress = topicProgress.get(t)
+                  const percent = progress?.total ? Math.round(progress.done / progress.total * 100) : 0
+                  const needsReview = Boolean(topicReviews[t])
+                  return <div className="topic-entry" key={t}>
+                    <button
+                      type="button"
+                      className={'tp tp-topic' + (filters.topic === t ? ' on' : '')}
+                      onClick={() => changeFilters({ topic: t })}
+                      title={progress ? `Пройдено ${progress.done} из ${progress.total}${progress.repeat ? ` · на повторение отмечено: ${progress.repeat}` : ''}` : t}
+                      aria-label={`${t}${progress ? `, пройдено ${progress.done} из ${progress.total}` : ''}${progress?.repeat ? `, на повторение ${progress.repeat}` : ''}`}
+                    >
+                      <span className="topic-label">{t}</span><b>{topicCounts.get(t) ?? 0}</b>
+                      {progress && <span className="topic-progress" aria-hidden="true"><i style={{ width: `${percent}%` }} /></span>}
+                    </button>
+                    <button
+                      type="button"
+                      className={'topic-review' + (needsReview ? ' on' : '')}
+                      aria-label={needsReview ? `Снять пометку «повторить» для темы «${t}»` : `Отметить тему «${t}» для повторения`}
+                      aria-pressed={needsReview}
+                      title={needsReview ? 'Убрать из списка на повторение' : 'Отметить: хочу повторить'}
+                      onClick={() => toggleTopicReview(t)}
+                    >↺</button>
+                  </div>
+                })}
               </Fragment>
             ))}
           </div>
