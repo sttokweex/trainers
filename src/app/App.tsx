@@ -218,7 +218,10 @@ function Trainer({ pack }: { pack: ContentPack }) {
       filterKey: randomFilterKey,
       nonce: (previous?.nonce ?? 0) + 1,
     }))
-    document.getElementById('q-' + item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    document.getElementById('q-' + item.id)?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'center',
+    })
   }
 
   const categories = pack.categories
@@ -270,8 +273,10 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
           <input
             ref={searchRef}
+            type="search"
             className="search"
             placeholder="Поиск…  (/)"
+            aria-label="Поиск по вопросам и материалам"
             value={filters.query}
             onChange={(e) => changeFilters({ query: e.target.value })}
           />
@@ -514,7 +519,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
               />}
               {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
               {mode === 'questions' && grouped.map((group) => (
-                <div key={group.topic}>
+                  <div key={group.topic} className={'topic-group' + (filters.topic === group.topic ? ' topic-group-active' : '')}>
                   <div className="grp">{group.topic}</div>
                   {group.items.map((item, i) => {
                     const isRandomQuestion = randomPick?.filterKey === randomFilterKey

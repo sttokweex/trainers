@@ -1,0 +1,125 @@
+/* A little depth and motion for the interview trainer, without adding runtime weight. */
+:root:has([data-pack="interview"]) body {
+  --glow-blue: color-mix(in srgb, var(--acc) 11%, transparent);
+  --glow-violet: color-mix(in srgb, var(--pur) 8%, transparent);
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 42rem 28rem at 82% -5rem, var(--glow-blue), transparent 72%),
+    radial-gradient(ellipse 36rem 30rem at -12rem 34rem, var(--glow-violet), transparent 74%),
+    var(--bg);
+}
+
+:root:has([data-pack="interview"]) {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--top-h, 96px) + 18px);
+}
+
+[data-pack="interview"] .card,
+[data-pack="interview"] .grp,
+[data-pack="interview"] #list > * {
+  scroll-margin-top: calc(var(--top-h, 96px) + 18px);
+}
+
+[data-pack="interview"] .top {
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  box-shadow: 0 8px 32px #0003;
+}
+
+[data-pack="interview"] .top::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--acc) 52%, transparent), color-mix(in srgb, var(--pur) 34%, transparent), transparent);
+  pointer-events: none;
+}
+
+[data-pack="interview"] .md {
+  position: relative;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+[data-pack="interview"] .md:hover { transform: translateY(-1px); }
+[data-pack="interview"] .md.on {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 30%, transparent), 0 4px 18px color-mix(in srgb, var(--acc) 12%, transparent);
+}
+
+[data-pack="interview"] .wrap { animation: trainer-enter .55s cubic-bezier(.2,.75,.25,1) both; }
+[data-pack="interview"] .side-box,
+[data-pack="interview"] .dash-panel,
+[data-pack="interview"] .dash-kpi {
+  box-shadow: 0 8px 24px #00000012;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+[data-pack="interview"] .side-box:hover,
+[data-pack="interview"] .dash-panel:hover,
+[data-pack="interview"] .dash-kpi:hover {
+  border-color: color-mix(in srgb, var(--acc) 32%, var(--bd));
+  box-shadow: 0 12px 30px #0003;
+}
+[data-pack="interview"] .card {
+  box-shadow: 0 8px 22px #00000012;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+[data-pack="interview"] .card:hover {
+  border-color: color-mix(in srgb, var(--acc) 26%, var(--bd));
+  box-shadow: 0 12px 30px #0003;
+  transform: translateY(-1px);
+}
+[data-pack="interview"] .btn,
+[data-pack="interview"] .tp,
+[data-pack="interview"] .topic-review {
+  transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+[data-pack="interview"] :is(button, input, textarea, a):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--acc) 82%, white);
+  outline-offset: 3px;
+}
+[data-pack="interview"] .btn.pri { box-shadow: 0 6px 20px color-mix(in srgb, var(--acc-d) 28%, transparent); }
+[data-pack="interview"] .btn.pri:hover { transform: translateY(-1px); box-shadow: 0 9px 24px color-mix(in srgb, var(--acc-d) 36%, transparent); }
+
+/* Make the chosen topic visible in both navigation and the question list. */
+[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--acc) 48%, var(--bd));
+  background: linear-gradient(105deg, color-mix(in srgb, var(--acc) 17%, var(--panel2)), color-mix(in srgb, var(--pur) 8%, var(--panel2)) 72%);
+  box-shadow: inset 0 0 20px color-mix(in srgb, var(--acc) 8%, transparent), 0 0 18px color-mix(in srgb, var(--acc) 9%, transparent);
+}
+[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic::after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  content: '';
+  background: linear-gradient(180deg, var(--acc), var(--pur));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--acc) 70%, transparent);
+}
+[data-pack="interview"] .topic-entry:has(.tp-topic.on) .topic-label { color: #d9eaff; }
+[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic > b { color: #c5dcff; }
+[data-pack="interview"] .topic-group-active > .grp {
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--acc) 24%, var(--bd));
+  border-radius: 9px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--acc) 10%, var(--panel)), transparent 82%);
+  color: #c9e2ff;
+  box-shadow: inset 2px 0 var(--acc);
+}
+[data-pack="interview"] .topic-group-active > .card { border-color: color-mix(in srgb, var(--acc) 20%, var(--bd)); }
+
+@keyframes trainer-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pack="interview"] *,
+  [data-pack="interview"] *::before,
+  [data-pack="interview"] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
