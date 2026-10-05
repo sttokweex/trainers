@@ -154,6 +154,21 @@ function Trainer({ pack }: { pack: ContentPack }) {
     return map
   }, [pack, mode])
 
+  const searchMatchedTopics = useMemo(() => {
+    const query = filters.query.trim()
+    if (!query) return new Set<string>()
+    const source = mode === 'theory' ? pack.theory
+      : mode === 'tools' ? (pack.tools ?? [])
+        : mode === 'cards' ? (pack.cards ?? [])
+          : pack.questions
+    return new Set(source.filter((item) => {
+      if ('q' in item) return matches([item.q, item.answer, item.topic].join(' '), query)
+      if ('title' in item) return matches([item.title, item.lead, item.body, item.topic].join(' '), query)
+      if ('term' in item) return matches([item.term, item.en, item.def].join(' '), query)
+      return matches([item.t, item.d, item.topic].join(' '), query)
+    }).map((item) => item.topic))
+  }, [pack, mode, filters.query])
+
   // Для теории и вопросов сайдбар показывает уже пройденное по каждой теме.
   const topicProgress = useMemo(() => {
     const result = new Map<string, { done: number; total: number; repeat: number }>()
@@ -366,7 +381,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                   const progress = topicProgress.get(t)
                   const percent = progress?.total ? Math.round(progress.done / progress.total * 100) : 0
                   const needsReview = Boolean(topicReviews[t])
-                  return <div className="topic-entry" key={t}>
+                  return <div className={'topic-entry' + (searchMatchedTopics.has(t) ? ' topic-search-match' : '')} key={t}>
                     <button
                       type="button"
                       className={'tp tp-topic' + (filters.topic === t ? ' on' : '')}
@@ -487,7 +502,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
           )}
 
           {mode === 'tools' && (
-            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} />
+            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} query={filters.query} />
           )}
 
           {mode === 'cards' && (
@@ -516,10 +531,12 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 onAddBookmark={addBookmark}
                 onRemoveBookmark={removeBookmark}
                 openId={theory.some((item) => item.id === filters.open) ? filters.open : ''}
+                query={filters.query}
+                selectedTopic={filters.topic}
               />}
               {listed.length === 0 && <div className="empty">Ничего не найдено — сбросьте фильтры</div>}
               {mode === 'questions' && grouped.map((group) => (
-                  <div key={group.topic} className={'topic-group' + (filters.topic === group.topic ? ' topic-group-active' : '')}>
+                  <div key={group.topic} className={'topic-group' + (filters.topic === group.topic ? ' topic-group-active' : '') + (searchMatchedTopics.has(group.topic) ? ' topic-group-match' : '')}>
                   <div className="grp">{group.topic}</div>
                   {group.items.map((item, i) => {
                     const isRandomQuestion = randomPick?.filterKey === randomFilterKey
@@ -534,6 +551,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                           reveal={false}
                           demos={pack.demos}
                           highlighted={isRandomQuestion}
+                          searchMatch={Boolean(filters.query.trim() && matches([(item as Question).q, (item as Question).answer, item.topic].join(' '), filters.query))}
                           autoOpen={isRandomQuestion}
                           note={notes[item.id]}
                           onNoteChange={(value) => setNote(item.id, value)}

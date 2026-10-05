@@ -68,6 +68,10 @@
   box-shadow: 0 12px 30px #0003;
   transform: translateY(-1px);
 }
+[data-pack="interview"] .card.search-match {
+  border-color: color-mix(in srgb, var(--acc) 38%, var(--bd));
+  box-shadow: inset 2px 0 color-mix(in srgb, var(--acc) 76%, transparent), 0 0 22px color-mix(in srgb, var(--acc) 8%, transparent);
+}
 [data-pack="interview"] .btn,
 [data-pack="interview"] .tp,
 [data-pack="interview"] .topic-review {
@@ -108,12 +112,68 @@
 }
 [data-pack="interview"] .topic-group-active > .card { border-color: color-mix(in srgb, var(--acc) 20%, var(--bd)); }
 
+/* Search results are also reflected in the filters and in the chapter map. */
+[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .tp-topic {
+  border-color: color-mix(in srgb, var(--acc) 32%, var(--bd2));
+  background: linear-gradient(100deg, color-mix(in srgb, var(--acc) 8%, var(--panel2)), var(--panel2));
+}
+[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .topic-label { color: #b7d7ff; }
+[data-pack="interview"] .topic-group-match > .grp,
+[data-pack="interview"] .grp.topic-selected {
+  color: #b7d7ff;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--acc) 30%, transparent);
+}
+[data-pack="interview"] .grp.topic-selected { box-shadow: inset 2px 0 var(--acc); padding-left: 10px; }
+[data-pack="interview"] .tg-chapter.search-result {
+  border-color: color-mix(in srgb, var(--acc) 24%, var(--bd));
+  background: linear-gradient(110deg, color-mix(in srgb, var(--acc) 6%, var(--panel)), var(--panel) 65%);
+}
+[data-pack="interview"] .tg-chapter.search-result:hover { border-color: var(--acc); }
+[data-pack="interview"] mark.search-hit {
+  padding: 0 .12em;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--yel) 25%, transparent);
+  color: #ffe29a;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--yel) 20%, transparent);
+}
+
+/* The interview pack uses the same interactive practice cards as the audit pack. */
+[data-pack="interview"] .intro {
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--bd);
+  border-left: 3px solid var(--acc-d);
+  border-radius: var(--r);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--acc) 7%, var(--panel)), var(--panel) 55%);
+}
+[data-pack="interview"] .intro h2 { margin: 2px 0 8px; font-size: 17px; }
+[data-pack="interview"] .intro p { max-width: 78ch; margin: 7px 0; color: var(--mut); font-size: 14px; }
+[data-pack="interview"] .tool {
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: 0 8px 22px #00000012;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+[data-pack="interview"] .tool:hover,
+[data-pack="interview"] .tool.open { border-color: color-mix(in srgb, var(--acc) 30%, var(--bd)); }
+[data-pack="interview"] .tool-h { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 14px 17px; cursor: pointer; }
+[data-pack="interview"] .tool-h:hover { background: var(--panel2); }
+[data-pack="interview"] .tool-h > div { flex: 1 1 200px; min-width: 0; }
+[data-pack="interview"] .tool-h h3 { margin: 0 0 4px; font-size: 15.5px; }
+[data-pack="interview"] .tool-h p { margin: 0; color: var(--mut); font-size: 13px; line-height: 1.5; }
+[data-pack="interview"] .tool-b { padding: 0 17px 18px; animation: trainer-enter .28s ease both; }
+[data-pack="interview"] .tool-b .demo { margin-top: 4px; }
+
 @keyframes trainer-enter {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root:has([data-pack="interview"]) { scroll-behavior: auto; }
   [data-pack="interview"] *,
   [data-pack="interview"] *::before,
   [data-pack="interview"] *::after {

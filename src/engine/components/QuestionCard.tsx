@@ -20,7 +20,7 @@ const TYPE_CLASS: Record<Question['type'], string> = {
 
 export function QuestionCard({
   item, index, mark, onToggleMark, reveal, demos, note, onNoteChange, notesEnabled = false,
-  highlighted = false, autoOpen = false, hint, theoryLinks, onOpenTheory,
+  highlighted = false, autoOpen = false, hint, theoryLinks, onOpenTheory, searchMatch = false,
 }: {
   item: Question
   index: number
@@ -35,6 +35,8 @@ export function QuestionCard({
   notesEnabled?: boolean
   /** A random pick gets a persistent visual marker until another pick/filter. */
   highlighted?: boolean
+  /** Search result marker, separate from the random-pick highlight. */
+  searchMatch?: boolean
   /** Opens the card when the user jumps to a random question. */
   autoOpen?: boolean
   /** Short nudge shown without exposing the complete answer. */
@@ -58,6 +60,7 @@ export function QuestionCard({
   const cls = 'card' + (open ? ' open' : '')
     + (mark === 'know' ? ' done' : mark === 'repeat' ? ' repeat' : '')
     + (highlighted ? ' random-highlight' : '')
+    + (searchMatch ? ' search-match' : '')
 
   return (
     <div className={cls} id={'q-' + item.id}>

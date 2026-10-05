@@ -42,11 +42,12 @@ function ToolCard({
 
 /** Практикум: калькуляторы и тренажёры — каждая карточка это одно демо. */
 export function ToolsMode({
-  items, demos, openId,
+  items, demos, openId, query = '',
 }: {
   items: Tool[]
   demos: Record<string, LegacyDemo>
   openId?: string
+  query?: string
 }) {
   if (!items.length) return <div className="empty">Ничего не найдено</div>
 
@@ -72,7 +73,7 @@ export function ToolsMode({
       </div>
       {groups.map((g) => (
         <div key={g.topic}>
-          <div className="grp">{g.topic}</div>
+          <div className={'grp' + (query.trim() ? ' topic-group-match' : '')}>{g.topic}</div>
           {g.list.map((t) => (
             <ToolCard key={t.id} item={t} demos={demos} autoOpen={t.id === openId} />
           ))}

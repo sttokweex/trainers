@@ -6,6 +6,16 @@ import { estimateReadingMinutes, TheoryCard } from '../TheoryCard'
 
 type Stage = 'map' | 'read' | 'tasks'
 
+function highlightMatch(text: string, query: string) {
+  const needle = query.trim()
+  if (!needle) return text
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'))
+  return parts.map((part, index) => part.toLowerCase() === needle.toLowerCase()
+    ? <mark className="search-hit" key={`${index}-${part}`}>{part}</mark>
+    : part)
+}
+
 function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
   const exact = questions.filter((question) => question.theoryId === article.id)
   const pool = exact.length ? exact : questions.filter((question) => !question.theoryId && question.topic === article.topic)
@@ -19,7 +29,7 @@ function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
 export function TheoryStudyMode({
   pack, articles, marks, onToggleMark, notes, onNoteChange, done, onToggleDone,
   bookmarks, onAddBookmark, onRemoveBookmark,
-  openId, onOpenArticle,
+  openId, onOpenArticle, query = '', selectedTopic = 'all',
 }: {
   pack: ContentPack
   articles: TheoryArticle[]
@@ -34,6 +44,8 @@ export function TheoryStudyMode({
   onRemoveBookmark: (key: string) => void
   openId?: string
   onOpenArticle: (article: TheoryArticle) => void
+  query?: string
+  selectedTopic?: string
 }) {
   const [stage, setStage] = useState<Stage>('map')
   const [article, setArticle] = useState<TheoryArticle | null>(null)
@@ -157,10 +169,10 @@ export function TheoryStudyMode({
         if (!savedArticle) return null
         return <article className="tg-bookmark" key={bookmark.key}><button type="button" className="tg-bookmark-open" onClick={() => openArticle(savedArticle, bookmark.sectionIndex, bookmark.excerpt)}><strong>{bookmark.label}</strong><span>{bookmark.articleTitle} · {bookmark.sectionTitle}</span><q>{bookmark.excerpt}</q></button><button type="button" className="tg-bookmark-remove" aria-label={`Удалить закладку ${bookmark.label}`} title="Удалить закладку" onClick={() => onRemoveBookmark(bookmark.key)}>×</button></article>
       })}</div></section>}
-      <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>Порядок свободный</span></div>
-      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.topics.flatMap(([, items]) => items).filter((item) => done[item.id]).length}/{world.topics.reduce((sum, [, items]) => sum + items.length, 0)} глав</span></div>{world.topics.map(([topic, items]) => <div key={topic}><div className="grp">{topic}</div><div className="tg-chapters">{items.map((item, index) => {
+      <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>{query.trim() ? `${articles.length} глав по запросу «${query.trim()}»` : 'Порядок свободный'}</span></div>
+      <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.topics.flatMap(([, items]) => items).filter((item) => done[item.id]).length}/{world.topics.reduce((sum, [, items]) => sum + items.length, 0)} глав</span></div>{world.topics.map(([topic, items]) => <div key={topic}><div className={'grp' + (selectedTopic === topic ? ' topic-selected' : '') + (query.trim() ? ' search-topic-match' : '')}>{highlightMatch(topic, query)}</div><div className="tg-chapters">{items.map((item, index) => {
         const count = pack.questions.filter((question) => question.theoryId === item.id || (!question.theoryId && question.topic === item.topic)).length
-        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{item.title}</b><small>{item.lead}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} вопросов</span></button>
+        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : '', selectedTopic === topic ? 'topic-match' : '', query.trim() ? 'search-result' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{highlightMatch(item.title, query)}</b><small>{highlightMatch(item.lead, query)}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} вопросов</span></button>
       })}</div></div>)}</section>)}</div>
     </div>
   )
