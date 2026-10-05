@@ -16,7 +16,7 @@
 
 .ambient-orbit {
   position: fixed;
-  z-index: 1;
+  z-index: 0;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -26,18 +26,18 @@
   mask-image: radial-gradient(ellipse 62% 68% at 83% 55%, #000 12%, transparent 100%);
 }
 
-[data-pack="interview"] .card,
-[data-pack="interview"] .grp,
-[data-pack="interview"] #list > * {
+.wrap[data-pack="interview"] .card,
+.wrap[data-pack="interview"] .grp,
+.wrap[data-pack="interview"] #list > * {
   scroll-margin-top: calc(var(--top-h, 96px) + 18px);
 }
 
-[data-pack="interview"] .top {
+:root:has(.wrap[data-pack="interview"]) .top {
   background: color-mix(in srgb, var(--bg) 86%, transparent);
   box-shadow: 0 8px 32px #0003;
 }
 
-[data-pack="interview"] .top::after {
+:root:has(.wrap[data-pack="interview"]) .top::after {
   position: absolute;
   right: 0;
   bottom: -1px;
@@ -48,63 +48,63 @@
   pointer-events: none;
 }
 
-[data-pack="interview"] .md {
+:root:has(.wrap[data-pack="interview"]) .md {
   position: relative;
   transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
 }
 
-[data-pack="interview"] .md:hover { transform: translateY(-1px); }
-[data-pack="interview"] .md.on {
+:root:has(.wrap[data-pack="interview"]) .md:hover { transform: translateY(-1px); }
+:root:has(.wrap[data-pack="interview"]) .md.on {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 30%, transparent), 0 4px 18px color-mix(in srgb, var(--acc) 12%, transparent);
 }
 
-[data-pack="interview"] .wrap { position: relative; z-index: 2; animation: trainer-enter .55s cubic-bezier(.2,.75,.25,1) both; }
-[data-pack="interview"] .side-box,
-[data-pack="interview"] .dash-panel,
-[data-pack="interview"] .dash-kpi {
+.wrap[data-pack="interview"] { position: relative; z-index: 2; animation: trainer-enter .55s cubic-bezier(.2,.75,.25,1) both; }
+.wrap[data-pack="interview"] .side-box,
+.wrap[data-pack="interview"] .dash-panel,
+.wrap[data-pack="interview"] .dash-kpi {
   box-shadow: 0 8px 24px #00000012;
   transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-[data-pack="interview"] .side-box:hover,
-[data-pack="interview"] .dash-panel:hover,
-[data-pack="interview"] .dash-kpi:hover {
+.wrap[data-pack="interview"] .side-box:hover,
+.wrap[data-pack="interview"] .dash-panel:hover,
+.wrap[data-pack="interview"] .dash-kpi:hover {
   border-color: color-mix(in srgb, var(--acc) 32%, var(--bd));
   box-shadow: 0 12px 30px #0003;
 }
-[data-pack="interview"] .card {
+.wrap[data-pack="interview"] .card {
   box-shadow: 0 8px 22px #00000012;
   transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
-[data-pack="interview"] .card:hover {
+.wrap[data-pack="interview"] .card:hover {
   border-color: color-mix(in srgb, var(--acc) 26%, var(--bd));
   box-shadow: 0 12px 30px #0003;
   transform: translateY(-1px);
 }
-[data-pack="interview"] .card.search-match {
+.wrap[data-pack="interview"] .card.search-match {
   border-color: color-mix(in srgb, var(--acc) 38%, var(--bd));
   box-shadow: inset 2px 0 color-mix(in srgb, var(--acc) 76%, transparent), 0 0 22px color-mix(in srgb, var(--acc) 8%, transparent);
 }
-[data-pack="interview"] .btn,
-[data-pack="interview"] .tp,
-[data-pack="interview"] .topic-review {
+.wrap[data-pack="interview"] .btn,
+.wrap[data-pack="interview"] .tp,
+.wrap[data-pack="interview"] .topic-review {
   transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
-[data-pack="interview"] :is(button, input, textarea, a):focus-visible {
+.wrap[data-pack="interview"] :is(button, input, textarea, a):focus-visible {
   outline: 2px solid color-mix(in srgb, var(--acc) 82%, white);
   outline-offset: 3px;
 }
-[data-pack="interview"] .btn.pri { box-shadow: 0 6px 20px color-mix(in srgb, var(--acc-d) 28%, transparent); }
-[data-pack="interview"] .btn.pri:hover { transform: translateY(-1px); box-shadow: 0 9px 24px color-mix(in srgb, var(--acc-d) 36%, transparent); }
+.wrap[data-pack="interview"] .btn.pri { box-shadow: 0 6px 20px color-mix(in srgb, var(--acc-d) 28%, transparent); }
+.wrap[data-pack="interview"] .btn.pri:hover { transform: translateY(-1px); box-shadow: 0 9px 24px color-mix(in srgb, var(--acc-d) 36%, transparent); }
 
 /* Make the chosen topic visible in both navigation and the question list. */
-[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic {
+.wrap[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic {
   position: relative;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--acc) 48%, var(--bd));
   background: linear-gradient(105deg, color-mix(in srgb, var(--acc) 17%, var(--panel2)), color-mix(in srgb, var(--pur) 8%, var(--panel2)) 72%);
   box-shadow: inset 0 0 20px color-mix(in srgb, var(--acc) 8%, transparent), 0 0 18px color-mix(in srgb, var(--acc) 9%, transparent);
 }
-[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic::after {
+.wrap[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic::after {
   position: absolute;
   inset: 0 auto 0 0;
   width: 2px;
@@ -112,9 +112,9 @@
   background: linear-gradient(180deg, var(--acc), var(--pur));
   box-shadow: 0 0 12px color-mix(in srgb, var(--acc) 70%, transparent);
 }
-[data-pack="interview"] .topic-entry:has(.tp-topic.on) .topic-label { color: #d9eaff; }
-[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic > b { color: #c5dcff; }
-[data-pack="interview"] .topic-group-active > .grp {
+.wrap[data-pack="interview"] .topic-entry:has(.tp-topic.on) .topic-label { color: #d9eaff; }
+.wrap[data-pack="interview"] .topic-entry:has(.tp-topic.on) .tp-topic > b { color: #c5dcff; }
+.wrap[data-pack="interview"] .topic-group-active > .grp {
   padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--acc) 24%, var(--bd));
   border-radius: 9px;
@@ -122,26 +122,26 @@
   color: #c9e2ff;
   box-shadow: inset 2px 0 var(--acc);
 }
-[data-pack="interview"] .topic-group-active > .card { border-color: color-mix(in srgb, var(--acc) 20%, var(--bd)); }
+.wrap[data-pack="interview"] .topic-group-active > .card { border-color: color-mix(in srgb, var(--acc) 20%, var(--bd)); }
 
 /* Search results are also reflected in the filters and in the chapter map. */
-[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .tp-topic {
+.wrap[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .tp-topic {
   border-color: color-mix(in srgb, var(--acc) 32%, var(--bd2));
   background: linear-gradient(100deg, color-mix(in srgb, var(--acc) 8%, var(--panel2)), var(--panel2));
 }
-[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .topic-label { color: #b7d7ff; }
-[data-pack="interview"] .topic-group-match > .grp,
-[data-pack="interview"] .grp.topic-selected {
+.wrap[data-pack="interview"] .topic-search-match:not(:has(.tp-topic.on)) .topic-label { color: #b7d7ff; }
+.wrap[data-pack="interview"] .topic-group-match > .grp,
+.wrap[data-pack="interview"] .grp.topic-selected {
   color: #b7d7ff;
   text-shadow: 0 0 18px color-mix(in srgb, var(--acc) 30%, transparent);
 }
-[data-pack="interview"] .grp.topic-selected { box-shadow: inset 2px 0 var(--acc); padding-left: 10px; }
-[data-pack="interview"] .tg-chapter.search-result {
+.wrap[data-pack="interview"] .grp.topic-selected { box-shadow: inset 2px 0 var(--acc); padding-left: 10px; }
+.wrap[data-pack="interview"] .tg-chapter.search-result {
   border-color: color-mix(in srgb, var(--acc) 24%, var(--bd));
   background: linear-gradient(110deg, color-mix(in srgb, var(--acc) 6%, var(--panel)), var(--panel) 65%);
 }
-[data-pack="interview"] .tg-chapter.search-result:hover { border-color: var(--acc); }
-[data-pack="interview"] mark.search-hit {
+.wrap[data-pack="interview"] .tg-chapter.search-result:hover { border-color: var(--acc); }
+.wrap[data-pack="interview"] mark.search-hit {
   padding: 0 .12em;
   border-radius: 3px;
   background: color-mix(in srgb, var(--yel) 25%, transparent);
@@ -150,7 +150,7 @@
 }
 
 /* The interview pack uses the same interactive practice cards as the audit pack. */
-[data-pack="interview"] .intro {
+.wrap[data-pack="interview"] .intro {
   margin-bottom: 18px;
   padding: 14px 18px;
   border: 1px solid var(--bd);
@@ -158,9 +158,9 @@
   border-radius: var(--r);
   background: linear-gradient(120deg, color-mix(in srgb, var(--acc) 7%, var(--panel)), var(--panel) 55%);
 }
-[data-pack="interview"] .intro h2 { margin: 2px 0 8px; font-size: 17px; }
-[data-pack="interview"] .intro p { max-width: 78ch; margin: 7px 0; color: var(--mut); font-size: 14px; }
-[data-pack="interview"] .tool {
+.wrap[data-pack="interview"] .intro h2 { margin: 2px 0 8px; font-size: 17px; }
+.wrap[data-pack="interview"] .intro p { max-width: 78ch; margin: 7px 0; color: var(--mut); font-size: 14px; }
+.wrap[data-pack="interview"] .tool {
   overflow: hidden;
   margin-bottom: 14px;
   border: 1px solid var(--bd);
@@ -169,15 +169,15 @@
   box-shadow: 0 8px 22px #00000012;
   transition: border-color .2s ease, box-shadow .2s ease;
 }
-[data-pack="interview"] .tool:hover,
-[data-pack="interview"] .tool.open { border-color: color-mix(in srgb, var(--acc) 30%, var(--bd)); }
-[data-pack="interview"] .tool-h { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 14px 17px; cursor: pointer; }
-[data-pack="interview"] .tool-h:hover { background: var(--panel2); }
-[data-pack="interview"] .tool-h > div { flex: 1 1 200px; min-width: 0; }
-[data-pack="interview"] .tool-h h3 { margin: 0 0 4px; font-size: 15.5px; }
-[data-pack="interview"] .tool-h p { margin: 0; color: var(--mut); font-size: 13px; line-height: 1.5; }
-[data-pack="interview"] .tool-b { padding: 0 17px 18px; animation: trainer-enter .28s ease both; }
-[data-pack="interview"] .tool-b .demo { margin-top: 4px; }
+.wrap[data-pack="interview"] .tool:hover,
+.wrap[data-pack="interview"] .tool.open { border-color: color-mix(in srgb, var(--acc) 30%, var(--bd)); }
+.wrap[data-pack="interview"] .tool-h { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 14px 17px; cursor: pointer; }
+.wrap[data-pack="interview"] .tool-h:hover { background: var(--panel2); }
+.wrap[data-pack="interview"] .tool-h > div { flex: 1 1 200px; min-width: 0; }
+.wrap[data-pack="interview"] .tool-h h3 { margin: 0 0 4px; font-size: 15.5px; }
+.wrap[data-pack="interview"] .tool-h p { margin: 0; color: var(--mut); font-size: 13px; line-height: 1.5; }
+.wrap[data-pack="interview"] .tool-b { padding: 0 17px 18px; animation: trainer-enter .28s ease both; }
+.wrap[data-pack="interview"] .tool-b .demo { margin-top: 4px; }
 
 @keyframes trainer-enter {
   from { opacity: 0; transform: translateY(8px); }
@@ -193,9 +193,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root:has([data-pack="interview"]) { scroll-behavior: auto; }
-  [data-pack="interview"] *,
-  [data-pack="interview"] *::before,
-  [data-pack="interview"] *::after {
+  .wrap[data-pack="interview"] *,
+  .wrap[data-pack="interview"] *::before,
+  .wrap[data-pack="interview"] *::after {
     scroll-behavior: auto !important;
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;

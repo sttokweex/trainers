@@ -23,6 +23,8 @@ export function AmbientOrbit() {
     let frame = 0
     let raf = 0
     let angle = 0
+    let scrollAngle = 0
+    let targetScrollAngle = window.scrollY * .0015
     let alive = true
     let projected: Point2[][] = []
 
@@ -41,6 +43,8 @@ export function AmbientOrbit() {
       pointer.tx = (event.clientX / Math.max(width, 1) - .5) * 2
       pointer.ty = (event.clientY / Math.max(height, 1) - .5) * 2
     }
+
+    const onScroll = () => { targetScrollAngle = window.scrollY * .0015 }
 
     const project = (point: Point3, spin: number): Point2 => {
       const cx = Math.cos(spin)
@@ -82,7 +86,8 @@ export function AmbientOrbit() {
 
       pointer.x += (pointer.tx - pointer.x) * .035
       pointer.y += (pointer.ty - pointer.y) * .035
-      const spin = angle
+      scrollAngle += (targetScrollAngle - scrollAngle) * .055
+      const spin = angle + scrollAngle
       projected = Array.from({ length: strands }, (_, strand) =>
         Array.from({ length: samples + 1 }, (_, index) => project(makePoint(index / samples * Math.PI * 2, strand), spin)),
       )
@@ -180,6 +185,7 @@ export function AmbientOrbit() {
     const resizeObserver = new ResizeObserver(resize)
     resizeObserver.observe(canvas)
     window.addEventListener('pointermove', onPointerMove, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
     document.addEventListener('visibilitychange', onVisibility)
     reduceMotion.addEventListener('change', onMotionPreference)
     resize()
@@ -190,6 +196,7 @@ export function AmbientOrbit() {
       window.cancelAnimationFrame(raf)
       resizeObserver.disconnect()
       window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('scroll', onScroll)
       document.removeEventListener('visibilitychange', onVisibility)
       reduceMotion.removeEventListener('change', onMotionPreference)
     }
