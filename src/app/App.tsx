@@ -9,6 +9,7 @@ import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
 import { VolgaMode } from '@/engine/components/modes/VolgaMode'
+import { AmbientOrbit } from '@/engine/components/AmbientOrbit'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
 import type { ContentPack, PackMode, PlanLink, Question, TheoryArticle } from '@/engine/types'
@@ -254,6 +255,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   return (
     <>
+      <AmbientOrbit />
       <header className="top" ref={topRef}>
         <div className="top-in">
           <div className="brand">Тренажёр <span>{pack.title.toLowerCase()}</span></div>
