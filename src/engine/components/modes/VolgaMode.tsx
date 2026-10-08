@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { hr, stack, tricky, type PrepItem } from '@/content/interview/volga/preparation'
 import { theoryChapters } from '@/content/interview/volga/theory'
+import { vacancySections } from '@/content/interview/volga/vacancy'
 
-type Section = 'stack' | 'theory' | 'hr' | 'tricky' | 'resume'
+type Section = 'vacancy' | 'stack' | 'theory' | 'hr' | 'tricky' | 'resume'
 const sections: { id: Section; label: string }[] = [
+  { id: 'vacancy', label: 'Вакансия' },
   { id: 'stack', label: 'Стек вакансии' },
   { id: 'theory', label: 'Теория' },
   { id: 'hr', label: 'HR-ответы' },
@@ -25,11 +27,16 @@ function AnswerCards({ items }: { items: PrepItem[] }) {
 }
 
 export function VolgaMode({ query }: { query: string }) {
-  const [section, setSection] = useState<Section>('stack')
+  const [section, setSection] = useState<Section>('vacancy')
   const source = section === 'hr' ? hr : section === 'tricky' ? tricky : stack
   const needle = query.trim().toLocaleLowerCase('ru')
   const items = source.filter((item) => !needle || [item.title, item.requirement, item.answer, item.example].join(' ').toLocaleLowerCase('ru').includes(needle))
   const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body]), ...chapter.check.flatMap((item) => [item.question, item.answer])].join(' ').toLocaleLowerCase('ru').includes(needle))
+  const matchingVacancySections = vacancySections.map((group) => ({
+    ...group,
+    requirements: group.requirements.filter((requirement) => !needle || `${group.title} ${requirement}`.toLocaleLowerCase('ru').includes(needle)),
+  })).filter((group) => group.requirements.length > 0)
+  const vacancyRequirementCount = vacancySections.reduce((sum, group) => sum + group.requirements.length, 0)
 
   return <div className="volga">
     <section className="volga-hero">
@@ -43,7 +50,14 @@ export function VolgaMode({ query }: { query: string }) {
       {sections.map(({ id, label }) => <button key={id} type="button" className={section === id ? 'on' : ''} aria-current={section === id ? 'page' : undefined} onClick={() => setSection(id)}>{label}</button>)}
     </nav>
 
-    {section === 'theory' ? <section className="volga-content">
+    {section === 'vacancy' ? <section className="volga-content volga-vacancy">
+      <div className="volga-section-head"><div><div className="volga-eyebrow">Описание позиции</div><h2>Frontend-разработчик</h2></div><span>{matchingVacancySections.reduce((sum, group) => sum + group.requirements.length, 0)} / {vacancyRequirementCount} требований</span></div>
+      <p className="volga-note">Текст вакансии для ориентира во время подготовки и мок-собеседования.</p>
+      {matchingVacancySections.length ? <div className="volga-vacancy-grid">{matchingVacancySections.map((group) => <article className="volga-vacancy-card" key={group.title}>
+        <h3>{group.title}</h3>
+        <ul>{group.requirements.map((requirement) => <li key={requirement}>{requirement}</li>)}</ul>
+      </article>)}</div> : <p className="empty">В вакансии нет совпадений по запросу.</p>}
+    </section> : section === 'theory' ? <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Разбор тем вакансии</div><h2>Теория</h2></div><span>{chapters.length} / {theoryChapters.length}</span></div>
       <p className="volga-note">Прочитайте главу и ответьте на вопросы в конце своими словами. Затем раскройте ответы для сверки.</p>
       <div className="volga-list">{chapters.map((chapter) => <details className="volga-card volga-theory" key={chapter.id}>
