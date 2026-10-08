@@ -27,7 +27,7 @@ function AnswerCards({ items }: { items: PrepItem[] }) {
 }
 
 export function VolgaMode({ query }: { query: string }) {
-  const [section, setSection] = useState<Section>('vacancy')
+  const [section, setSection] = useState<Section>('stack')
   const source = section === 'hr' ? hr : section === 'tricky' ? tricky : stack
   const needle = query.trim().toLocaleLowerCase('ru')
   const items = source.filter((item) => !needle || [item.title, item.requirement, item.answer, item.example].join(' ').toLocaleLowerCase('ru').includes(needle))
