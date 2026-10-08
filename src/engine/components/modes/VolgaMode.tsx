@@ -31,7 +31,7 @@ export function VolgaMode({ query }: { query: string }) {
   const source = section === 'hr' ? hr : section === 'tricky' ? tricky : stack
   const needle = query.trim().toLocaleLowerCase('ru')
   const items = source.filter((item) => !needle || [item.title, item.requirement, item.answer, item.example].join(' ').toLocaleLowerCase('ru').includes(needle))
-  const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body]), ...chapter.check.flatMap((item) => [item.question, item.answer])].join(' ').toLocaleLowerCase('ru').includes(needle))
+  const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body, point.code, point.explanation]), ...chapter.check.flatMap((item) => [item.question, item.answer])].join(' ').toLocaleLowerCase('ru').includes(needle))
   const matchingVacancySections = vacancySections.map((group) => ({
     ...group,
     requirements: group.requirements.filter((requirement) => !needle || `${group.title} ${requirement}`.toLocaleLowerCase('ru').includes(needle)),
@@ -63,7 +63,7 @@ export function VolgaMode({ query }: { query: string }) {
       <div className="volga-list">{chapters.map((chapter) => <details className="volga-card volga-theory" key={chapter.id}>
         <summary><span>{chapter.title}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
-          {chapter.points.map((point) => <div className="volga-theory-point" key={point.title}><h3>{point.title}</h3><p>{point.body}</p></div>)}
+          {chapter.points.map((point) => <div className="volga-theory-point" key={point.title}><h3>{point.title}</h3><p>{point.body}</p>{point.code && <pre className="volga-code"><code>{point.code}</code></pre>}{point.explanation && <p className="volga-code-explanation"><b>Как читать этот код:</b> {point.explanation}</p>}</div>)}
           <div className="volga-check"><strong>Проверь себя</strong><ol>{chapter.check.map((item) => <li key={item.question}><details><summary>{item.question}</summary><p>{item.answer}</p></details></li>)}</ol></div>
         </div>
       </details>)}</div>

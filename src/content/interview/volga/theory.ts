@@ -4,7 +4,7 @@ export type TheoryChapter = {
   id: string
   title: string
   lead: string
-  points: { title: string; body: string }[]
+  points: { title: string; body: string; code?: string; explanation?: string }[]
   check: { question: string; answer: string }[]
 }
 
@@ -25,15 +25,54 @@ export const theoryChapters: TheoryChapter[] = [
     ],
   },
   {
-    id: 'typescript', title: 'TypeScript и проверка API-контрактов',
-    lead: 'Статическая типизация помогает до запуска, runtime-валидация защищает на границе сети.',
+    id: 'typescript', title: 'TypeScript: основы и API-контракты',
+    lead: 'Идём от простых типов к данным API: новые термины сразу разбираем на коде.',
     points: [
+      {
+        title: 'Сначала: что проверяет TypeScript',
+        body: 'TypeScript — это JavaScript с проверкой типов во время разработки и сборки. Он помогает заметить ошибку до запуска. В браузере типы удаляются и остаётся JavaScript; поэтому TypeScript не проверяет то, что пришло с сервера.',
+        code: 'function greet(name: string): string {\n  return `Привет, ${name}`\n}\n\ngreet("Аня") // ок\ngreet(42)    // редактор покажет ошибку',
+        explanation: 'name: string описывает входной параметр. : string после скобок — то, что функция обещает вернуть. Текст в фигурных скобках выполняется как обычный JavaScript.',
+      },
+      {
+        title: 'Вывод типов: компилятор часто понимает сам',
+        body: 'Вывод типов (type inference) — когда TypeScript сам определяет тип по значению. Не нужно добавлять : number к каждой переменной. Явные типы особенно полезны на границах функций и публичных API.',
+        code: 'const age = 28         // выведен number\nconst name = "Мария"  // выведен string\nlet total: number = 0  // тип задан явно\ntotal = "десять"       // ошибка: это string',
+        explanation: 'const нельзя переназначить. let можно менять, но total всё равно должен оставаться числом: TypeScript не меняет тип переменной в зависимости от очередного присваивания.',
+      },
+      {
+        title: 'Тип объекта и необязательное поле',
+        body: 'interface и type позволяют описать форму объекта: какие поля обязательны и что в них хранится. Знак ? у email означает, что поле может отсутствовать. Перед обращением к нему это нужно учитывать.',
+        code: 'interface User {\n  id: number\n  name: string\n  email?: string\n}\n\nfunction greeting(user: User) {\n  return `Привет, ${user.name}`\n}',
+        explanation: 'User — имя формы данных. id и name обязательны. email?: string можно не передавать. greeting принимает только объект, который подходит под эту форму.',
+      },
+      {
+        title: 'Union и проверка состояния',
+        body: 'Union — объединение вариантов, записанное через |. Например, запрос находится либо в загрузке, либо завершился успешно, либо завершился ошибкой. Проверка общего поля status позволяет TypeScript сузить варианты: после неё доступны только поля текущего состояния.',
+        code: 'type LoadState =\n  | { status: "loading" }\n  | { status: "success"; users: User[] }\n  | { status: "error"; message: string }\n\nfunction getMessage(state: LoadState) {\n  if (state.status === "success") return state.users.length\n  if (state.status === "error") return state.message\n  return "Загрузка…"\n}',
+        explanation: 'Поле status называют дискриминатором: оно отличает варианты друг от друга. В success можно читать users, в error — message. Невозможное сочетание вроде загрузки одновременно с ошибкой нельзя случайно собрать.',
+      },
+      {
+        title: 'Дженерик — тип, который выводится из аргумента',
+        body: 'Дженерик — параметр типа. Его задача не «разрешить любой тип», а сохранить связь между входом и выходом функции. T — просто принятое имя такого параметра; можно назвать его иначе.',
+        code: 'function first<T>(items: T[]): T | undefined {\n  return items[0]\n}\n\nfirst([1, 2])          // number | undefined\nfirst(["а", "б"])     // string | undefined',
+        explanation: 'T[] означает массив значений типа T. TypeScript выводит T из аргумента. Возвращаемый тип содержит undefined, потому что в пустом массиве первого элемента нет.',
+      },
+      {
+        title: 'Данные API: unknown и runtime-проверка',
+        body: 'unknown означает «пока не знаем тип значения». Это безопасная отправная точка для ответа сети. Запись raw as User не проверяет данные, а только заставляет компилятор поверить. Для проверки во время выполнения можно использовать zod.',
+        code: 'const userSchema = z.object({\n  id: z.number(),\n  name: z.string(),\n})\n\nconst raw: unknown = await response.json()\nconst result = userSchema.safeParse(raw)\nif (result.success) {\n  console.log(result.data.name)\n} else {\n  console.log("Ответ не подходит")\n}',
+        explanation: 'Предположим, библиотека zod импортирована как z, а пример находится внутри async-функции, где есть response. safeParse действительно проверяет объект во время выполнения. При успехе result.data уже имеет проверенные поля; при неудаче приходит описание ошибки. Эту ветку нужно обработать, например показать сообщение или логировать проблему.',
+      },
       { title: 'interface, type, generics', body: 'interface удобен для расширяемой формы объекта; type — для union, mapped/conditional типов и композиции. Дженерик сохраняет связь типов входа и выхода, например функция map<T, U>. Не заменяй им unknown на границе доверия.' },
       { title: 'Сужение типов', body: 'Discriminated union со статусом загрузки или операции помогает сделать невозможные состояния невыразимыми. Проверка по status сужает union; exhaustive switch через never выявляет забытый вариант при изменении API.' },
       { title: 'zod', body: 'Ответ сети сначала unknown. schema.safeParse(value) возвращает success/data либо error; после успеха данные можно безопасно передать UI. z.infer позволяет получать TS-тип из схемы, но runtime-проверка остаётся отдельной работой.' },
       { title: 'Типизированный транспорт', body: 'tRPC переносит типы процедур между клиентом и сервером одного TS-стека. Для REST контракт можно описать отдельно и проверять zod; для GraphQL — генерировать типы из схемы. Ни один из вариантов не отменяет обработку сетевых ошибок и версий API.' },
     ],
     check: [
+      { question: 'Что значит name: string у параметра функции?', answer: 'Это аннотация: функция ожидает строку. TypeScript проверит вызов во время разработки, но запись string не останется в браузерном JavaScript.' },
+      { question: 'Почему first<T> возвращает T | undefined?', answer: 'T сохраняет тип элементов массива: number останется number, строка — строкой. undefined нужен, потому что пустой массив не содержит первого элемента.' },
+      { question: 'Что делает проверка status === "success"?', answer: 'Сужает union до состояния успеха. В этой ветке TypeScript знает, что поле users есть, поэтому разрешает читать state.users.' },
       { question: 'Почему as User не валидирует JSON?', answer: 'as влияет только на компилятор. В runtime объект остаётся тем, что пришло по сети; отсутствующие поля и неверные типы не исправляются.' },
       { question: 'Когда лучше discriminated union, чем набор boolean?', answer: 'Когда состояния взаимоисключающие: loading, success, error. Union со status запрещает невозможные комбинации вроде isLoading=true и isSuccess=true одновременно.' },
       { question: 'Что происходит при safeParse невалидного ответа?', answer: 'Функция возвращает объект с success: false и подробной ошибкой. Приложение должно обработать эту ветку, не передавать неподтверждённые данные компонентам.' },

@@ -1,9 +1,85 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const ts: TheoryArticle = { id:'th-ts', topic:'TypeScript', title:'TypeScript: от основ до типового вывода',
-  lead:'Синтаксис, утилиты, дженерики и — главное — понимание того, где типы заканчиваются и начинается рантайм.',
+  lead:'Пошаговый вход для базового разработчика, а затем углубление в типы и границы рантайма.',
   body:`
-<h5>Что TypeScript делает и чего не делает</h5>
+<h5>Сначала простая дорожка: читаем TypeScript в коде</h5>
+<p>Если слова «аннотация», «вывод типа» или «сужение» пока незнакомы — начни отсюда. Ниже сначала показаны базовые конструкции, затем статья переходит к более продвинутым возможностям. Не нужно учить сложные типы наизусть, чтобы писать повседневный TypeScript.</p>
+
+<h5>1. Тип функции: что она принимает и что возвращает</h5>
+<pre class="code">function greet(name: string): string {
+  return "Привет, " + name
+}
+
+greet('Аня') // ✅ name — строка
+greet(42)    // ❌ число вместо строки</pre>
+<p><code class="i">name: string</code> — <b>аннотация параметра</b>: мы явно написали компилятору, что ожидаем строку. <code class="i">): string</code> — <b>тип результата</b>: функция обещает вернуть строку. Внутри функции — обычный JavaScript. Компилятор проверит вызовы до запуска приложения.</p>
+
+<h5>2. Вывод типа: можно не повторять очевидное</h5>
+<pre class="code">const age = 28       // TypeScript сам вывел number
+const city = 'Томск' // TypeScript сам вывел string
+
+let count: number = 0
+count = 'много'      // ❌ переменная должна оставаться числом</pre>
+<p><b>Вывод типов</b> — когда TypeScript определяет тип по присвоенному значению. Поэтому <code class="i">const age = 28</code> уже имеет тип <code class="i">number</code>; дописывать его обычно не требуется. Явная аннотация полезнее для параметров функций, контрактов и сложных состояний.</p>
+
+<h5>3. Форма объекта и необязательное поле</h5>
+<pre class="code">interface User {
+  id: number
+  name: string
+  email?: string
+}
+
+function welcome(user: User): string {
+  return "Привет, " + user.name
+}</pre>
+<p><code class="i">interface User</code> задаёт <b>форму объекта</b>: здесь обязательны <code class="i">id</code> и <code class="i">name</code>. Знак <code class="i">?</code> делает <code class="i">email</code> необязательным — оно может отсутствовать. Поэтому перед чтением <code class="i">user.email</code> нужно предусмотреть случай, когда значения нет.</p>
+<p><code class="i">type</code> тоже может описывать объект. Для начала удобно помнить так: и <code class="i">interface</code>, и объектный <code class="i">type</code> задают форму; <code class="i">type</code> вдобавок легко создаёт объединения вариантов и псевдонимы для других типов. В обычном проекте следуй стилю команды.</p>
+
+<h5>4. Union: значение может быть одним из нескольких вариантов</h5>
+<pre class="code">type LoadState =
+  | { status: 'loading' }
+  | { status: 'success'; users: User[] }
+  | { status: 'error'; message: string }
+
+function show(state: LoadState) {
+  if (state.status === 'success') return state.users.length
+  if (state.status === 'error') return state.message
+  return 'Загрузка…'
+}</pre>
+<p><b>Union</b> записывается через <code class="i">|</code>: <code class="i">LoadState</code> — это один из трёх объектов. Поле <code class="i">status</code> показывает, какой именно вариант сейчас есть. После проверки <code class="i">status === 'success'</code> TypeScript разрешает читать <code class="i">users</code>; в ветке ошибки доступно <code class="i">message</code>.</p>
+<p>Такую проверку называют <b>сужением типа</b>: из нескольких возможных вариантов мы оставили один. Благодаря этому UI не пытается показать список пользователей до завершения запроса.</p>
+
+<h5>5. Дженерик сохраняет тип, а не выключает проверки</h5>
+<pre class="code">function first&lt;T&gt;(items: T[]): T | undefined {
+  return items[0]
+}
+
+const firstNumber = first([10, 20]) // number | undefined
+const firstName = first(['Аня'])   // string | undefined</pre>
+<p><b>Дженерик</b> — параметр типа. Буква <code class="i">T</code> здесь означает: «тип станет известен, когда функцию вызовут». Массив принимает элементы этого типа (<code class="i">T[]</code>), результат возвращает элемент того же типа. Дополнение <code class="i">| undefined</code> нужно потому, что массив может быть пустым. Это безопаснее, чем <code class="i">any</code>, который отключил бы проверки.</p>
+
+<h5>6. API: типы в редакторе не проверяют данные сервера</h5>
+<pre class="code">const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+})
+
+const raw: unknown = await response.json()
+const result = userSchema.safeParse(raw)
+
+if (result.success) {
+  console.log(result.data.name) // схема подтвердила, что name — строка
+} else {
+  console.log('Сервер прислал данные другой формы')
+}</pre>
+<p><code class="i">unknown</code> значит «пока не знаем, что это за значение». Это хорошая стартовая точка для ответа API. <code class="i">safeParse</code> из zod действительно проверяет значение во время выполнения и возвращает два варианта: успех с проверенными <code class="i">data</code> или ошибку. Запись <code class="i">raw as User</code> такой проверки не делает — это лишь просьба поверить компилятору.</p>
+
+<div class="key"><b>Короткий словарь</b><ul><li><b>Тип</b> — описание допустимых значений и операций над ними.</li><li><b>Компилятор</b> — инструмент, который проверяет код и готовит JavaScript.</li><li><b>Рантайм</b> — время, когда приложение уже выполняется в браузере или на сервере.</li><li><b>Аннотация</b> — тип, который разработчик написал явно.</li><li><b>Сужение</b> — проверка, после которой из union остаётся конкретный вариант.</li><li><b>Runtime-валидация</b> — реальная проверка значения во время работы программы.</li></ul></div>
+
+<div class="note"><b>Где заканчивается база:</b> если понятны аннотации, форма объекта, union, дженерики и проверка ответа API — этого уже хватает для большинства повседневных задач. Следующие разделы про типовую систему глубже: читай их как материал для роста и собеседований, а не как обязательный набор заклинаний.</div>
+
+<h5>Углубление: что TypeScript делает и чего не делает</h5>
 <p>TypeScript — это <b>статический анализатор</b>, который полностью исчезает при компиляции. В рантайме остаётся обычный JavaScript: ни одной проверки типов, ни одного интерфейса. Из этого вытекает главное практическое правило, о котором забывают удивительно часто.</p>
 <div class="key">Типы не защищают от кривых данных извне. Ответ API, <code class="i">JSON.parse</code>, <code class="i">req.body</code>, значение из localStorage — всё это в рантайме может оказаться чем угодно, как бы вы их ни типизировали. На границе системы нужна <b>рантайм-валидация</b>: zod, class-validator. Аннотация типа — это обещание, а не проверка.</p>
 
@@ -27,10 +103,10 @@ getUser(toUserId('abc'))  // ✅</pre>
 
 <h5>type или interface</h5>
 <table>
-<tr><th>Только <code class="i">interface</code></th><th>Только <code class="i">type</code></th></tr>
-<tr><td>слияние деклараций — расширение чужих типов</td><td>объединения и пересечения</td></tr>
-<tr><td>чуть лучше сообщения об ошибках</td><td>примитивы, кортежи, mapped и conditional types</td></tr>
-<tr><td>кешируется компилятором по имени</td><td><code class="i">infer</code>, шаблонные литеральные типы</td></tr>
+<tr><th><code class="i">interface</code></th><th><code class="i">type</code></th></tr>
+<tr><td>удобен для формы объектов и её расширения через <code class="i">extends</code></td><td>задаёт форму объекта и объединяет варианты через <code class="i">|</code> или поля через <code class="i">&amp;</code></td></tr>
+<tr><td>может дополняться одноимённым объявлением — это называется слиянием деклараций</td><td>может быть псевдонимом примитивного, литерального или кортежного типа</td></tr>
+<tr><td>пример: <code class="i">interface Admin extends User { role: string }</code></td><td>пример: <code class="i">type Id = string | number</code></td></tr>
 </table>
 <p>Слияние деклараций — не косметика, а рабочий инструмент. Именно так добавляют <code class="i">req.user</code> в Express и Nest:</p>
 <pre class="code">declare global {
