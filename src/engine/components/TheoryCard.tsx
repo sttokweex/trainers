@@ -37,8 +37,16 @@ export function TheoryCard({
   const [pendingBookmark, setPendingBookmark] = useState<{
     excerpt: string; sectionIndex: number; sectionTitle: string; top: number; left: number; label: string
   } | null>(null)
+  const bookmarkInputRef = useRef<HTMLInputElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const pendingExcerpt = pendingBookmark?.excerpt
+
+  useEffect(() => {
+    if (!pendingExcerpt) return
+    const id = requestAnimationFrame(() => bookmarkInputRef.current?.focus({ preventScroll: true }))
+    return () => cancelAnimationFrame(id)
+  }, [pendingExcerpt])
 
   /**
    * Раскрытие уже задано начальным состоянием: переход по ссылке из плана
@@ -200,7 +208,7 @@ export function TheoryCard({
             onMouseUp={(event) => event.stopPropagation()}
           >
             <label>Название закладки<input
-              autoFocus
+              ref={bookmarkInputRef}
               maxLength={80}
               value={pendingBookmark.label}
               onChange={(event) => setPendingBookmark((current) => current ? { ...current, label: event.target.value } : current)}
