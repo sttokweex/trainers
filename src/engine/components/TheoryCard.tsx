@@ -40,7 +40,47 @@ export function TheoryCard({
   const bookmarkInputRef = useRef<HTMLInputElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const restoredRef = useRef(false)
   const pendingExcerpt = pendingBookmark?.excerpt
+
+  // Сохраняем точку чтения отдельно для каждой статьи. Храним смещение
+  // относительно её начала, поэтому восстановление переживает небольшие
+  // изменения высоты шапки и контента выше карточки.
+  const readingPositionKey = `theory-scroll:${item.id}`
+
+  useEffect(() => {
+    if (!open || autoOpen || restoredRef.current) return
+    const frame = requestAnimationFrame(() => {
+      const root = rootRef.current
+      if (!root) return
+      try {
+        const saved = Number(localStorage.getItem(readingPositionKey))
+        if (Number.isFinite(saved) && saved > 0) {
+          const top = root.getBoundingClientRect().top + window.scrollY
+          window.scrollTo({ top: top + saved, behavior: 'instant' })
+        }
+      } catch { /* storage may be disabled */ }
+      restoredRef.current = true
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [open, autoOpen, readingPositionKey])
+
+  useEffect(() => {
+    if (!open) {
+      restoredRef.current = false
+      return
+    }
+    const savePosition = () => {
+      const root = rootRef.current
+      if (!root) return
+      const articleTop = root.getBoundingClientRect().top + window.scrollY
+      const maxOffset = Math.max(0, root.offsetHeight - window.innerHeight / 2)
+      const offset = Math.min(maxOffset, Math.max(0, window.scrollY - articleTop))
+      try { localStorage.setItem(readingPositionKey, String(Math.round(offset))) } catch { /* storage may be disabled */ }
+    }
+    window.addEventListener('scroll', savePosition, { passive: true })
+    return () => window.removeEventListener('scroll', savePosition)
+  }, [open, readingPositionKey])
 
   useEffect(() => {
     if (!pendingExcerpt) return
