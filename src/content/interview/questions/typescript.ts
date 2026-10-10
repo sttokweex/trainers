@@ -27,7 +27,7 @@ export const typescriptQuestions: Question[] = [
   // Ошибка! Excess property check срабатывает только
   // на объектных литералах, присваиваемых напрямую</pre>
   <div class="hint">Именно поэтому две разные сущности с одинаковыми полями взаимозаменяемы. Если это опасно (например, <code class="i">UserId</code> и <code class="i">OrderId</code> — оба string), делают <b>branded types</b>: <code class="i">type UserId = string &amp; { __brand: 'UserId' }</code>.</div>` },
-  { id:'ts-generics', topic:'TypeScript', type:'manual', level:'middle',
+  { id:'ts-generics', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'middle',
     q:'Напишите типобезопасную функцию <code class="i">pick(obj, keys)</code>, которая возвращает объект только с указанными ключами. Тип результата должен выводиться точно.',
     starter:`// Должно работать так:
   // const user = { id: 1, name: 'Bob', email: 'b@x.ru' }
@@ -82,6 +82,93 @@ export const typescriptQuestions: Question[] = [
   type DeepReadonly&lt;T&gt; = T extends object
     ? { readonly [P in keyof T]: DeepReadonly&lt;T[P]&gt; }
     : T</pre>` },
+  { id:'ts-utility-mypick', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'junior',
+    q:'Реализуйте упрощённый <code class="i">MyPick&lt;T, K&gt;</code> вручную. Он должен брать из объекта только перечисленные ключи и сохранять тип каждого поля.',
+    starter:`type MyPick<T, K> = ???
+
+type User = {
+  id: number
+  name: string
+  email?: string
+}
+
+type Preview = MyPick<User, 'id' | 'name'>
+// Ожидаемый результат:
+// { id: number; name: string }`,
+    solution:`type MyPick<T, K extends keyof T> = {
+    [P in K]: T[P]
+  }
+
+// K ограничен ключами T.
+// [P in K] создаёт поле для каждого выбранного ключа.
+// T[P] берёт исходный тип значения этого поля.
+type Preview = MyPick<User, 'id' | 'name'>
+// { id: number; name: string }`,
+    answer:`<p>Это <b>mapped type</b>: TypeScript проходит по union-у ключей <code class="i">K</code> и создаёт поле для каждого.</p>
+  <ul><li><code class="i">K extends keyof T</code> запрещает запросить поле, которого нет в <code class="i">T</code>.</li><li><code class="i">P</code> — временное имя текущего ключа. Если <code class="i">K = 'id' | 'name'</code>, то <code class="i">P</code> по очереди представляет оба ключа.</li><li><code class="i">T[P]</code> — indexed access: тип значения объекта <code class="i">T</code> по ключу <code class="i">P</code>.</li></ul>
+  <p>Для <code class="i">User</code> и <code class="i">'id' | 'name'</code> результат — <code class="i">{ id: number; name: string }</code>. Опциональность выбранного поля тоже сохраняется: если выбрать <code class="i">email</code>, оно останется необязательным.</p>` },
+  { id:'ts-utility-record', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'junior',
+    q:'Реализуйте упрощённый <code class="i">MyRecord&lt;K, V&gt;</code>: для каждого ключа из <code class="i">K</code> создаётся обязательное поле со значением типа <code class="i">V</code>. Используйте его для таблицы подписей ролей.',
+    starter:`type MyRecord<K, V> = ???
+
+type Role = 'admin' | 'user'
+type RoleLabels = MyRecord<Role, string>
+// Ожидается:
+// { admin: string; user: string }`,
+    solution:`type MyRecord<K extends PropertyKey, V> = {
+    [P in K]: V
+  }
+
+type Role = 'admin' | 'user'
+type RoleLabels = MyRecord<Role, string>
+const labels: RoleLabels = { admin: 'Админ', user: 'Пользователь' }`,
+    answer:`<p><code class="i">K</code> — union ключей, <code class="i">V</code> — общий тип значения. <code class="i">PropertyKey</code> ограничивает ключи допустимыми для объектов типами: <code class="i">string | number | symbol</code>.</p>
+  <p>В <code class="i">[P in K]: V</code> TypeScript по очереди берёт каждый ключ из <code class="i">K</code> и создаёт обязательное поле этого ключа с типом <code class="i">V</code>. Для <code class="i">'admin' | 'user'</code> и <code class="i">string</code> получается объект с двумя строковыми полями.</p>` },
+  { id:'ts-utility-exclude', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'middle',
+    q:'Реализуйте упрощённый <code class="i">MyExclude&lt;T, U&gt;</code>: удалите из union-а <code class="i">T</code> все варианты, подходящие под <code class="i">U</code>. Проверьте на статусах.',
+    starter:`type MyExclude<T, U> = ???
+
+type Status = 'loading' | 'success' | 'error'
+type Finished = MyExclude<Status, 'loading'>
+// Ожидается: 'success' | 'error'`,
+    solution:`type MyExclude<T, U> = T extends U ? never : T
+
+type Status = 'loading' | 'success' | 'error'
+type Finished = MyExclude<Status, 'loading'>
+// 'loading' проверяется отдельно и превращается в never.
+// 'success' и 'error' не подходят под U и остаются.`,
+    answer:`<p>Это <b>условный тип</b>: <code class="i">T extends U ? never : T</code> означает «если текущий тип <code class="i">T</code> подходит под <code class="i">U</code>, замени его на <code class="i">never</code>, иначе оставь».</p>
+  <p>Поскольку слева от <code class="i">extends</code> стоит параметр <code class="i">T</code>, условие распределяется по членам union-а: сначала проверяется <code class="i">'loading'</code>, потом <code class="i">'success'</code>, потом <code class="i">'error'</code>. Варианты <code class="i">never</code> исчезают из union-а, остаётся <code class="i">'success' | 'error'</code>.</p>` },
+  { id:'ts-utility-returntype', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'middle',
+    q:'Реализуйте упрощённый <code class="i">MyReturnType&lt;F&gt;</code>, который извлекает тип результата функции. Используйте <code class="i">infer</code>.',
+    starter:`type MyReturnType<F> = ???
+
+type Loader = (id: number) => Promise<{ name: string }>
+type Result = MyReturnType<Loader>
+// Ожидается: Promise&lt;{ name: string }&gt;`,
+    solution:`type MyReturnType<F> =
+    F extends (...args: any[]) => infer Result ? Result : never
+
+type Loader = (id: number) => Promise<{ name: string }>
+type Result = MyReturnType<Loader>
+// Promise<{ name: string }>`,
+    answer:`<p>Справа от <code class="i">extends</code> задан шаблон функции: «принимает какие-то аргументы и возвращает некоторый тип». <code class="i">infer Result</code> просит TypeScript сопоставить функцию с шаблоном, найти её тип результата и временно назвать его <code class="i">Result</code>.</p>
+  <p>Для <code class="i">Loader</code> найденный результат — <code class="i">Promise&lt;{ name: string }&gt;</code>. Утилита не запускает функцию и не распаковывает Promise: она извлекает только тип после стрелки. <code class="i">any[]</code> здесь оставляет тип аргументов несущественным, потому что мы извлекаем именно результат.</p>` },
+  { id:'ts-utility-parameters', theoryId:'th-ts', topic:'TypeScript', type:'manual', level:'middle',
+    q:'Реализуйте упрощённый <code class="i">MyParameters&lt;F&gt;</code>, который извлекает типы параметров функции как кортеж.',
+    starter:`type MyParameters<F> = ???
+
+type Search = (query: string, limit: number) => void
+type SearchArgs = MyParameters<Search>
+// Ожидается: [query: string, limit: number]`,
+    solution:`type MyParameters<F> =
+    F extends (...args: infer Args) => any ? Args : never
+
+type Search = (query: string, limit: number) => void
+type SearchArgs = MyParameters<Search>
+// [query: string, limit: number]`,
+    answer:`<p>В шаблоне функции часть до <code class="i">=&gt;</code> — список её параметров. <code class="i">infer Args</code> просит TypeScript вывести тип этого списка и назвать его <code class="i">Args</code>. Результат — кортеж, поэтому он хранит и типы, и порядок параметров.</p>
+  <p>Для <code class="i">Search</code> получится <code class="i">[query: string, limit: number]</code>. Это не сами аргументы <code class="i">'кот'</code> и <code class="i">10</code>, а описание типов значений, которые разрешено передавать при вызове функции.</p>` },
   { id:'ts-union', topic:'TypeScript', type:'manual', level:'middle',
     q:'Что такое дискриминированный union? Типизируйте состояние загрузки так, чтобы нельзя было прочитать <code class="i">data</code>, пока идёт загрузка, и добавьте проверку на полноту через <code class="i">never</code>.',
     starter:`// Плохо — все поля опциональны, компилятор ничего не гарантирует:
