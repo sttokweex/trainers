@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { theoryForQuestion } from '@/engine/theoryLinks'
 import type { ContentPack, Mark, Question, TheoryArticle, TheoryBookmark } from '@/engine/types'
 import { QuestionCard } from '../QuestionCard'
@@ -54,8 +54,6 @@ export function TheoryStudyMode({
   const [openSectionIndex, setOpenSectionIndex] = useState<number | undefined>()
   const [openExcerpt, setOpenExcerpt] = useState<string | undefined>()
   const [resumeReadingPosition, setResumeReadingPosition] = useState(false)
-  const resumedInitialArticle = useRef(false)
-  const lastArticleKey = `theory-last-article:${pack.id}`
 
   useEffect(() => {
     if (article && !pack.theory.some((item) => item.id === article.id)) {
@@ -83,32 +81,26 @@ export function TheoryStudyMode({
     })
   }, [articles, categoryByTopic])
 
-  const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string, resume = false) => {
+  const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string) => {
     // Keep the URL's deep link in sync with the article selected from the map
     // or a bookmark, so an older `open` id cannot pull the reader back.
     onOpenArticle(item)
     setArticle(item)
     setOpenSectionIndex(sectionIndex)
     setOpenExcerpt(excerpt)
+    let resume = false
+    if (sectionIndex === undefined && excerpt === undefined) {
+      try {
+        const savedPosition = Number(localStorage.getItem(`theory-scroll:${item.id}`))
+        resume = Number.isFinite(savedPosition) && savedPosition > 0
+      } catch { /* storage may be disabled */ }
+    }
     setResumeReadingPosition(resume)
-    try { localStorage.setItem(lastArticleKey, item.id) } catch { /* storage may be disabled */ }
     setTasks(pickPair(item, pack.questions))
     setTaskIndex(0)
     setStage('read')
     if (!resume) window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [lastArticleKey, onOpenArticle, pack.questions])
-
-  // При возврате во вкладку теории карточка уже размонтировалась. Открываем
-  // последнюю главу автоматически, чтобы TheoryCard могла восстановить скролл.
-  useEffect(() => {
-    if (openId || article || resumedInitialArticle.current) return
-    resumedInitialArticle.current = true
-    try {
-      const lastId = localStorage.getItem(lastArticleKey)
-      const lastArticle = articles.find((item) => item.id === lastId)
-      if (lastArticle) openArticle(lastArticle, undefined, undefined, true)
-    } catch { /* storage may be disabled */ }
-  }, [articles, article, lastArticleKey, openId, openArticle])
+  }, [onOpenArticle, pack.questions])
 
   useEffect(() => {
     if (!openId) return
@@ -116,14 +108,11 @@ export function TheoryStudyMode({
     // in pack.theory ignores the topic filter and can reopen a stale chapter.
     const linked = articles.find((item) => item.id === openId)
     if (linked && article?.id !== linked.id) {
-      // The URL keeps `open=<id>` across reloads, so this route takes precedence
-      // over the no-openId resume path. Treat a link to the last-read chapter as
-      // a resume; otherwise refresh opens it at the top and loses the position.
-      let resume = false
-      try { resume = localStorage.getItem(lastArticleKey) === linked.id } catch { /* storage may be disabled */ }
-      openArticle(linked, undefined, undefined, resume)
+      // A URL-opened article follows the same per-article position rule as a
+      // manually selected article. `openArticle` checks its saved offset.
+      openArticle(linked)
     }
-  }, [openId, articles, article?.id, lastArticleKey, openArticle])
+  }, [openId, articles, article?.id, openArticle])
 
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)
