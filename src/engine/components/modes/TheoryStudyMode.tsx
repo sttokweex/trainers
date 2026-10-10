@@ -115,8 +115,15 @@ export function TheoryStudyMode({
     // Only resolve deep links against the currently visible articles. Looking
     // in pack.theory ignores the topic filter and can reopen a stale chapter.
     const linked = articles.find((item) => item.id === openId)
-    if (linked && article?.id !== linked.id) openArticle(linked)
-  }, [openId, articles, article?.id, openArticle])
+    if (linked && article?.id !== linked.id) {
+      // The URL keeps `open=<id>` across reloads, so this route takes precedence
+      // over the no-openId resume path. Treat a link to the last-read chapter as
+      // a resume; otherwise refresh opens it at the top and loses the position.
+      let resume = false
+      try { resume = localStorage.getItem(lastArticleKey) === linked.id } catch { /* storage may be disabled */ }
+      openArticle(linked, undefined, undefined, resume)
+    }
+  }, [openId, articles, article?.id, lastArticleKey, openArticle])
 
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)
