@@ -149,8 +149,107 @@ short.email     // ❌ ошибка компиляции — поля нет в 
 <tr><td><code class="i">ReturnType</code> / <code class="i">Parameters</code></td><td>вытащить из сигнатуры</td><td>типизация обёрток</td></tr>
 </table>
 
+<h5>Разбираем утилиты на одном типе User</h5>
+<p>Встроенная утилита — это готовое преобразование <b>типа</b>. Она работает во время проверки TypeScript, а не меняет объект в браузере. Будем использовать один исходный тип:</p>
+<pre class="code">interface User {
+  id: number
+  name: string
+  email?: string
+  role: 'admin' | 'editor' | 'viewer'
+}</pre>
+<p>Представь, что <code class="i">User</code> описывает пользователя, который уже хранится в приложении. Для формы редактирования, публичного ответа API или словаря подписей нужны другие формы данных. Утилиты позволяют получить их из исходного типа и не дублировать поля вручную.</p>
+
+<h5>Partial&lt;T&gt; — сделать поля необязательными</h5>
+<pre class="code">type UserPatch = Partial&lt;Pick&lt;User, 'name' | 'email'&gt;&gt;
+
+const patch: UserPatch = { name: 'Аня' } // ✅ можно передать только изменённое поле
+const emptyPatch: UserPatch = {}        // ✅ все поля стали необязательными</pre>
+<p><b>Как читать тип:</b> сначала <code class="i">Pick</code> оставляет только разрешённые для редактирования name и email; затем <code class="i">Partial</code> делает оба поля необязательными. Поэтому нельзя случайно отправить изменение <code class="i">id</code> или <code class="i">role</code>. <code class="i">name</code> остаётся строкой, просто его теперь можно не передавать.</p>
+<p><b>Где применяют:</b> объект изменений для PATCH или локальное частичное обновление. <b>Важно:</b> Partial не отправляет запрос и не удаляет поля в рантайме — это только правило для TypeScript. API всё равно должно определить, что означают отсутствующее поле и <code class="i">null</code>.</p>
+
+<h5>Required&lt;T&gt; — сделать поля обязательными</h5>
+<pre class="code">type UserWithEmail = Required&lt;Pick&lt;User, 'email'&gt;&gt;
+
+const contact: UserWithEmail = { email: 'anya@example.com' } // ✅
+const noContact: UserWithEmail = {}                         // ❌ email обязателен</pre>
+<p>Здесь сначала <code class="i">Pick&lt;User, 'email'&gt;</code> оставляет только поле email. Затем <code class="i">Required&lt;...&gt;</code> снимает с него знак <code class="i">?</code>. Это полезно после шага, на котором поле уже гарантированно заполнено. Но Required не проводит проверку: если данные пришли из формы или API, наличие email сначала проверяет код или runtime-схема.</p>
+
+<h5>Readonly&lt;T&gt; — запретить переназначать поля в TypeScript</h5>
+<pre class="code">type UserSnapshot = Readonly&lt;User&gt;
+declare const snapshot: UserSnapshot
+
+snapshot.name = 'Ира' // ❌ поле только для чтения
+console.log(snapshot.name) // ✅ читать можно</pre>
+<p><code class="i">Readonly</code> помогает обозначить входные данные или снимок состояния, который функция не должна менять. Ограничение действует при проверке TypeScript; оно не замораживает объект в JavaScript. По умолчанию это также <b>поверхностная</b> неизменяемость: если поле содержит вложенный объект, его внутренние свойства требуют отдельной защиты.</p>
+
+<h5>Pick&lt;T, K&gt; и Omit&lt;T, K&gt; — выбрать поля или убрать их</h5>
+<pre class="code">type UserCard = Pick&lt;User, 'id' | 'name'&gt;
+// { id: number; name: string }
+
+interface UserWithSecret extends User {
+  passwordHash: string
+}
+type PublicUser = Omit&lt;UserWithSecret, 'passwordHash'&gt;
+// все поля UserWithSecret, кроме passwordHash</pre>
+<p><code class="i">Pick&lt;T, K&gt;</code> оставляет перечисленные поля. <code class="i">K</code> ограничен ключами объекта, поэтому опечатка вроде <code class="i">'naem'</code> будет ошибкой. <code class="i">Omit&lt;T, K&gt;</code> делает обратное: оставляет всё, кроме перечисленных ключей.</p>
+<p><b>Практика:</b> Pick создаёт компактную модель для карточки; Omit удобно использовать для производного типа без внутреннего поля. <b>Безопасность:</b> Omit сам не удаляет passwordHash из объекта. Перед отправкой ответа нужно реально собрать публичный объект или явно выбрать поля — тип не является фильтром данных.</p>
+
+<h5>Record&lt;K, V&gt; — словарь с заданными ключами и значениями</h5>
+<pre class="code">type Status = 'loading' | 'success' | 'error'
+const statusLabel: Record&lt;Status, string&gt; = {
+  loading: 'Загрузка',
+  success: 'Готово',
+  error: 'Ошибка',
+}
+
+statusLabel.success // тип значения — string
+// если забыть ключ error, TypeScript сообщит об этом</pre>
+<p><code class="i">Record&lt;K, V&gt;</code> строит объект-словарь: ключи берутся из <code class="i">K</code>, а значения имеют тип <code class="i">V</code>. Здесь <code class="i">Status</code> — три допустимых строки, поэтому словарь обязан описать все три подписи. Это хорошо подходит для маппинга статуса на label, иконку или цвет.</p>
+<p>Если написать <code class="i">Record&lt;string, string&gt;</code>, получится открытый словарь со строковыми ключами; TypeScript уже не требует конкретного заранее известного набора статусов.</p>
+
+<h5>Exclude&lt;T, U&gt; и Extract&lt;T, U&gt; — отфильтровать варианты union</h5>
+<pre class="code">type Role = 'admin' | 'editor' | 'viewer'
+
+type StaffRole = Exclude&lt;Role, 'viewer'&gt;
+// 'admin' | 'editor' — исключили viewer
+
+type CanEditRole = Extract&lt;Role, 'admin' | 'editor'&gt;
+// 'admin' | 'editor' — оставили совпавшие варианты</pre>
+<p><code class="i">Exclude</code> удаляет из union те варианты, которые подходят под второй тип. <code class="i">Extract</code> оставляет только подходящие варианты. Здесь ими фильтруют набор строковых ролей, но так же можно работать с union объектных событий или состояний.</p>
+<p>Удобная аналогия: <code class="i">Exclude&lt;A, B&gt;</code> — «A без B», а <code class="i">Extract&lt;A, B&gt;</code> — «только общая часть A и B». Они не фильтруют массив во время выполнения.</p>
+
+<h5>NonNullable&lt;T&gt; — убрать null и undefined из типа</h5>
+<pre class="code">type MaybeUser = User | null | undefined
+type ExistingUser = NonNullable&lt;MaybeUser&gt;
+// ExistingUser равен User
+
+function showName(user: MaybeUser) {
+  if (user == null) return 'Пользователь не найден'
+  return user.name // после проверки user уже User
+}</pre>
+<p><code class="i">NonNullable&lt;T&gt;</code> убирает из описания типа два значения: <code class="i">null</code> и <code class="i">undefined</code>. Само значение он не проверяет и не исправляет. Поэтому сначала нужна реальная проверка <code class="i">if (user == null)</code>; после неё TypeScript сужает тип в оставшейся части функции.</p>
+
+<h5>ReturnType&lt;T&gt;, Parameters&lt;T&gt; и typeof</h5>
+<pre class="code">async function loadUser(id: string, includePosts = false) {
+  return { id, name: 'Аня', includePosts }
+}
+
+type LoadUserArgs = Parameters&lt;typeof loadUser&gt;
+// [id: string, includePosts?: boolean]
+
+type LoadUserPromise = ReturnType&lt;typeof loadUser&gt;
+// Promise&lt;{ id: string; name: string; includePosts: boolean }&gt;</pre>
+<p><code class="i">typeof loadUser</code> в позиции типа берёт тип существующей функции. Это не запускает функцию и не является обычной проверкой JavaScript. <code class="i">Parameters&lt;...&gt;</code> превращает список параметров в кортеж — массив фиксированной длины, где у каждой позиции свой тип. <code class="i">ReturnType&lt;...&gt;</code> извлекает тип результата функции.</p>
+<p><b>Зачем:</b> эти утилиты помогают типизировать обёртку вокруг уже существующей функции. Если параметры или результат изменятся, зависимый тип обновится автоматически, а не останется устаревшей копией.</p>
+
+<h5>Awaited&lt;T&gt; — достать значение из Promise</h5>
+<pre class="code">type LoadedUser = Awaited&lt;ReturnType&lt;typeof loadUser&gt;&gt;
+// { id: string; name: string; includePosts: boolean }</pre>
+<p>ReturnType для <code class="i">async</code>-функции даёт Promise. <code class="i">Awaited</code> снимает Promise-обёртку и получает тип значения, которое окажется после <code class="i">await</code>. Вложенные Promise он раскрывает рекурсивно.</p>
+<p>В обычной функции можно написать <code class="i">const user = await loadUser('7')</code> и позволить TypeScript вывести тип. Awaited особенно полезен, когда нужен этот тип отдельно: например, для кеша, тестового fixture или пропса компонента.</p>
+
 <h5>Как они устроены изнутри</h5>
-<p>Уметь написать их руками — классическое задание на собеседовании, и оно проверяет понимание трёх конструкций: mapped types, conditional types и <code class="i">infer</code>.</p>
+<p>На интервью могут попросить объяснить или набросать упрощённую версию утилиты. Цель — проверить, понимаешь ли ты, как преобразуются типы. Это учебная реализация, не код для копирования в приложение: встроенные утилиты уже проверены и лучше читаются.</p>
 <pre class="code">type MyPartial&lt;T&gt;  = { [K in keyof T]?: T[K] }
 type MyRequired&lt;T&gt; = { [K in keyof T]-?: T[K] }      // -? снимает опциональность
 type MyReadonly&lt;T&gt; = { readonly [K in keyof T]: T[K] }
@@ -167,7 +266,13 @@ type MyAwaited&lt;T&gt; = T extends Promise&lt;infer U&gt; ? MyAwaited&lt;U&gt; 
 type DeepPartial&lt;T&gt; = T extends object
   ? { [K in keyof T]?: DeepPartial&lt;T[K]&gt; }
   : T</pre>
-<p><b>Распределение по юнионам</b>: условный тип с «голым» параметром применяется к каждому члену юниона отдельно. <code class="i">Exclude&lt;'a' | 'b' | 'c', 'a'&gt;</code> проверяет по очереди и собирает <code class="i">'b' | 'c'</code>. Если такое поведение мешает, его отключают обёрткой в кортеж: <code class="i">[T] extends [U] ? ... : ...</code>.</p>
+<p><b>Mapped type</b> — «создай новый объектный тип, пройдя по ключам старого». <code class="i">keyof T</code> получает имена полей в виде union: для User это примерно <code class="i">'id' | 'name' | 'email' | 'role'</code>. Конструкция <code class="i">[K in keyof T]</code> перебирает их по одному, а <code class="i">T[K]</code> берёт тип значения текущего поля. Поэтому <code class="i">MyPartial</code> сохраняет каждое поле, но добавляет <code class="i">?</code>.</p>
+<p>Модификаторы слева от ключа меняют правило поля: <code class="i">?</code> делает поле необязательным, <code class="i">-?</code> снимает необязательность; <code class="i">readonly</code> запрещает переназначение, <code class="i">-readonly</code> убирает это ограничение. Минус здесь буквально означает «удали этот модификатор».</p>
+<p><code class="i">MyPick</code> перебирает только ключи из K и копирует их типы через <code class="i">T[P]</code>. <code class="i">MyOmit</code> сначала вычисляет оставшиеся имена полей с помощью <code class="i">MyExclude&lt;keyof T, K&gt;</code>, а затем передаёт эти имена в MyPick.</p>
+<p><b>Conditional type</b> — типовое условие вида <code class="i">A extends B ? X : Y</code>: если A совместим с B, результат X, иначе Y. В <code class="i">MyExclude</code> подходящий вариант превращается в <code class="i">never</code>. <code class="i">never</code> — пустой набор вариантов; в union он исчезает, поэтому остаются только не исключённые значения.</p>
+<p><code class="i">infer</code> значит «выведи часть типа и назови её». В <code class="i">F extends (...args: any[]) =&gt; infer R</code> TypeScript проверяет, похож ли F на функцию, и записывает её результат в R. В <code class="i">Promise&lt;infer U&gt;</code> он достаёт тип значения внутри Promise и называет его U.</p>
+<p><code class="i">MyAwaited</code> применяет это рекурсивно: если значение — Promise, достаёт внутренний тип и проверяет его снова; если Promise больше нет, возвращает тип как есть. <code class="i">DeepPartial</code> тоже рекурсивен: он проходит во вложенные объекты. Этот короткий вариант учебный: массивы, функции, Date, Map и Set требуют специальных случаев, поэтому не следует бездумно использовать такую реализацию как универсальную.</p>
+<p><b>Распределение по union:</b> когда слева от <code class="i">extends</code> стоит отдельный параметр типа T, условие применяется к каждому члену union. Для <code class="i">Exclude&lt;'a' | 'b' | 'c', 'a'&gt;</code> это значит: проверить 'a', 'b', 'c' по очереди; первый превратится в never и исчезнет, останутся 'b' | 'c'. Если нужно проверить весь union целиком, оберни стороны в кортеж: <code class="i">[T] extends [U] ? ... : ...</code>.</p>
 
 <h5>Дискриминированные юнионы — самый полезный приём</h5>
 <p>Вместо набора необязательных полей описывайте <b>взаимоисключающие состояния</b>:</p>
