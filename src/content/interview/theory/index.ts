@@ -3,6 +3,7 @@ import { jscore } from './th-jscore'
 import { ts } from './th-ts'
 import { tsAdvanced } from './th-ts-advanced'
 import { tsPractice } from './th-ts-practice'
+import { zod } from './th-zod'
 import { lifecycle } from './th-lifecycle'
 import { hooks } from './th-hooks'
 import { render } from './th-render'
@@ -81,6 +82,7 @@ export const theory: TheoryArticle[] = [
   jsExecution,
   ts,
   tsPractice,
+  zod,
   tsAdvanced,
   lifecycle,
   hooks,
