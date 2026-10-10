@@ -322,14 +322,56 @@ function assertDefined&lt;T&gt;(v: T, msg?: string): asserts v is NonNullable&lt
 }</pre>
 
 <h5>satisfies, as const и почему уходят от enum</h5>
-<pre class="code">const routes = { home: '/', user: '/user/:id' } satisfies Record&lt;string, string&gt;
-routes.home       // тип '/' — литерал сохранён
-routes.typo       // ❌ ошибка — ключа нет
+<p>Эти три записи решают разные задачи. Возьмём объект маршрутов: нужно проверить, что все значения — строки, и при этом работать только с реально объявленными ключами.</p>
+<pre class="code">type RouteName = 'home' | 'user'
 
-const roles = ['admin', 'user'] as const
-type Role = typeof roles[number]      // 'admin' | 'user'</pre>
-<p><b>Аннотация</b> проверяет и расширяет тип (конкретика теряется). <b><code class="i">satisfies</code></b> проверяет, но оставляет выведенный узкий тип — лучший выбор для конфигов и словарей. <b><code class="i">as</code></b> не проверяет почти ничего: это приказ компилятору и красный флаг в ревью.</p>
-<p>От <code class="i">enum</code> сегодня чаще отказываются: он генерирует объект в рантайме, числовой вариант принимает любое число, <code class="i">const enum</code> несовместим с <code class="i">isolatedModules</code> (а это режим по умолчанию у Vite, esbuild и SWC — то есть у всех ваших проектов). Связка <code class="i">as const</code> + union решает те же задачи без рантайм-следа.</p>
+const routes = {
+  home: '/',
+  user: '/user/:id',
+} satisfies Record&lt;RouteName, string&gt;
+
+routes.home       // string
+routes.typo       // ошибка: такого свойства нет
+routes.settings   // ошибка: обязательный маршрут не добавлен</pre>
+<p><code class="i">Record&lt;RouteName, string&gt;</code> здесь — проверочное требование: объект должен иметь ключи <code class="i">home</code> и <code class="i">user</code>, а значения у них должны быть строками. <code class="i">satisfies</code> проверяет, что объект подходит под это требование, но не заменяет его тип на общий <code class="i">Record</code>. Поэтому TypeScript помнит конкретные имена свойств: <code class="i">routes.home</code> существует, а <code class="i">routes.typo</code> — нет.</p>
+<p>В этом примере <code class="i">routes.home</code> имеет тип <code class="i">string</code>, а не обязательно литеральный тип <code class="i">'/'</code>: свойство обычного объекта можно переназначить, поэтому строка расширяется до <code class="i">string</code>. Если нужно сохранить точные значения и запретить переназначение свойств, добавь <code class="i">as const</code>:</p>
+<pre class="code">const routes = {
+  home: '/',
+  user: '/user/:id',
+} as const satisfies Record&lt;RouteName, string&gt;
+
+routes.home       // тип '/' — конкретное значение сохранено
+routes.home = '/start' // ошибка: свойство readonly</pre>
+<p>Здесь <code class="i">as const</code> просит вывести максимально конкретные типы и сделать поля readonly. <code class="i">satisfies ...</code> отдельно проверяет, что результат подходит под контракт маршрутов. <code class="i">as const</code> не замораживает объект в JavaScript — это ограничение TypeScript во время проверки.</p>
+<p><b>Чем отличается аннотация?</b> Запись <code class="i">const routes: Record&lt;string, string&gt; = ...</code> сразу объявляет переменную общим словарём: TypeScript знает, что у него строковые ключи и значения, но не знает конкретный список ключей. Поэтому <code class="i">routes.typo</code> будет допустимым обращением; результатом будет <code class="i">string</code> (либо <code class="i">string | undefined</code> с <code class="i">noUncheckedIndexedAccess</code>). С <code class="i">satisfies</code> сохраняется форма конкретного объекта, поэтому опечатка в имени свойства ловится.</p>
+<p><b><code class="i">as</code> — другое.</b> Запись <code class="i">value as SomeType</code> — утверждение компилятору: «считай это значение типом <code class="i">SomeType</code>». Оно не проверяет реальные данные и не меняет их в браузере. TypeScript иногда запрещает явно невозможное приведение; обход через <code class="i">unknown</code> возможен, но ответственность тогда на разработчике. Для проверки объекта используй <code class="i">satisfies</code>, а приведение оставляй для случаев, где можешь обосновать безопасность.</p>
+<p><b><code class="i">as const</code></b> — специальный вариант утверждения для сохранения литералов. Без него массив расширяется до <code class="i">string[]</code>; с ним получается readonly-кортеж из двух конкретных строк:</p>
+<pre class="code">const roles = ['admin', 'user'] as const
+// тип: readonly ['admin', 'user']
+
+type Role = typeof roles[number]
+// 'admin' | 'user'
+
+const role: Role = 'admin' // ✅
+const badRole: Role = 'owner' // ❌ такого варианта нет</pre>
+<p><code class="i">typeof roles</code> берёт тип переменной <code class="i">roles</code>. <code class="i">[number]</code> здесь — типовой доступ к элементу массива: «какой тип может быть у элемента с числовым индексом?». У readonly-кортежа это объединение типов его элементов: <code class="i">'admin' | 'user'</code>. Так список значений становится источником правды для типа.</p>
+<p><b>Почему часто обходятся без <code class="i">enum</code>?</b> Обычный <code class="i">enum</code> создаёт JavaScript-объект во время выполнения. Объект с <code class="i">as const</code> и выведенный из него union обычно не требуют отдельного enum-объекта:</p>
+<pre class="code">enum RoleEnum {
+  Admin = 'admin',
+  User = 'user',
+}
+const fromEnum: RoleEnum = RoleEnum.Admin
+
+const RoleValue = {
+  Admin: 'admin',
+  User: 'user',
+} as const
+type Role = typeof RoleValue[keyof typeof RoleValue]
+// 'admin' | 'user'
+
+const fromObject: Role = RoleValue.Admin</pre>
+<p>Оба варианта дают типобезопасный выбор ролей. Объект + union часто проще для сериализации, API-значений и сборщиков, потому что в JavaScript остаётся обычный объект. У <code class="i">enum</code> есть особенности: числовые enum создают обратное отображение с числа на имя; строковые enum такого отображения не имеют. Числовые enum также допускают присваивание произвольного числа в некоторых сценариях, что может ослабить проверку.</p>
+<p>Фраза «<code class="i">const enum</code> всегда несовместим с <code class="i">isolatedModules</code>» слишком категорична. Поведение зависит от объявления enum и инструмента компиляции; особенно сложны ambient <code class="i">const enum</code> из внешних пакетов и сборка отдельных файлов. Vite и похожие инструменты обычно преобразуют TypeScript в JavaScript, но не выполняют полную проверку типов. Поэтому для переносимых конфигов часто выбирают <code class="i">as const</code> + union, но <code class="i">enum</code> не является автоматически неправильным выбором.</p>
 
 <h5>Один источник правды: схема → тип</h5>
 <pre class="code">import { z } from 'zod'
