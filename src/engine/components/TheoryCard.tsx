@@ -51,7 +51,15 @@ export function TheoryCard({
   const readingPositionKey = `theory-scroll:${item.id}`
 
   useEffect(() => {
-    if (!open || (autoOpen && !restoreReadingPosition) || restoredRef.current) return
+    if (!open || restoredRef.current) return
+    // При первом обычном открытии не восстанавливаем позицию, но даём экрану
+    // закончить начальную отрисовку до начала записи. Иначе начальный scrollY=0
+    // может затереть сохранённое значение ещё до чтения localStorage.
+    if (autoOpen && !restoreReadingPosition) {
+      let secondFrame = 0
+      const frame = requestAnimationFrame(() => { secondFrame = requestAnimationFrame(() => { restoredRef.current = true }) })
+      return () => { cancelAnimationFrame(frame); cancelAnimationFrame(secondFrame) }
+    }
     let secondFrame = 0
     const frame = requestAnimationFrame(() => { secondFrame = requestAnimationFrame(() => {
       const root = rootRef.current
@@ -82,6 +90,9 @@ export function TheoryCard({
       return
     }
     const savePosition = () => {
+      // Не перезаписывать сохранённую точку, пока восстановление ещё ожидает
+      // кадр отрисовки и применяет scrollTo.
+      if (!restoredRef.current) return
       const root = rootRef.current
       if (!root) return
       const articleTop = root.getBoundingClientRect().top + window.scrollY
