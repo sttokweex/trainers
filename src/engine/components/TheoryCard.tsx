@@ -270,7 +270,7 @@ export function TheoryCard({
               <ol>
                 {headings.map((h, i) => (
                   <li key={i}>
-                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}{done && item.updates?.some((update) => update.sectionTitle === h && !readUpdates.includes(`${item.id}:${update.id}`)) && <span className="theory-update-badge toc-update-badge">Обновлено</span>}</a>
                   </li>
                 ))}
               </ol>

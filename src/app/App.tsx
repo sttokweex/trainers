@@ -204,6 +204,11 @@ function Trainer({ pack }: { pack: ContentPack }) {
     return result
   }, [mode, pack, theoryDone, marks])
 
+  const topicsWithUnreadUpdates = useMemo(() => new Set(pack.theory
+    .filter((article) => theoryDone[article.id])
+    .filter((article) => article.updates?.some((update) => !readTheoryUpdates.includes(`${article.id}:${update.id}`)))
+    .map((article) => article.topic)), [pack.theory, theoryDone, readTheoryUpdates])
+
   const listed: (Question | TheoryArticle)[] = mode === 'theory' ? theory : questions
   /** Группировка по теме целиком, а не по соседним элементам: если статьи одной
       темы лежат в разных файлах контента (например, «ООП и принципы» собрана из
@@ -403,7 +408,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                       title={progress ? `Пройдено ${progress.done} из ${progress.total}${progress.repeat ? ` · на повторение отмечено: ${progress.repeat}` : ''}` : t}
                       aria-label={`${t}${progress ? `, пройдено ${progress.done} из ${progress.total}` : ''}${progress?.repeat ? `, на повторение ${progress.repeat}` : ''}`}
                     >
-                      <span className="topic-label">{t}</span><b>{topicCounts.get(t) ?? 0}</b>
+                      <span className="topic-label"><span className="topic-label-text">{t}</span>{mode === 'theory' && topicsWithUnreadUpdates.has(t) && <span className="theory-update-badge side-update-badge">Обновлено</span>}</span><b>{topicCounts.get(t) ?? 0}</b>
                       {progress && <span className="topic-progress" aria-hidden="true"><i style={{ width: `${percent}%` }} /></span>}
                     </button>
                     <button
