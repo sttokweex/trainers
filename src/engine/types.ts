@@ -92,6 +92,15 @@ export interface TheoryArticle {
   lead: string
   /** HTML статьи; <h5> становятся пунктами оглавления. */
   body: string
+  /** Разделы, которые недавно добавили или существенно обновили. */
+  updates?: TheoryUpdate[]
+}
+
+export interface TheoryUpdate {
+  /** Меняй id при следующем обновлении этого раздела, чтобы метка появилась снова. */
+  id: string
+  sectionTitle: string
+  label?: string
 }
 
 /** Карточка режима «Практикум» — обёртка над демо. */

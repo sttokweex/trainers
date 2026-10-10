@@ -21,6 +21,7 @@ const plural = (n: number, one: string, few: string, many: string) => {
 export function TheoryCard({
   item, demos, autoOpen = false, restoreReadingPosition = false, done = false, onToggleDone,
   onAddBookmark, openSectionIndex, openExcerpt,
+  readUpdates = [], onReadUpdate,
 }: {
   item: TheoryArticle
   demos: Record<string, LegacyDemo>
@@ -34,6 +35,8 @@ export function TheoryCard({
   onAddBookmark?: (bookmark: TheoryBookmark) => void
   openSectionIndex?: number
   openExcerpt?: string
+  readUpdates?: string[]
+  onReadUpdate?: (key: string) => void
 }) {
   const [open, setOpen] = useState(autoOpen)
   const [pendingBookmark, setPendingBookmark] = useState<{
@@ -158,6 +161,23 @@ export function TheoryCard({
   )
 
   useEffect(() => {
+    if (!done || !open || !onReadUpdate || !item.updates?.length) return
+    const pending = item.updates.filter((update) => !readUpdates.includes(`${item.id}:${update.id}`))
+    if (!pending.length) return
+    const onScroll = () => {
+      const viewportEnd = window.innerHeight - 24
+      for (const update of pending) {
+        const index = sections.findIndex((section) => section.title === update.sectionTitle)
+        const section = index >= 0 ? bodyRef.current?.querySelector<HTMLElement>(`[data-section-index="${index}"]`) : null
+        if (section && section.getBoundingClientRect().bottom <= viewportEnd) onReadUpdate(`${item.id}:${update.id}`)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [done, open, onReadUpdate, item.id, item.updates, readUpdates, sections])
+
+  useEffect(() => {
     if (!open || openSectionIndex === undefined) return
     const id = requestAnimationFrame(() => {
       const section = openSectionIndex < 0
@@ -258,10 +278,15 @@ export function TheoryCard({
           )}
           <div className="th-content">
             {intro.trim() && <RichContent html={intro} demos={demos} />}
-            {sections.map((section, index) => <section className="th-section" key={`${item.id}:${index}`} data-section-index={index}>
+            {sections.map((section, index) => {
+              const update = item.updates?.find((entry) => entry.sectionTitle === section.title)
+              const updateKey = update ? `${item.id}:${update.id}` : ''
+              const showUpdate = Boolean(done && update && !readUpdates.includes(updateKey))
+              return <section className={'th-section' + (showUpdate ? ' th-section-updated' : '')} key={`${item.id}:${index}`} data-section-index={index}>
               <h5 dangerouslySetInnerHTML={{ __html: section.titleHtml }} />
+              {showUpdate && <span className="theory-update-badge theory-update-inline">{update?.label ?? 'Обновлено'}</span>}
               <RichContent html={section.body} demos={demos} />
-            </section>)}
+            </section>})}
           </div>
           {pendingBookmark && onAddBookmark && <form
             className="th-bookmark-popover"

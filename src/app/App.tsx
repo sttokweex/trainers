@@ -48,6 +48,18 @@ function Trainer({ pack }: { pack: ContentPack }) {
     reset, known, repeat, topicReviews, toggleTopicReview,
     notes, setNote, reviews, recordAttempt, bookmarks, addBookmark, removeBookmark, exportProgress, importProgress,
   } = useProgress(pack)
+  const updateReadKey = `theory-updates-read:${pack.id}`
+  const [readTheoryUpdates, setReadTheoryUpdates] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(updateReadKey)
+      const parsed: unknown = saved ? JSON.parse(saved) : []
+      return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
+    } catch { return [] }
+  })
+  useEffect(() => {
+    try { localStorage.setItem(updateReadKey, JSON.stringify(readTheoryUpdates)) } catch { /* storage may be disabled */ }
+  }, [readTheoryUpdates, updateReadKey])
+  const markTheoryUpdateRead = (key: string) => setReadTheoryUpdates((current) => current.includes(key) ? current : [...current, key])
 
   const searchRef = useRef<HTMLInputElement>(null)
   const topRef = useRef<HTMLElement>(null)
@@ -529,6 +541,8 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 onNoteChange={setNote}
                 done={theoryDone}
                 onToggleDone={toggleTheory}
+                readUpdates={readTheoryUpdates}
+                onReadUpdate={markTheoryUpdateRead}
                 bookmarks={bookmarks}
                 onAddBookmark={addBookmark}
                 onRemoveBookmark={removeBookmark}

@@ -30,6 +30,7 @@ export function TheoryStudyMode({
   pack, articles, marks, onToggleMark, notes, onNoteChange, done, onToggleDone,
   bookmarks, onAddBookmark, onRemoveBookmark,
   openId, onOpenArticle, query = '', selectedTopic = 'all',
+  readUpdates = [], onReadUpdate,
 }: {
   pack: ContentPack
   articles: TheoryArticle[]
@@ -46,6 +47,8 @@ export function TheoryStudyMode({
   onOpenArticle: (article: TheoryArticle) => void
   query?: string
   selectedTopic?: string
+  readUpdates?: string[]
+  onReadUpdate?: (key: string) => void
 }) {
   const [stage, setStage] = useState<Stage>('map')
   const [article, setArticle] = useState<TheoryArticle | null>(null)
@@ -138,7 +141,7 @@ export function TheoryStudyMode({
     <div className="theory-study">
       <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" onClick={() => { const terms = articles.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Словарь терминов</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · ~{estimateReadingMinutes(article.body)} мин чтения</div><h2>{article.title}</h2><p>{article.lead}</p><small>Выдели фрагмент в статье — появится возможность сохранить его под своим названием.</small></div>
-      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} />
+      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} readUpdates={readUpdates} onReadUpdate={onReadUpdate} />
       <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
     </div>
   )
@@ -196,7 +199,8 @@ export function TheoryStudyMode({
       <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>{query.trim() ? `${articles.length} глав по запросу «${query.trim()}»` : 'Порядок свободный'}</span></div>
       <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.topics.flatMap(([, items]) => items).filter((item) => done[item.id]).length}/{world.topics.reduce((sum, [, items]) => sum + items.length, 0)} глав</span></div>{world.topics.map(([topic, items]) => <div key={topic}><div className={'grp' + (selectedTopic === topic ? ' topic-selected' : '') + (query.trim() ? ' search-topic-match' : '')}>{highlightMatch(topic, query)}</div><div className="tg-chapters">{items.map((item, index) => {
         const count = pack.questions.filter((question) => question.theoryId === item.id || (!question.theoryId && question.topic === item.topic)).length
-        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : '', selectedTopic === topic ? 'topic-match' : '', query.trim() ? 'search-result' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{highlightMatch(item.title, query)}</b><small>{highlightMatch(item.lead, query)}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} вопросов</span></button>
+        const hasUnreadUpdate = Boolean(done[item.id] && item.updates?.some((update) => !readUpdates.includes(`${item.id}:${update.id}`)))
+        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : '', selectedTopic === topic ? 'topic-match' : '', query.trim() ? 'search-result' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{highlightMatch(item.title, query)}{hasUnreadUpdate && <span className="theory-update-badge">Обновлено</span>}</b><small>{highlightMatch(item.lead, query)}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} вопросов</span></button>
       })}</div></div>)}</section>)}</div>
     </div>
   )

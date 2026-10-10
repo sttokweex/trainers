@@ -55,6 +55,12 @@
 .tg-chapter.complete .tg-chapter-mark{border-color:#34774a; background:#102117; color:#8de39c}
 .tg-chapter-copy{display:grid; gap:4px; min-width:0}
 .tg-chapter-copy b{font-size:12px; line-height:1.4}
+.theory-update-badge{display:inline-flex; align-items:center; margin-left:8px; padding:3px 7px; border:1px solid #705dbe; border-radius:999px; background:linear-gradient(110deg,#342754,#22243b); color:#d8ccff; font:700 9px var(--mono); letter-spacing:.02em; vertical-align:middle; white-space:nowrap}
+.theory-update-inline{margin:0 0 12px 2px}
+.th-section-updated{position:relative; padding:14px 16px 16px; margin:20px 0; border:1px solid #594985; border-radius:12px; background:linear-gradient(115deg,#171526 0%,#10151e 65%); box-shadow:inset 3px 0 #9a80ff,0 12px 30px #08071325; animation:theory-update-arrive .55s ease both}
+.th-section-updated h5{margin-top:0}
+@keyframes theory-update-arrive{from{opacity:.55; transform:translateY(7px)}to{opacity:1; transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.th-section-updated{animation:none}}
 .tg-chapter-copy small{display:-webkit-box; overflow:hidden; color:var(--mut2); font-size:10px; line-height:1.4; -webkit-line-clamp:2; -webkit-box-orient:vertical}
 .tg-chapter-xp{max-width:125px; color:#b6a7ff; font:10px var(--mono); white-space:normal; text-align:right; line-height:1.5}
 .tg-footnote{margin:14px 3px 0; color:var(--mut2); font-size:11px; line-height:1.5}
