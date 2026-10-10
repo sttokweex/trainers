@@ -52,19 +52,28 @@ export function TheoryCard({
 
   useEffect(() => {
     if (!open || (autoOpen && !restoreReadingPosition) || restoredRef.current) return
-    const frame = requestAnimationFrame(() => {
+    let secondFrame = 0
+    const frame = requestAnimationFrame(() => { secondFrame = requestAnimationFrame(() => {
       const root = rootRef.current
       if (!root) return
       try {
         const saved = Number(localStorage.getItem(readingPositionKey))
         if (Number.isFinite(saved) && saved > 0) {
           const top = root.getBoundingClientRect().top + window.scrollY
-          window.scrollTo({ top: top + saved, behavior: 'instant' })
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+          // Global CSS enables smooth scrolling. Temporarily disable it here:
+          // restoration must be immediate or later layout/scroll events can
+          // overwrite the saved position while the smooth animation is moving.
+          const html = document.documentElement
+          const previousBehavior = html.style.scrollBehavior
+          html.style.scrollBehavior = 'auto'
+          window.scrollTo(0, Math.max(0, Math.min(top + saved, maxScroll)))
+          requestAnimationFrame(() => { html.style.scrollBehavior = previousBehavior })
         }
       } catch { /* storage may be disabled */ }
       restoredRef.current = true
-    })
-    return () => cancelAnimationFrame(frame)
+    }) })
+    return () => { cancelAnimationFrame(frame); cancelAnimationFrame(secondFrame) }
   }, [open, autoOpen, restoreReadingPosition, readingPositionKey])
 
   useEffect(() => {
@@ -76,7 +85,7 @@ export function TheoryCard({
       const root = rootRef.current
       if (!root) return
       const articleTop = root.getBoundingClientRect().top + window.scrollY
-      const maxOffset = Math.max(0, root.offsetHeight - window.innerHeight / 2)
+      const maxOffset = Math.max(0, root.offsetHeight - window.innerHeight / 3)
       const offset = Math.min(maxOffset, Math.max(0, window.scrollY - articleTop))
       try { localStorage.setItem(readingPositionKey, String(Math.round(offset))) } catch { /* storage may be disabled */ }
     }
