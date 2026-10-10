@@ -394,4 +394,32 @@ const safe = UserSchema.safeParse(data)           // { success, data | error }</
 <li><code class="i">noUncheckedIndexedAccess</code> — <code class="i">arr[0]</code> становится <code class="i">T | undefined</code>, что честно отражает реальность.</li>
 <li><code class="i">noUnusedLocals</code>, <code class="i">noUnusedParameters</code>, <code class="i">noFallthroughCasesInSwitch</code>.</li>
 </ul>
-<div class="note">Известная дыра, о которой полезно знать: массивы в TypeScript <b>ковариантны</b>. <code class="i">Dog[]</code> присваивается в <code class="i">Animal[]</code>, после чего туда можно положить кота — и получить ошибку в рантайме. Это осознанный компромисс ради удобства; страхует <code class="i">readonly T[]</code> там, где мутация не нужна.</div>` }
+<h5>Что strict проверяет — и чего от него не ждать</h5>
+<p><code class="i">strict: true</code> в <code class="i">tsconfig</code> — общий переключатель строгих проверок. В частности, <code class="i">strictNullChecks</code> заставляет учитывать <code class="i">null</code> и <code class="i">undefined</code>, а <code class="i">noImplicitAny</code> запрещает незаметно подставлять <code class="i">any</code>, когда тип не удалось вывести. Также строже проверяются функции, <code class="i">this</code>, поля классов и обработка ошибок в <code class="i">catch</code>.</p>
+<p>Это не включает вообще все полезные проверки. Например, <code class="i">noUncheckedIndexedAccess</code> — отдельный флаг: без него TypeScript считает, что у <code class="i">users[100]</code> есть тип <code class="i">User</code>, хотя в массиве может не быть сотого элемента. С этим флагом тип становится <code class="i">User | undefined</code>.</p>
+
+<h5>Вариантность: совместимость контейнеров</h5>
+<p><b>Вариантность</b> — правило, которое объясняет, как совместимость внешних типов зависит от совместимости типов внутри них. Сначала отношение простое: если <code class="i">Dog</code> расширяет <code class="i">Animal</code>, то собаку безопасно передать туда, где требуется животное: у собаки есть всё, что обещает <code class="i">Animal</code>.</p>
+<pre class="code">class Animal { eat() {} }
+class Dog extends Animal { bark() {} }
+class Cat extends Animal { meow() {} }
+
+const dogs: Dog[] = [new Dog()]
+const animals: Animal[] = dogs // разрешено: каждый Dog — Animal</pre>
+<p>Это <b>ковариантность</b>: направление сохраняется. Если <code class="i">Dog</code> подходит под <code class="i">Animal</code>, то и <code class="i">Dog[]</code> TypeScript разрешает использовать как <code class="i">Animal[]</code>. С чтением всё нормально: из <code class="i">animals</code> мы получим животное, а собака действительно животное.</p>
+<p>Но массив можно менять. Переменная <code class="i">animals</code> и <code class="i">dogs</code> ссылаются на один массив. Через широкую ссылку можно положить кота, а через узкую — попробовать обращаться к нему как к собаке:</p>
+<pre class="code">animals.push(new Cat()) // допустимо: Cat является Animal
+dogs[1].bark()          // рантайм-ошибка: элемент dogs[1] — кот</pre>
+<p>Так TypeScript допускает потенциально небезопасную запись ради удобства работы с массивами и совместимости существующего кода. Это не ошибка в твоём рассуждении: тут действительно есть компромисс в системе типов.</p>
+<h5>Когда появляется контравариантность</h5>
+<p>Для функций с параметрами направление наоборот. Функция, способная принять любое животное, подходит туда, где ей будут передавать только собак. А функция, принимающая только собак, не подходит туда, где ей могут передать кота:</p>
+<pre class="code">type AnimalHandler = (value: Animal) =&gt; void
+type DogHandler = (value: Dog) =&gt; void
+
+const handleAnyAnimal: AnimalHandler = (animal) =&gt; animal.eat()
+const handleDog: DogHandler = handleAnyAnimal // безопасно
+
+const onlyDog: DogHandler = (dog) =&gt; dog.bark()
+const handleAny: AnimalHandler = onlyDog // небезопасно: сюда может прийти Cat</pre>
+<p>Это называется <b>контравариантностью параметров</b>: более общий обработчик можно поставить на место более узкого, но не наоборот. За строгую проверку таких присваиваний отвечает <code class="i">strictFunctionTypes</code>, который включается через <code class="i">strict: true</code>. У методов классов и объектов есть историческое исключение для совместимости: их параметры могут проверяться менее строго.</p>
+<div class="note"><b>Практический вывод:</b> не отдавай кодам, которым нужно только читать коллекцию, изменяемый тип без необходимости. Используй <code class="i">readonly T[]</code> или <code class="i">ReadonlyArray&lt;T&gt;</code>: получатель сможет читать элементы, но не сможет вызвать <code class="i">push</code> и создать описанную дыру через эту ссылку. Это compile-time ограничение, а не заморозка объекта в рантайме.</div>` }

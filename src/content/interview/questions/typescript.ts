@@ -273,33 +273,37 @@ type SearchArgs = MyParameters<Search>
   </ul>
   <div class="hint">Если в проекте включён <code class="i">erasableSyntaxOnly</code> / используется type stripping в Node 22+, enum и параметры-свойства конструктора вообще недоступны.</div>` },
   { id:'ts-strict', topic:'TypeScript', type:'theory', level:'senior',
-    q:'Что включает <code class="i">strict: true</code>? Почему массивы в TS небезопасны, и что такое вариантность?',
-    answer:`<h5>Флаги внутри strict</h5>
+    q:'Что меняет <code class="i">strict: true</code> в tsconfig? Затем разберите пример с <code class="i">Dog[]</code> и <code class="i">Animal[]</code>: что означает ковариантность и почему через неё можно положить кота в массив собак?',
+    answer:`<h5>1. Что значит <code class="i">strict: true</code></h5>
+  <p>Это общий переключатель строгих проверок TypeScript. Он включает несколько флагов. Главное для начала — компилятор перестаёт молча принимать сомнительные случаи:</p>
   <ul>
-  <li><code class="i">strictNullChecks</code> — <code class="i">null</code>/<code class="i">undefined</code> перестают входить во все типы. Самый ценный флаг.</li>
-  <li><code class="i">noImplicitAny</code> — запрет неявного any.</li>
-  <li><code class="i">strictFunctionTypes</code> — контравариантная проверка параметров функций.</li>
-  <li><code class="i">strictBindCallApply</code>, <code class="i">strictPropertyInitialization</code>, <code class="i">noImplicitThis</code>, <code class="i">useUnknownInCatchVariables</code> (<code class="i">catch (e: unknown)</code>), <code class="i">alwaysStrict</code>.</li>
+  <li><code class="i">strictNullChecks</code>: значение <code class="i">null</code> или <code class="i">undefined</code> нельзя использовать как обычную строку или объект без проверки.</li>
+  <li><code class="i">noImplicitAny</code>: TypeScript не должен незаметно подставлять <code class="i">any</code>, когда не смог вывести тип.</li>
+  <li><code class="i">strictFunctionTypes</code>: строже проверяется, какие функции можно передавать вместо других, в частности типы их аргументов.</li>
+  <li>Также включаются строгие проверки <code class="i">this</code>, привязки <code class="i">call/apply/bind</code>, инициализации полей классов и ошибок в <code class="i">catch</code>.</li>
   </ul>
-  <p>Отдельно (не входят в strict, но стоит включить): <code class="i">noUncheckedIndexedAccess</code> — <code class="i">arr[0]</code> становится <code class="i">T | undefined</code>, что честно; <code class="i">exactOptionalPropertyTypes</code>.</p>
-  <h5>Вариантность — на пальцах</h5>
-  <ul>
-  <li><b>Ковариантность</b>: <code class="i">Dog</code> ⊂ <code class="i">Animal</code> ⟹ <code class="i">Dog[]</code> ⊂ <code class="i">Animal[]</code>. Так работают массивы и возвращаемые значения функций.</li>
-  <li><b>Контравариантность</b>: параметры функций — наоборот. Функция, принимающая <code class="i">Animal</code>, годится там, где ждут функцию на <code class="i">Dog</code> (она умеет больше). Это и включает <code class="i">strictFunctionTypes</code>.</li>
-  </ul>
-  <h5>Почему массивы дырявые</h5>
+  <p>Это не означает «TypeScript теперь проверяет всё». Например, <code class="i">noUncheckedIndexedAccess</code> — отдельная настройка: её нужно включить отдельно, чтобы чтение <code class="i">items[100]</code> имело тип <code class="i">T | undefined</code>.</p>
+  <h5>2. Сначала отношение типов</h5>
+  <pre class="code">class Animal { eat() {} }
+  class Dog extends Animal { bark() {} }
+  class Cat extends Animal { meow() {} }</pre>
+  <p>Каждая собака — животное, поэтому <code class="i">Dog</code> подходит туда, где достаточно любого <code class="i">Animal</code>. Обратное неверно: не каждое животное — собака. У переменной типа <code class="i">Animal</code> нельзя без проверки вызвать <code class="i">bark()</code>.</p>
+  <h5>3. Что такое ковариантность</h5>
+  <p><b>Вариантность</b> описывает, как меняется совместимость составного типа, когда меняется тип внутри него. При <b>ковариантности</b> направление сохраняется: если <code class="i">Dog</code> можно использовать как <code class="i">Animal</code>, то <code class="i">Dog[]</code> TypeScript тоже позволяет использовать как <code class="i">Animal[]</code>.</p>
   <pre class="code">const dogs: Dog[] = [new Dog()]
-  const animals: Animal[] = dogs      // TS разрешает — массивы ковариантны
-  animals.push(new Cat())             // тоже разрешает!
-  dogs[1].bark()                      // 💥 рантайм-ошибка: там кот</pre>
-  <p>Это <b>осознанная дыра</b> в системе типов TS ради удобства. Лечится <code class="i">readonly T[]</code> там, где мутация не нужна.</p>
-  <h5>Другие известные дыры</h5>
-  <ul>
-  <li><code class="i">as</code> и <code class="i">any</code>.</li>
-  <li>Индексный доступ без <code class="i">noUncheckedIndexedAccess</code>: <code class="i">arr[999]</code> имеет тип <code class="i">T</code>, а в рантайме <code class="i">undefined</code>.</li>
-  <li>Отсутствие проверки на границе рантайма (ответ API типизирован «на веру»).</li>
-  <li>Опциональные методы и bivariance для методов, объявленных сокращённым синтаксисом.</li>
-  </ul>` },
+  const animals: Animal[] = dogs // разрешено: каждый Dog — Animal</pre>
+  <p>До этой точки это кажется безопасным: читать из <code class="i">animals</code> обещали только животных, а собаки действительно животные. Проблема в том, что массив изменяемый.</p>
+  <h5>4. Где появляется дыра</h5>
+  <pre class="code">animals.push(new Cat()) // разрешено: Cat тоже Animal
+  dogs[1].bark()            // ошибка в рантайме: dogs[1] на самом деле Cat</pre>
+  <p><code class="i">animals</code> и <code class="i">dogs</code> — ссылки на один и тот же массив. Через более общий тип <code class="i">Animal[]</code> мы добавили кота, а затем прочитали его через обещание <code class="i">Dog[]</code>. TypeScript допускает такое присваивание массивов ради удобства и совместимости, хотя с изменяемой коллекцией оно не полностью безопасно. Вот почему говорят, что массивы в TS «небезопасны» в этом отношении.</p>
+  <h5>5. Что делать и как запомнить</h5>
+  <pre class="code">function inspectAnimals(animals: readonly Animal[]) {
+    // Читать можно, добавлять/заменять элементы через этот тип нельзя.
+  }
+  inspectAnimals(dogs)</pre>
+  <p><code class="i">readonly Animal[]</code> не даёт этой функции мутировать массив через полученную ссылку. Это ограничение TypeScript, а не runtime-заморозка: если тот же массив доступен где-то ещё как изменяемый, там его всё ещё можно поменять.</p>
+  <div class="key"><b>Коротко:</b> <code class="i">strict</code> включает группу дополнительных проверок. Ковариантность — совместимость «в том же направлении» (<code class="i">Dog</code> → <code class="i">Animal</code>). Массивы сохраняют это направление, хотя их можно менять; через общий тип можно записать значение, которое исходный узкий тип не ожидал.</div>` },
   { id:'ts-infer-api', topic:'TypeScript', type:'manual', level:'senior',
     q:'Объясните, как tRPC добивается end-to-end типобезопасности без кодогенерации. Набросайте мини-версию этой идеи.',
     starter:`// На сервере есть роутер. На клиенте — ноль генерации кода,
