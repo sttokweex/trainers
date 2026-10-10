@@ -114,6 +114,17 @@ export function TheoryStudyMode({
     }
   }, [openId, articles, article?.id, openArticle])
 
+  // Clicking the active topic in the sidebar clears the URL's `open` id.
+  // Treat that as a request to return to the chapter list, even when the topic
+  // itself did not change (the mode component is keyed by topic).
+  useEffect(() => {
+    if (openId || !article) return
+    setArticle(null)
+    setStage('map')
+    setOpenSectionIndex(undefined)
+    setOpenExcerpt(undefined)
+  }, [openId, article])
+
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)
     setArticle(null)
