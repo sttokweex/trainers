@@ -19,13 +19,15 @@ const plural = (n: number, one: string, few: string, many: string) => {
 }
 
 export function TheoryCard({
-  item, demos, autoOpen = false, done = false, onToggleDone,
+  item, demos, autoOpen = false, restoreReadingPosition = false, done = false, onToggleDone,
   onAddBookmark, openSectionIndex, openExcerpt,
 }: {
   item: TheoryArticle
   demos: Record<string, LegacyDemo>
   /** Пришли по ссылке из плана: раскрыть и подвести к себе. */
   autoOpen?: boolean
+  /** Вернулись к последней открытой статье: восстановить её сохранённое место. */
+  restoreReadingPosition?: boolean
   /** Reading progress marker. */
   done?: boolean
   onToggleDone?: () => void
@@ -49,7 +51,7 @@ export function TheoryCard({
   const readingPositionKey = `theory-scroll:${item.id}`
 
   useEffect(() => {
-    if (!open || autoOpen || restoredRef.current) return
+    if (!open || (autoOpen && !restoreReadingPosition) || restoredRef.current) return
     const frame = requestAnimationFrame(() => {
       const root = rootRef.current
       if (!root) return
@@ -63,7 +65,7 @@ export function TheoryCard({
       restoredRef.current = true
     })
     return () => cancelAnimationFrame(frame)
-  }, [open, autoOpen, readingPositionKey])
+  }, [open, autoOpen, restoreReadingPosition, readingPositionKey])
 
   useEffect(() => {
     if (!open) {
@@ -94,12 +96,12 @@ export function TheoryCard({
    * прокрутка — ждём кадр, чтобы тело статьи успело отрисоваться.
    */
   useEffect(() => {
-    if (!autoOpen) return
+    if (!autoOpen || restoreReadingPosition) return
     const id = requestAnimationFrame(() => {
       rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
     return () => cancelAnimationFrame(id)
-  }, [autoOpen])
+  }, [autoOpen, restoreReadingPosition])
 
   const meta = useMemo(() => {
     const demoCount = (item.body.match(/data-demo=/g) ?? []).length

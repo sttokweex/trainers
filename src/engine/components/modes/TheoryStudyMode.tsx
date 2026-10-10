@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { theoryForQuestion } from '@/engine/theoryLinks'
 import type { ContentPack, Mark, Question, TheoryArticle, TheoryBookmark } from '@/engine/types'
 import { QuestionCard } from '../QuestionCard'
@@ -53,6 +53,9 @@ export function TheoryStudyMode({
   const [taskIndex, setTaskIndex] = useState(0)
   const [openSectionIndex, setOpenSectionIndex] = useState<number | undefined>()
   const [openExcerpt, setOpenExcerpt] = useState<string | undefined>()
+  const [resumeReadingPosition, setResumeReadingPosition] = useState(false)
+  const resumedInitialArticle = useRef(false)
+  const lastArticleKey = `theory-last-article:${pack.id}`
 
   useEffect(() => {
     if (article && !pack.theory.some((item) => item.id === article.id)) {
@@ -80,18 +83,32 @@ export function TheoryStudyMode({
     })
   }, [articles, categoryByTopic])
 
-  const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string) => {
+  const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string, resume = false) => {
     // Keep the URL's deep link in sync with the article selected from the map
     // or a bookmark, so an older `open` id cannot pull the reader back.
     onOpenArticle(item)
     setArticle(item)
     setOpenSectionIndex(sectionIndex)
     setOpenExcerpt(excerpt)
+    setResumeReadingPosition(resume)
+    try { localStorage.setItem(lastArticleKey, item.id) } catch { /* storage may be disabled */ }
     setTasks(pickPair(item, pack.questions))
     setTaskIndex(0)
     setStage('read')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [onOpenArticle, pack.questions])
+    if (!resume) window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [lastArticleKey, onOpenArticle, pack.questions])
+
+  // При возврате во вкладку теории карточка уже размонтировалась. Открываем
+  // последнюю главу автоматически, чтобы TheoryCard могла восстановить скролл.
+  useEffect(() => {
+    if (openId || article || resumedInitialArticle.current) return
+    resumedInitialArticle.current = true
+    try {
+      const lastId = localStorage.getItem(lastArticleKey)
+      const lastArticle = articles.find((item) => item.id === lastId)
+      if (lastArticle) openArticle(lastArticle, undefined, undefined, true)
+    } catch { /* storage may be disabled */ }
+  }, [articles, article, lastArticleKey, openId, openArticle])
 
   useEffect(() => {
     if (!openId) return
@@ -114,7 +131,7 @@ export function TheoryStudyMode({
     <div className="theory-study">
       <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" onClick={() => { const terms = articles.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Словарь терминов</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · ~{estimateReadingMinutes(article.body)} мин чтения</div><h2>{article.title}</h2><p>{article.lead}</p><small>Выдели фрагмент в статье — появится возможность сохранить его под своим названием.</small></div>
-      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} />
+      <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} />
       <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
     </div>
   )
