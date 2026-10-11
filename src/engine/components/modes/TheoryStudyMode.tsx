@@ -29,7 +29,7 @@ function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
 export function TheoryStudyMode({
   pack, articles, marks, onToggleMark, notes, onNoteChange, done, onToggleDone,
   bookmarks, onAddBookmark, onRemoveBookmark,
-  openId, onOpenArticle, query = '', selectedTopic = 'all',
+  openId, onOpenArticle, onExitArticle, query = '', selectedTopic = 'all',
   readUpdates = [], onReadUpdate,
 }: {
   pack: ContentPack
@@ -45,6 +45,7 @@ export function TheoryStudyMode({
   onRemoveBookmark: (key: string) => void
   openId?: string
   onOpenArticle: (article: TheoryArticle) => void
+  onExitArticle: () => void
   query?: string
   selectedTopic?: string
   readUpdates?: string[]
@@ -130,6 +131,7 @@ export function TheoryStudyMode({
 
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)
+    onExitArticle()
     setArticle(null)
     setOpenSectionIndex(undefined)
     setOpenExcerpt(undefined)
