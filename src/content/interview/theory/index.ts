@@ -4,9 +4,9 @@ import { ts } from './th-ts'
 import { tsAdvanced } from './th-ts-advanced'
 import { tsPractice } from './th-ts-practice'
 import { zod } from './th-zod'
-import { lifecycle } from './th-lifecycle'
-import { hooks } from './th-hooks'
 import { render } from './th-render'
+import { hooks } from './th-hooks'
+import { lifecycle } from './th-lifecycle'
 import { state } from './th-state'
 import { nest } from './th-nest'
 import { sql } from './th-sql'
@@ -84,9 +84,9 @@ export const theory: TheoryArticle[] = [
   tsPractice,
   zod,
   tsAdvanced,
-  lifecycle,
-  hooks,
   render,
+  hooks,
+  lifecycle,
   state,
   nest,
   sql,
