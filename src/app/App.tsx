@@ -182,7 +182,8 @@ function Trainer({ pack }: { pack: ContentPack }) {
     }).map((item) => item.topic))
   }, [pack, mode, filters.query])
 
-  // Для теории и вопросов сайдбар показывает уже пройденное по каждой теме.
+  // Боковая панель показывает прогресс по каждой теме в режиме вопросов,
+  // теории и карточек; каждый режим использует собственный признак завершения.
   const topicProgress = useMemo(() => {
     const result = new Map<string, { done: number; total: number; repeat: number }>()
     if (mode === 'theory') {
@@ -200,9 +201,16 @@ function Trainer({ pack }: { pack: ContentPack }) {
         if (marks[item.id] === 'repeat') row.repeat += 1
         result.set(item.topic, row)
       }
+    } else if (mode === 'cards') {
+      for (const item of pack.cards ?? []) {
+        const row = result.get(item.topic) ?? { done: 0, total: 0, repeat: 0 }
+        row.total += 1
+        if (cardsKnown[item.term]) row.done += 1
+        result.set(item.topic, row)
+      }
     }
     return result
-  }, [mode, pack, theoryDone, marks])
+  }, [mode, pack, theoryDone, marks, cardsKnown])
 
   const topicsWithUnreadUpdates = useMemo(() => new Set(pack.theory
     .filter((article) => theoryDone[article.id])
