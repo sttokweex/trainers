@@ -2,7 +2,7 @@ import type { Question } from '@/engine/types'
 
 /** UX и доступность — 3 вопрос(ов) */
 export const uxIDostupnostyQuestions: Question[] = [
-  { id:'ux-a11y', topic:'UX и доступность', type:'theory', level:'middle',
+  { id:'ux-a11y', topic:'UX и доступность', theoryId: 'th-a11y', type:'theory', level:'middle',
     q:'Что такое доступность (a11y) и как её обеспечить на практике? Разберите семантику, клавиатуру, ARIA и контраст.',
     code:`<!-- ❌ -->
   <div class="btn" onclick="submit()">Отправить</div>
@@ -47,7 +47,7 @@ export const uxIDostupnostyQuestions: Question[] = [
   </ul>
   <h5>Чем проверять</h5>
   <p>Lighthouse и axe DevTools (ловят ~30–50% проблем автоматически), <code class="i">eslint-plugin-jsx-a11y</code> на этапе разработки, <code class="i">jest-axe</code>/<code class="i">axe-playwright</code> в тестах. И главное — <b>ручная проверка</b>: пройдите форму только с клавиатуры и включите VoiceOver (Cmd+F5 на macOS). Это пятиминутное упражнение, которое на собесе звучит очень убедительно.</p>` },
-  { id:'ux-states', topic:'UX и доступность', type:'theory', level:'middle',
+  { id:'ux-states', topic:'UX и доступность', theoryId: 'th-a11y', type:'theory', level:'middle',
     q:'Какие состояния должен предусматривать любой экран? Как правильно показывать загрузку, ошибки и пустоту?',
     answer:`<h5>Пять состояний любого экрана</h5>
   <ol>
@@ -83,7 +83,7 @@ export const uxIDostupnostyQuestions: Question[] = [
   <h5>Оптимистичный UI</h5>
   <p>Обновляем интерфейс сразу, откатываем при ошибке. Уместно для операций с высокой вероятностью успеха и низкой ценой отката: лайк, отметка «выполнено», удаление из списка. <b>Не применять</b> к платежам и необратимым действиям — там честное ожидание с подтверждением.</p>
   <div class="hint">Паттерн «Отменить» вместо «Вы уверены?»: вместо диалога подтверждения удалите сразу и покажите тост «Удалено — Отменить» на 5 секунд. Меньше трения в 99% случаев и безопасно в оставшемся 1%.</div>` },
-  { id:'ux-forms', topic:'UX и доступность', type:'theory', level:'middle',
+  { id:'ux-forms', topic:'UX и доступность', theoryId: 'th-a11y', type:'theory', level:'middle',
     q:'Как спроектировать хорошую форму? Когда валидировать, как показывать ошибки, что с мобильными?',
     code:`<input
     type="email"

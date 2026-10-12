@@ -4,7 +4,7 @@ import type { Question } from '@/engine/types'
 
 /** Вопросы по управлению состоянием */
 export const sostoyunieQuestions: Question[] = [
-  { id:'rtk-slice', topic:'Состояние', type:'manual', level:'middle',
+  { id:'rtk-slice', topic:'Состояние', theoryId: 'th-state', type:'manual', level:'middle',
     q:'Напишите slice на Redux Toolkit: список задач, загрузка через async thunk, обработка pending/fulfilled/rejected. Объясните, почему <code class="i">state.items.push()</code> здесь легален.',
     starter:`// createSlice, createAsyncThunk
   // + типизация состояния и селекторы`,
@@ -85,7 +85,7 @@ export const sostoyunieQuestions: Question[] = [
   <li>Экшены называют в прошедшем времени как <b>события</b> (<code class="i">taskToggled</code>), а не как команды (<code class="i">setTask</code>) — тогда один экшен может обработать несколько слайсов.</li>
   <li>Для серверных данных вместо thunk'ов лучше <b>RTK Query</b> — кеш, инвалидация, дедупликация и хуки генерируются автоматически.</li>
   </ul>` },
-  { id:'rtk-selector', topic:'Состояние', type:'code', level:'senior',
+  { id:'rtk-selector', topic:'Состояние', theoryId: 'th-state', type:'code', level:'senior',
     q:'Реализуйте упрощённый <code class="i">createSelector(inputs, resultFn)</code> из reselect: мемоизация результата, пересчёт только при изменении входных значений (сравнение по ссылке).',
     starter:`function createSelector(inputs, resultFn) {
     // inputs: массив функций (state) => any
@@ -130,7 +130,7 @@ export const sostoyunieQuestions: Question[] = [
   <h5>Классическая ловушка (и её судьба)</h5>
   <p>Мемоизация «на один последний вызов» ломается, если <b>один селектор с аргументами используют несколько компонентов</b>: <code class="i">selectById(state, 1)</code> и <code class="i">selectById(state, 2)</code> по очереди сбрасывают кеш друг друга. Исторически лечилось фабрикой селектора на компонент (<code class="i">useMemo(makeSelectById, [])</code>).</p>
   <p>В <b>reselect v5</b> (он в RTK 2.x) дефолтная мемоизация — <code class="i">weakMapMemoize</code>, кеш не ограничен одним значением, и эта проблема по большей части ушла. Знать историю полезно: спрашивают именно её.</p>` },
-  { id:'rq-basics', topic:'Состояние', type:'theory', level:'middle',
+  { id:'rq-basics', topic:'Состояние', theoryId: 'th-state', type:'theory', level:'middle',
     q:'TanStack Query: что такое <code class="i">staleTime</code> и <code class="i">gcTime</code>? Когда происходит рефетч? Чем это принципиально отличается от Redux?',
     code:`const { data, isPending, isFetching, error } = useQuery({
     queryKey: ['tasks', projectId, { status }],
@@ -160,7 +160,7 @@ export const sostoyunieQuestions: Question[] = [
   <tr><td>список задач, профиль, справочники</td><td>открытые модалки, шаги визарда, фильтры UI, тема</td></tr>
   </table>
   <div class="hint">Сильный тезис: «после внедрения React Query из Redux уходит 80% кода — потому что большая часть слайсов была ручным кешированием ответов API».</div>` },
-  { id:'state-libraries', topic:'Состояние', type:'theory', level:'middle',
+  { id:'state-libraries', topic:'Состояние', theoryId: 'th-state', type:'theory', level:'middle',
     q:'Сравните Redux Toolkit, MobX и Zustand. Где здесь RTK Query и Redux-Saga? Как выберете решение для нового приложения?',
     answer:`<p>Сначала разделю состояние по владению: UI/navigation state (часто локально или в URL), общее клиентское состояние (store при реальной необходимости) и серверные данные (query cache). Затем сравню не популярность, а модель команды и требования.</p>
 <ul>
@@ -171,7 +171,7 @@ export const sostoyunieQuestions: Question[] = [
 <li><b>Redux-Saga</b>: генераторы и эффекты для сложных долгих/отменяемых workflow. Для обычного CRUD обычно достаточно RTK Query; для простых async действий — thunk.</li>
 </ul>
 <p>Для нового приложения выберу минимальный набор: URL для фильтров/страниц, локальный React state для локального UI, TanStack Query или RTK Query для сервера и store только для действительно общего клиентского состояния. Уточню SSR, persistence, DevTools, сложность async-процессов, размер команды и существующие соглашения. Объясню цену миграции и проверю сценарий на одном вертикальном срезе.</p>` },
-  { id:'rq-optimistic', topic:'Состояние', type:'manual', level:'senior',
+  { id:'rq-optimistic', topic:'Состояние', theoryId: 'th-state', type:'manual', level:'senior',
     q:'Напишите мутацию с оптимистичным обновлением и корректным откатом при ошибке. Объясните роль <code class="i">onMutate</code>, <code class="i">onError</code>, <code class="i">onSettled</code>.',
     starter:`const toggleTask = useMutation({
     mutationFn: (id) => api.toggleTask(id),

@@ -2,7 +2,7 @@ import type { Question } from '@/engine/types'
 
 /** Тестирование — 2 вопрос(ов) */
 export const testirovanieQuestions: Question[] = [
-  { id:'test-pyramid', topic:'Тестирование', type:'theory', level:'middle',
+  { id:'test-pyramid', topic:'Тестирование', theoryId: 'th-testing', type:'theory', level:'middle',
     q:'Пирамида тестов: что и как тестировать? Что такое моки, стабы и спаи? Что значит «тестировать поведение, а не реализацию»?',
     answer:`<h5>Пирамида</h5>
   <table>
@@ -36,7 +36,7 @@ export const testirovanieQuestions: Question[] = [
   <li>Непонятно, что именно сломалось, когда он красный.</li>
   </ul>
   <div class="hint">Про покрытие: 100% — плохая цель. Покрытие показывает, какой код <b>исполнялся</b>, а не какой <b>проверен</b>. Тест без единого <code class="i">expect</code> даёт покрытие. Разумнее: высокое покрытие критичной бизнес-логики и платежей, низкое — для тривиальных геттеров и вёрстки.</div>` },
-  { id:'test-react', topic:'Тестирование', type:'manual', level:'middle',
+  { id:'test-react', topic:'Тестирование', theoryId: 'th-testing', type:'manual', level:'middle',
     q:'Напишите тест React-компонента с асинхронной загрузкой и тест кастомного хука. Как мокать сеть?',
     starter:`// Компонент TaskList: грузит задачи, показывает скелетон, потом список,
   // при ошибке — сообщение и кнопку «Повторить»`,

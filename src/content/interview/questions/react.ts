@@ -173,7 +173,7 @@ export const reactQuestions: Question[] = [
   <h5>Что изменилось в React 19</h5>
   <p><b>React Compiler</b> автоматически расставляет мемоизацию на этапе сборки, анализируя код. В проектах с ним ручные <code class="i">useMemo</code>/<code class="i">useCallback</code> становятся почти не нужны. Хороший ответ на собесе — упомянуть это, но добавить, что понимать ссылочное равенство всё равно необходимо.</p>
   <div class="trap">Частая ошибка: считать, что <code class="i">useMemo</code> предотвращает ререндер компонента. Нет — он предотвращает только <b>пересчёт значения</b>. Ререндер останавливает <code class="i">React.memo</code>.</div>` },
-  { id:'re-batch', topic:'React', type:'theory', level:'middle',
+  { id:'re-batch', theoryId:'th-render', topic:'React', type:'theory', level:'middle',
     q:'Сколько раз отрендерится компонент? Что такое автоматический батчинг в React 18?',
     code:`function App() {
     const [a, setA] = useState(0)
@@ -235,8 +235,9 @@ export const reactQuestions: Question[] = [
   <tr><td>нет мемоизированных селекторов</td><td>reselect из коробки</td></tr>
   </table>
   <div class="hint">Отдельно проговорите: <b>серверные данные вообще не должны лежать ни там, ни там</b>. Для них TanStack Query / RTK Query — кеш, инвалидация, дедупликация и статусы бесплатно.</div>` },
-  { id:'re-shallow', topic:'React', type:'code', level:'middle',
-    q:'Реализуйте <code class="i">shallowEqual(a, b)</code> — именно такое сравнение использует <code class="i">React.memo</code> и <code class="i">useSelector</code> из react-redux.',
+  { id:'re-shallow', theoryId:'th-render', topic:'React', type:'code', level:'middle',
+    q:'Реализуйте <code class="i">shallowEqual(a, b)</code>: сравните собственные поля объектов первого уровня через <code class="i">Object.is</code>, не сравнивая вложенные объекты рекурсивно.',
+    hint:'Следуйте шагам из главы: сначала Object.is для аргументов, затем проверьте null и типы, число собственных ключей, наличие каждого ключа и равенство соответствующих значений через Object.is.',
     starter:`function shallowEqual(a, b) {
     // ваш код
   }`,
@@ -268,6 +269,7 @@ export const reactQuestions: Question[] = [
     }
     return true
   }`,
+    approach:`<ol><li>Сначала обработайте самый простой случай: аргументы уже равны по <code>Object.is</code>.</li><li>Не вызывайте <code>Object.keys</code> для <code>null</code> или примитивов.</li><li>Сравните количество ключей: если оно различается, набор полей точно разный.</li><li>Пройдите по ключам первого объекта. Убедитесь, что каждый является собственным ключом второго объекта, и сравните два значения через <code>Object.is</code>.</li><li>Вложенные объекты не раскрывайте: сравните их ссылки тем же <code>Object.is</code>.</li></ol>`,
     answer:`<h5>Почему Object.is, а не <code class="i">===</code></h5>
   <p><code class="i">NaN === NaN</code> даёт false — состояние с <code class="i">NaN</code> вызывало бы бесконечные ререндеры. <code class="i">Object.is</code> считает их равными. Обратная сторона: <code class="i">+0</code> и <code class="i">-0</code> он различает. React использует именно <code class="i">Object.is</code> — и для сравнения состояния, и для массива зависимостей хуков.</p>
   <h5>Где это критично на практике</h5>

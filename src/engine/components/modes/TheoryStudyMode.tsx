@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { theoryForQuestion } from '@/engine/theoryLinks'
 import type { ContentPack, Mark, Question, TheoryArticle, TheoryBookmark } from '@/engine/types'
 import { QuestionCard } from '../QuestionCard'
@@ -18,8 +18,10 @@ function highlightMatch(text: string, query: string) {
 
 function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
   const exact = questions.filter((question) => question.theoryId === article.id)
-  const pool = exact.length ? exact : questions.filter((question) => !question.theoryId && question.topic === article.topic)
-  const shuffled = [...pool].sort(() => Math.random() - 0.5)
+  // Exercises must be explicitly reviewed against this chapter's content.
+  // Falling back to a random question with the same broad topic can surface
+  // material the learner has not studied yet.
+  const shuffled = [...exact].sort(() => Math.random() - 0.5)
   const first = shuffled.find((question) => question.type === 'choice') ?? shuffled[0]
   const second = shuffled.find((question) => question.id !== first?.id && question.type !== 'choice')
     ?? shuffled.find((question) => question.id !== first?.id)
@@ -28,7 +30,7 @@ function pickPair(article: TheoryArticle, questions: Question[]): Question[] {
 
 export function TheoryStudyMode({
   pack, articles, marks, onToggleMark, notes, onNoteChange, done, onToggleDone,
-  bookmarks, onAddBookmark, onRemoveBookmark,
+  bookmarks, onAddBookmark, onRemoveBookmark, onExitToOverview,
   openId, onOpenArticle, onExitArticle, query = '', selectedTopic = 'all',
   readUpdates = [], onReadUpdate,
 }: {
@@ -46,6 +48,7 @@ export function TheoryStudyMode({
   openId?: string
   onOpenArticle: (article: TheoryArticle) => void
   onExitArticle: () => void
+  onExitToOverview: () => void
   query?: string
   selectedTopic?: string
   readUpdates?: string[]
@@ -59,6 +62,7 @@ export function TheoryStudyMode({
   const [openExcerpt, setOpenExcerpt] = useState<string | undefined>()
   const [resumeReadingPosition, setResumeReadingPosition] = useState(false)
   const [leavingArticle, setLeavingArticle] = useState(false)
+  const pendingArticleId = useRef<string | null>(null)
 
   useEffect(() => {
     if (article && !pack.theory.some((item) => item.id === article.id)) {
@@ -89,6 +93,10 @@ export function TheoryStudyMode({
   const openArticle = useCallback((item: TheoryArticle, sectionIndex?: number, excerpt?: string) => {
     // Keep the URL's deep link in sync with the article selected from the map
     // or a bookmark, so an older `open` id cannot pull the reader back.
+    // Router state may update one render after local state. Remember this
+    // explicit choice so the URL-sync effect cannot reopen the previous page
+    // during that gap (notably when opening the glossary from a filtered list).
+    pendingArticleId.current = item.id
     onOpenArticle(item)
     setLeavingArticle(false)
     setArticle(item)
@@ -110,6 +118,8 @@ export function TheoryStudyMode({
 
   useEffect(() => {
     if (!openId || leavingArticle) return
+    if (pendingArticleId.current && pendingArticleId.current !== openId) return
+    if (pendingArticleId.current === openId) pendingArticleId.current = null
     // Only resolve deep links against the currently visible articles. Looking
     // in pack.theory ignores the topic filter and can reopen a stale chapter.
     const linked = articles.find((item) => item.id === openId)
@@ -144,6 +154,16 @@ export function TheoryStudyMode({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  function returnToOverview() {
+    setLeavingArticle(true)
+    onExitToOverview()
+    setArticle(null)
+    setOpenSectionIndex(undefined)
+    setOpenExcerpt(undefined)
+    setStage('map')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   function finishArticle() {
     if (article && !done[article.id]) onToggleDone(article.id)
     returnToMap()
@@ -151,10 +171,10 @@ export function TheoryStudyMode({
 
   if (article && stage === 'read') return (
     <div className="theory-study">
-      <div className="tg-topline"><button type="button" className="btn" onClick={returnToMap}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" title="Открыть словарь терминов и сокращений" aria-label="Открыть словарь терминов и сокращений" onClick={() => { const terms = pack.theory.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Открыть словарь</button>}</div>
+      <div className="tg-topline"><button type="button" className="btn" onClick={returnToOverview}>← На главную · Обзор</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" title="Открыть словарь терминов и сокращений" aria-label="Открыть словарь терминов и сокращений" onClick={() => { const terms = pack.theory.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Открыть словарь</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · ~{estimateReadingMinutes(article.body)} мин чтения</div><h2>{article.title}</h2><p>{article.lead}</p><small>Выдели фрагмент в статье — появится возможность сохранить его под своим названием.</small></div>
       <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} readUpdates={readUpdates} onReadUpdate={onReadUpdate} />
-      <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
+      <div className="tg-reading-action"><span>После чтения — вопросы, привязанные к этой главе.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам ({tasks.length}) →</button></div>
     </div>
   )
 
@@ -167,7 +187,7 @@ export function TheoryStudyMode({
       <div className="theory-study">
         <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('read')}>← Вернуться к теории</button><span>Закрепление · {article.topic}</span></div>
         <section className="tg-quest">
-          <div className="tg-eyebrow">Задача {taskIndex + 1} из {Math.max(2, tasks.length)}</div>
+          <div className="tg-eyebrow">Задача {taskIndex + 1} из {tasks.length}</div>
           {task ? <QuestionCard
             key={`${article.id}-${task.id}`}
             item={task}
@@ -201,8 +221,8 @@ export function TheoryStudyMode({
   const savedBookmarks = Object.values(bookmarks).filter((bookmark) => pack.theory.some((item) => item.id === bookmark.articleId)).sort((a, b) => b.savedAt - a.savedAt)
   return (
     <div className="theory-study">
-      <section className="tg-hero"><div className="tg-hero-copy"><div className="tg-eyebrow">Теория и закрепление</div><h1>Изучи тему и проверь себя</h1><p>Прочитай главу, затем реши два вопроса из банка практики по этой теме.</p></div><div className="tg-avatar" aria-hidden="true">↗</div></section>
-      <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс</span><b>{completedCount} из {articles.length} тем пройдено</b></div><strong>{articles.length ? `${Math.round(completedCount / articles.length * 100)}%` : '0%'}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс теории" aria-valuemin={0} aria-valuemax={articles.length} aria-valuenow={completedCount}><span style={{ width: `${articles.length ? completedCount / articles.length * 100 : 0}%` }} /></div><div className="tg-stats"><div><b>{articles.length}</b><span>глав</span></div><div><b>{pack.questions.length}</b><span>вопросов в банке</span></div><div><b>2</b><span>задачи после главы</span></div></div></section>
+      <section className="tg-hero"><div className="tg-hero-copy"><div className="tg-eyebrow">Теория и закрепление</div><h1>Изучи тему и проверь себя</h1><p>Прочитай главу, затем реши вопросы, которые привязаны к её содержанию.</p></div><div className="tg-avatar" aria-hidden="true">↗</div></section>
+      <section className="tg-progress"><div className="tg-level-row"><div><span className="tg-eyebrow">Прогресс</span><b>{completedCount} из {articles.length} тем пройдено</b></div><strong>{articles.length ? `${Math.round(completedCount / articles.length * 100)}%` : '0%'}</strong></div><div className="tg-xp-track" role="progressbar" aria-label="Прогресс теории" aria-valuemin={0} aria-valuemax={articles.length} aria-valuenow={completedCount}><span style={{ width: `${articles.length ? completedCount / articles.length * 100 : 0}%` }} /></div><div className="tg-stats"><div><b>{articles.length}</b><span>глав</span></div><div><b>{pack.questions.length}</b><span>вопросов в банке</span></div><div><b>до 2</b><span>задачи по главе</span></div></div></section>
       {savedBookmarks.length > 0 && <section className="tg-bookmarks"><div className="tg-bookmarks-head"><div><div className="tg-eyebrow">Сохранённые фрагменты</div><h2>Мои закладки</h2></div><span>{savedBookmarks.length}</span></div><div className="tg-bookmarks-list">{savedBookmarks.map((bookmark) => {
         const savedArticle = pack.theory.find((item) => item.id === bookmark.articleId)
         if (!savedArticle) return null
@@ -210,9 +230,9 @@ export function TheoryStudyMode({
       })}</div></section>}
       <div className="tg-map-heading"><div><div className="tg-eyebrow">Темы</div><h2>Выбери главу</h2></div><span>{query.trim() ? `${articles.length} глав по запросу «${query.trim()}»` : 'Порядок свободный'}</span></div>
       <div className="tg-worlds">{worlds.map((world) => <section className="tg-world" key={world.name}><div className="tg-world-heading"><h3>{world.name}</h3><span>{world.topics.flatMap(([, items]) => items).filter((item) => done[item.id]).length}/{world.topics.reduce((sum, [, items]) => sum + items.length, 0)} глав</span></div>{world.topics.map(([topic, items]) => <div key={topic}><div className={'grp' + (selectedTopic === topic ? ' topic-selected' : '') + (query.trim() ? ' search-topic-match' : '')}>{highlightMatch(topic, query)}</div><div className="tg-chapters">{items.map((item, index) => {
-        const count = pack.questions.filter((question) => question.theoryId === item.id || (!question.theoryId && question.topic === item.topic)).length
+        const count = pack.questions.filter((question) => question.theoryId === item.id).length
         const hasUnreadUpdate = Boolean(done[item.id] && item.updates?.some((update) => !readUpdates.includes(`${item.id}:${update.id}`)))
-        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : '', selectedTopic === topic ? 'topic-match' : '', query.trim() ? 'search-result' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{highlightMatch(item.title, query)}{hasUnreadUpdate && <span className="theory-update-badge">Обновлено</span>}</b><small>{highlightMatch(item.lead, query)}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} вопросов</span></button>
+        return <button key={item.id} type="button" className={['tg-chapter', done[item.id] ? 'complete' : '', selectedTopic === topic ? 'topic-match' : '', query.trim() ? 'search-result' : ''].filter(Boolean).join(' ')} onClick={() => openArticle(item)}><span className="tg-chapter-mark">{done[item.id] ? '✓' : String(index + 1).padStart(2, '0')}</span><span className="tg-chapter-copy"><b>{highlightMatch(item.title, query)}{hasUnreadUpdate && <span className="theory-update-badge">Обновлено</span>}</b><small>{highlightMatch(item.lead, query)}</small></span><span className="tg-chapter-xp">~{estimateReadingMinutes(item.body)} мин · {count} задач</span></button>
       })}</div></div>)}</section>)}</div>
     </div>
   )

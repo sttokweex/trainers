@@ -4,7 +4,7 @@ import type { Question } from '@/engine/types'
 
 /** Алгоритмы — 12 вопрос(ов) */
 export const algoritmQuestions: Question[] = [
-  { id:'alg-bigo', topic:'Алгоритмы', type:'theory', level:'junior',
+  { id:'alg-bigo', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'theory', level:'junior',
     q:'Что такое O-нотация? Оцените сложность типовых операций и объясните, почему <code class="i">arr.includes()</code> внутри цикла — это катастрофа.',
     code:`// Сколько это работает при n = 10 000?
   const result = a.filter(x => b.includes(x))   // ?
@@ -39,7 +39,7 @@ export const algoritmQuestions: Question[] = [
   <div class="trap">Скрытая O(n) внутри цикла — главный источник случайных O(n²). Классика: <code class="i">arr.unshift()</code> в цикле, <code class="i">{...acc, [k]: v}</code> внутри <code class="i">reduce</code> (копирование всего аккумулятора на каждом шаге!), <code class="i">indexOf</code> в <code class="i">filter</code>, конкатенация строк в цикле в некоторых движках.</div>
   <h5>Как отвечать на собесе</h5>
   <p>Всегда называйте <b>и время, и память</b>: «O(n) по времени, O(n) по памяти — храню Map». И проговаривайте размен: «можно за O(1) памяти двумя указателями, но тогда нужен отсортированный вход».</p>` },
-  { id:'alg-twosum', topic:'Алгоритмы', type:'code', level:'junior',
+  { id:'alg-twosum', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'junior',
     q:'<b>Two Sum.</b> Найдите индексы двух чисел, дающих в сумме <code class="i">target</code>. Решите за O(n), а не за O(n²).',
     starter:`function twoSum(nums, target) {
     // вернуть [i, j] или null
@@ -89,7 +89,7 @@ export const algoritmQuestions: Question[] = [
   <li><b>Three Sum</b> → отсортировать, зафиксировать первый элемент и решать Two Sum двумя указателями на остатке: O(n²).</li>
   <li><b>Вернуть все пары</b>, а не первую — тогда в Map кладём массивы индексов.</li>
   </ul>` },
-  { id:'alg-window', topic:'Алгоритмы', type:'code', level:'middle',
+  { id:'alg-window', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'middle',
     q:'<b>Скользящее окно.</b> Найдите длину самой длинной подстроки без повторяющихся символов: <code class="i">lengthOfLongestSubstring("abcabcbb") === 3</code>.',
     starter:`function lengthOfLongestSubstring(s) {
     // ваш код
@@ -146,7 +146,7 @@ export const algoritmQuestions: Question[] = [
     while (!isValid()) { remove(arr[left]); left++ }   // сузили
     best = Math.max(best, right - left + 1)
   }</pre>` },
-  { id:'alg-bsearch', topic:'Алгоритмы', type:'code', level:'middle',
+  { id:'alg-bsearch', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'middle',
     q:'<b>Бинарный поиск.</b> Реализуйте <code class="i">binarySearch(arr, target)</code> (индекс или -1) и <code class="i">lowerBound(arr, target)</code> — индекс первого элемента ≥ target.',
     starter:`function binarySearch(arr, target) {
     // ваш код
@@ -214,7 +214,7 @@ export const algoritmQuestions: Question[] = [
   <li>Индексы БД — это то же самое дерево поиска, только на диске.</li>
   </ul>
   <div class="hint">Обязательное условие — <b>отсортированный массив</b>. Если вход не отсортирован, сортировка стоит O(n log n), и ради одного поиска это дороже, чем линейный проход. Выгодно при многих поисках по одним данным.</div>` },
-  { id:'alg-sort', topic:'Алгоритмы', type:'code', level:'middle',
+  { id:'alg-sort', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'middle',
     q:'Реализуйте <code class="i">mergeSort</code> и <code class="i">quickSortPartition</code>. Объясните разницу и что такое стабильность сортировки.',
     starter:`function mergeSort(arr) {
     // не мутировать вход
@@ -274,7 +274,7 @@ export const algoritmQuestions: Question[] = [
   <h5>Стабильность — почему это важно во фронтенде</h5>
   <p>Стабильная сортировка сохраняет относительный порядок равных элементов. Практический смысл: пользователь отсортировал таблицу по дате, потом по статусу — внутри одинаковых статусов порядок по дате <b>должен сохраниться</b>. Со времён ES2019 <code class="i">Array.prototype.sort</code> обязан быть стабильным, и V8 использует TimSort (гибрид merge и insertion).</p>
   <div class="hint">На собесе почти никогда не просят писать сортировку «в бою» — просят объяснить выбор. Сильный ответ: «взял бы встроенный <code class="i">sort</code> с компаратором: он TimSort, стабилен и оптимизирован под частично отсортированные данные, которые в реальных данных встречаются постоянно».</div>` },
-  { id:'alg-graph', topic:'Алгоритмы', type:'code', level:'senior',
+  { id:'alg-graph', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'senior',
     q:'<b>Обход графа.</b> Реализуйте <code class="i">bfsShortestPath(graph, start, end)</code> — кратчайший путь в невзвешенном графе (список смежности).',
     starter:`function bfsShortestPath(graph, start, end) {
     // graph: { a: ['b','c'], b: ['d'], ... }
@@ -344,7 +344,7 @@ export const algoritmQuestions: Question[] = [
   <li>Роутинг, навигация по категориям, «рекомендации друзей», построение пути в дереве меню.</li>
   </ul>
   <div class="hint">Уточнение по производительности: <code class="i">queue.shift()</code> — это O(n), поэтому строго говоря реализация выше не идеальна. В «настоящем» коде держат индекс головы (<code class="i">let head = 0; queue[head++]</code>) или дек. Назвать это вслух — сильный ход.</div>` },
-  { id:'alg-dp', topic:'Алгоритмы', type:'code', level:'senior',
+  { id:'alg-dp', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'senior',
     q:'<b>Динамическое программирование.</b> Реализуйте <code class="i">climbStairs(n)</code> (сколько способов подняться по n ступеням шагами 1 или 2) и <code class="i">maxSubArray(nums)</code> (максимальная сумма подмассива, алгоритм Кадане).',
     starter:`function climbStairs(n) {
     // за O(n) времени и O(1) памяти
@@ -425,7 +425,7 @@ export const algoritmQuestions: Question[] = [
   <p>Инициализация <code class="i">best = 0</code> даёт неверный ответ на массиве из одних отрицательных чисел (вернёт 0 вместо −1). Начинать надо с <code class="i">nums[0]</code>. Тест №6 проверяет именно это — очень частая ошибка.</p>
   <h5>Классический набор ДП-задач</h5>
   <p>Лестница/Фибоначчи, рюкзак, размен монет, наибольшая возрастающая подпоследовательность, расстояние Левенштейна, наибольшая общая подпоследовательность. Если знаете эти шесть — покрыли большинство собесов.</p>` },
-  { id:'alg-stack', topic:'Алгоритмы', type:'code', level:'junior',
+  { id:'alg-stack', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'junior',
     q:'<b>Стек.</b> Проверьте корректность скобок: <code class="i">isValid("{[()]}")  === true</code>, <code class="i">isValid("([)]") === false</code>.',
     starter:`function isValid(s) {
     // ваш код
@@ -468,7 +468,7 @@ export const algoritmQuestions: Question[] = [
   <h5>Очередь рядом</h5>
   <p>FIFO: BFS, очереди задач (Bull), обработка событий, rate limiting. В JS очередь на массиве через <code class="i">shift()</code> — O(n); для больших объёмов держат индекс головы или связный список.</p>
   <div class="hint">Продолжение задачи, которое любят: «а если добавить кавычки и экранирование?» или «верните индекс первой ошибки». Проверяют, не заучено ли решение.</div>` },
-  { id:'alg-linkedlist', topic:'Алгоритмы', type:'code', level:'middle',
+  { id:'alg-linkedlist', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'middle',
     q:'<b>Связный список.</b> Разверните односвязный список: <code class="i">reverseList(head)</code>. И определите наличие цикла: <code class="i">hasCycle(head)</code>.',
     starter:`// Узел: { value, next }
   
@@ -541,7 +541,7 @@ export const algoritmQuestions: Question[] = [
   <tr><td>Память</td><td>компактно, кеш процессора работает</td><td>+ указатель на узел, разбросано по памяти</td></tr>
   </table>
   <p>В JS связные списки почти не пишут руками, но идея нужна: на ней построены LRU-кеш, очередь без <code class="i">shift()</code>, а <b>список хуков в React fiber — это именно связный список</b>.</p>` },
-  { id:'alg-anagram', topic:'Алгоритмы', type:'code', level:'junior',
+  { id:'alg-anagram', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'junior',
     q:'Строки: <code class="i">isAnagram(a, b)</code> и <code class="i">isPalindrome(s)</code> (игнорируя регистр и не-буквы).',
     starter:`function isAnagram(a, b) {
     // 'листок' и 'столик' — анаграммы
@@ -603,7 +603,7 @@ export const algoritmQuestions: Question[] = [
   <li>Эмодзи и составные символы занимают несколько code unit: <code class="i">'👍'.length === 2</code>. Итерация <code class="i">for...of</code> и <code class="i">[...str]</code> работают по code point и корректнее, чем <code class="i">str[i]</code>.</li>
   <li>Регистр в Турции: <code class="i">toLowerCase</code> для <code class="i">'I'</code> даёт другое, если полагаться на локаль — отсюда <code class="i">toLowerCase()</code> без локали в такой логике.</li>
   </ul>` },
-  { id:'alg-recursion', topic:'Алгоритмы', type:'code', level:'middle',
+  { id:'alg-recursion', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'code', level:'middle',
     q:'Рекурсия по дереву: <code class="i">flattenDeep(arr)</code> без <code class="i">flat()</code>, <code class="i">sumTree(node)</code> и <code class="i">maxDepth(node)</code>.',
     starter:`function flattenDeep(arr) {
     // [1,[2,[3,[4]]]] => [1,2,3,4]
@@ -671,7 +671,7 @@ export const algoritmQuestions: Question[] = [
   <p>Про хвостовую рекурсию: она есть в спецификации ES2015, но <b>реально реализована только в Safari</b>. Полагаться на неё нельзя — тоже хороший факт для собеса.</p>
   <h5>Где это нужно каждый день</h5>
   <p>Обход дерева категорий и меню, рекурсивные React-компоненты (комментарии с ответами), глубокое сравнение и клонирование, обход файловой системы, парсинг вложенного JSON, построение хлебных крошек.</p>` },
-  { id:'alg-structures', topic:'Алгоритмы', type:'theory', level:'middle',
+  { id:'alg-structures', topic:'Алгоритмы', theoryId: 'th-algo-patterns', type:'theory', level:'middle',
     q:'Какие структуры данных надо знать веб-разработчику и когда что выбирать?',
     answer:`<h5>Таблица выбора</h5>
   <table>

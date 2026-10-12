@@ -538,6 +538,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 articles={theory}
                 onOpenArticle={(item) => changeFilters({ mode: 'theory', topic: item.topic, open: item.id, query: '' })}
                 onExitArticle={() => changeFilters({ open: '' })}
+                onExitToOverview={() => changeFilters({ mode: 'dashboard', topic: 'all', open: '', query: '' })}
                 marks={marks}
                 onToggleMark={toggleMark}
                 notes={notes}

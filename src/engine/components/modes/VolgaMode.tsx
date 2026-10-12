@@ -12,11 +12,9 @@ const sections: { id: Section; label: string }[] = [
   { id: 'tricky', label: 'Каверзные вопросы' },
   { id: 'resume', label: 'Резюме и проекты' },
 ]
-const statusText = { practice: 'Есть опыт', adjacent: 'Смежный опыт', learn: 'Подготовить' }
-
 function AnswerCards({ items }: { items: PrepItem[] }) {
   return <div className="volga-list">{items.map((item) => <details className="volga-card" key={item.title}>
-    <summary><span>{item.title}</span><small className={`volga-status ${item.status}`}>{statusText[item.status]}</small></summary>
+    <summary><span>{item.title}</span></summary>
     <div className="volga-card-body">
       <p><b>Что проверяют:</b> {item.requirement}</p>
       <div className="volga-answer"><strong>Ответ для интервью</strong><p>{item.answer}</p></div>
@@ -79,7 +77,7 @@ export function VolgaMode({ query }: { query: string }) {
       <p className="volga-note">Формулировки ответов — заготовки для репетиции. Сверьте цифры и личный вклад с тем, что сможете подробно объяснить на встрече.</p>
     </section> : <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">{section === 'stack' ? 'Техническое интервью' : section === 'hr' ? 'Разговор с рекрутером' : 'Уточняющие вопросы'}</div><h2>{sections.find((entry) => entry.id === section)?.label}</h2></div><span>{items.length} / {source.length}</span></div>
-      {section === 'stack' && <p className="volga-note">Метки показывают, что подтверждено в проектах, где опыт смежный и что стоит отдельно повторить. Открывайте карточки и проговаривайте ответы вслух.</p>}
+      {section === 'stack' && <p className="volga-note">Открывайте карточки, разбирайте принципы и проговаривайте ответы своими словами.</p>}
       {items.length ? <AnswerCards items={items} /> : <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
   </div>

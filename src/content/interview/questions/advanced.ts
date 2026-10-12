@@ -3,7 +3,7 @@ import type { Question } from '@/engine/types'
 /** Дополнительные вопросы: эксплуатация, производительность и доставка продукта. */
 export const advancedQuestions: Question[] = [
   {
-    id: 'perf-vitals', topic: 'Производительность и Web Vitals', type: 'choice', level: 'middle',
+    id: 'perf-vitals', topic: 'Производительность и Web Vitals', theoryId: 'th-performance', type: 'choice', level: 'middle',
     q: 'Какие метрики входят в Core Web Vitals и что именно они измеряют?',
     options: [
       { t: 'LCP — скорость появления главного контента, INP — отзывчивость интерфейса, CLS — визуальную стабильность', ok: true },
@@ -16,21 +16,21 @@ export const advancedQuestions: Question[] = [
       <p>TTFB и FCP полезны для диагностики, но не заменяют Core Web Vitals. На собеседовании назовите и причину плохого показателя: для LCP это сервер или критический ресурс, для INP — длинные задачи и тяжёлый JavaScript, для CLS — изображения без размеров, поздние баннеры и шрифты.</p>`,
   },
   {
-    id: 'perf-budget', topic: 'Производительность и Web Vitals', type: 'num', level: 'middle',
+    id: 'perf-budget', topic: 'Производительность и Web Vitals', theoryId: 'th-performance', type: 'num', level: 'middle',
     q: 'У страницы 4 чанка по 180 KB gzip и 3 изображения по 120 KB. Какой объём передастся по сети до распаковки, если пользователь открывает страницу впервые?',
     expect: 1080, unit: 'KB', tol: 0.01,
     hint: 'Сложите размеры всех чанков и изображений: кэш ещё пуст.',
     answer: `<h5>Расчёт</h5><p><code class="i">4 × 180 + 3 × 120 = 720 + 360 = 1080 KB</code>. Это оценка передачи по сети до распаковки. В реальном профиле добавятся HTML, CSS, шрифты и служебные заголовки, а HTTP/2/3 могут менять порядок загрузки, но не сумму байтов.</p><p>Хороший ответ продолжает расчёт решением: разделить код по маршрутам, сжать изображения в AVIF/WebP, убрать неиспользуемые зависимости и проверить бюджет в CI, чтобы новый импорт не увеличивал initial payload незаметно.</p>`,
   },
   {
-    id: 'perf-long-task', topic: 'Производительность и Web Vitals', type: 'manual', level: 'senior',
+    id: 'perf-long-task', topic: 'Производительность и Web Vitals', theoryId: 'th-performance', type: 'manual', level: 'senior',
     q: 'На мобильном INP стал 900 мс после добавления фильтра. Как будете расследовать и исправлять?',
     starter: 'Опишите план диагностики и минимум два исправления.',
     solution: 'Сначала воспроизведу сценарий в Performance panel и пойму, какая задача блокирует main thread: обработчик, layout или рендер. Поставлю User Timing/профилирование, проверю Long Tasks и React Profiler. Затем разобью обработчик на небольшие порции, перенесу тяжёлый расчёт в Web Worker или сервер, добавлю debounce для ввода, виртуализацию списка и мемоизацию только после измерения. После релиза сравню p75 INP по RUM и добавлю регрессионный бюджет в CI.',
     answer: `<h5>Ожидаемая логика</h5><ol><li><b>Измерить</b>: DevTools Performance, Long Tasks, React Profiler, RUM по p75, а не догадки.</li><li><b>Найти источник</b>: дорогой обработчик, синхронный JSON/сортировка, каскад layout или лишние рендеры.</li><li><b>Снизить работу</b>: debounce, виртуализация, дробление через <code class="i">scheduler</code>/<code class="i">requestIdleCallback</code>, Web Worker, серверная фильтрация.</li><li><b>Проверить результат</b> на слабом CPU и реальных данных, затем закрепить бюджет и наблюдаемость.</li></ol><p>Фраза «добавлю мемоизацию» сама по себе слабая: сначала нужно доказать, что узкое место — повторный рендер, а не синхронная работа в обработчике.</p>`,
   },
   {
-    id: 'perf-cache', topic: 'Производительность и Web Vitals', type: 'choice', level: 'middle',
+    id: 'perf-cache', topic: 'Производительность и Web Vitals', theoryId: 'th-performance', type: 'choice', level: 'middle',
     q: 'Какая стратегия лучше всего подходит для критического JavaScript, который меняется при каждом релизе?',
     options: [
       { t: 'Файлы с content hash, долгий immutable-кэш и короткий кэш для HTML', ok: true },
@@ -42,7 +42,7 @@ export const advancedQuestions: Question[] = [
   },
 
   {
-    id: 'graphql-n-plus-one', topic: 'GraphQL и realtime', type: 'choice', level: 'middle',
+    id: 'graphql-n-plus-one', topic: 'GraphQL и realtime', theoryId: 'th-graphql', type: 'choice', level: 'middle',
     q: 'Почему GraphQL-запрос с 100 пользователями может породить 101 SQL-запрос и как это исправить?',
     options: [
       { t: 'Resolver каждого пользователя отдельно читает профиль; нужен DataLoader с batching и кэшем на запрос', ok: true },
@@ -53,14 +53,14 @@ export const advancedQuestions: Question[] = [
     answer: `<h5>N+1 в резолверах</h5><p>Корневой resolver делает один запрос за 100 пользователей, а resolver <code class="i">user.avatar</code> запускается 100 раз. DataLoader собирает ключи в течение одного тика и выполняет один батчевый запрос, после чего раздаёт результаты по ключам. Кэш DataLoader должен жить только в рамках запроса, иначе можно вернуть данные другому пользователю.</p><p>На senior-уровне добавьте ограничения глубины/сложности и метрики количества SQL на GraphQL-операцию: batching лечит N+1, но не бесконечный запрос клиента.</p>`,
   },
   {
-    id: 'graphql-schema', topic: 'GraphQL и realtime', type: 'manual', level: 'senior',
+    id: 'graphql-schema', topic: 'GraphQL и realtime', theoryId: 'th-graphql', type: 'manual', level: 'senior',
     q: 'Как эволюционировать публичную GraphQL-схему, не ломая клиентов?',
     starter: 'Назовите правила совместимости и процесс удаления поля.',
     solution: 'Новые поля и типы добавляются обратно совместимо. Переименованные поля сначала существуют параллельно с deprecated-аннотацией и документацией миграции. По логам и registry смотрим, какие клиенты ещё используют поле, объявляем срок удаления и проверяем breaking changes в CI. Нельзя менять смысл существующего поля или его nullability без анализа всех клиентов.',
     answer: `<p>Схема — контракт, поэтому безопасное изменение обычно расширяет её: добавляем поле, не меняя тип старого. Удаление проходит через <code class="i">@deprecated</code>, owner и дату, поиск потребителей в schema registry/логах и автоматическую проверку breaking changes. Особое внимание — nullability: сделать nullable-поле обязательным часто ломает старый клиент, а изменение enum тоже может сломать exhaustive switch.</p>`,
   },
   {
-    id: 'realtime-choice', topic: 'GraphQL и realtime', type: 'choice', level: 'middle',
+    id: 'realtime-choice', topic: 'GraphQL и realtime', theoryId: 'th-graphql', type: 'choice', level: 'middle',
     q: 'Когда для обновлений клиента выбрать WebSocket, SSE или обычный polling?',
     options: [
       { t: 'WebSocket — двунаправленный поток, SSE — поток событий сервер→клиент через HTTP, polling — простой периодический запрос', ok: true },
@@ -71,7 +71,7 @@ export const advancedQuestions: Question[] = [
     answer: `<p>Выбор зависит от направления и операционной сложности. SSE проще для ленты событий и уведомлений: обычный HTTP, автоматическое переподключение и <code class="i">Last-Event-ID</code>. WebSocket нужен, когда клиент тоже часто отправляет сообщения и важна малая задержка. Polling годится для редких изменений или строгой совместимости, но создаёт лишние запросы и задержку.</p><p>Во всех вариантах проговорите heartbeat, backoff, лимиты соединений, повторную доставку и идемпотентность обработчиков.</p>`,
   },
   {
-    id: 'realtime-order', topic: 'GraphQL и realtime', type: 'manual', level: 'senior',
+    id: 'realtime-order', topic: 'GraphQL и realtime', theoryId: 'th-graphql', type: 'manual', level: 'senior',
     q: 'Клиент получил события 42, 44, 43 после переподключения. Как обеспечить корректное состояние?',
     starter: 'Предложите протокол доставки и поведение клиента.',
     solution: 'Каждое событие получает монотонный sequence/offset. Клиент хранит последний применённый offset, отклоняет дубликаты, буферизует небольшой разрыв и запрашивает replay с 43 при обнаружении пропуска. Сервер ограничивает окно истории; если replay уже недоступен, клиент делает полный snapshot и применяет события после его версии. Обработчики идемпотентны.',
@@ -179,7 +179,7 @@ export const advancedQuestions: Question[] = [
   },
 
   {
-    id: 'delivery-priorities', topic: 'Продукт и delivery', type: 'choice', level: 'middle',
+    id: 'delivery-priorities', topic: 'Продукт и delivery', theoryId: 'th-delivery', type: 'choice', level: 'middle',
     q: 'Что лучше сделать, если бизнес просит «срочно добавить ещё три фичи» в уже перегруженный спринт?',
     options: [
       { t: 'Уточнить цель, показать capacity и предложить явный trade-off: убрать, сдвинуть или добавить ресурс', ok: true },
@@ -190,7 +190,7 @@ export const advancedQuestions: Question[] = [
     answer: `<p>Зрелая коммуникация делает ограничение видимым: «в этом спринте осталось 8 человеко-дней, фича A занимает 5, B — 4; чтобы взять B, перенесём C или уменьшим scope». Так заказчик выбирает приоритет, а команда не обещает невыполнимое. Важно связать компромисс с ценностью, риском и датой, а не защищать процесс ради процесса.</p>`,
   },
   {
-    id: 'delivery-estimate', topic: 'Продукт и delivery', type: 'manual', level: 'senior',
+    id: 'delivery-estimate', topic: 'Продукт и delivery', theoryId: 'th-delivery', type: 'manual', level: 'senior',
     q: 'Как объяснить оценку задачи, если требования ещё неполные?',
     starter: 'Сформулируйте ответ, который показывает неопределённость и следующий шаг.',
     solution: 'Сначала зафиксирую допущения и неизвестные, дам диапазон с уровнем уверенности, а не ложную точную дату. Отделю discovery/spike от реализации, предложу маленький вертикальный slice и checkpoint. После проверки неизвестного обновлю оценку и покажу, какие варианты scope дают какую дату и стоимость.',
