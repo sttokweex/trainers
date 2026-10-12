@@ -534,7 +534,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
           {(mode === 'questions' || mode === 'theory') && (
             <>
               {mode === 'theory' && <TheoryStudyMode
-                key={filters.topic}
                 pack={pack}
                 articles={theory}
                 onOpenArticle={(item) => changeFilters({ mode: 'theory', topic: item.topic, open: item.id, query: '' })}

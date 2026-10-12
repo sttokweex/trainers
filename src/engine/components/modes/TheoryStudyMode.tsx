@@ -124,9 +124,8 @@ export function TheoryStudyMode({
     if (!openId && leavingArticle) setLeavingArticle(false)
   }, [openId, leavingArticle])
 
-  // Clicking the active topic in the sidebar clears the URL's `open` id.
-  // Treat that as a request to return to the chapter list, even when the topic
-  // itself did not change (the mode component is keyed by topic).
+  // Clicking a topic in the sidebar clears the URL's `open` id. Treat that as
+  // a request to return to the chapter list, even when the topic did not change.
   useEffect(() => {
     if (openId || !article) return
     setArticle(null)
