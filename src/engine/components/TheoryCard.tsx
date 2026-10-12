@@ -119,12 +119,12 @@ export function TheoryCard({
    * прокрутка — ждём кадр, чтобы тело статьи успело отрисоваться.
    */
   useEffect(() => {
-    if (!autoOpen || restoreReadingPosition) return
+    if (!autoOpen || restoreReadingPosition || item.id === 'th-glossary') return
     const id = requestAnimationFrame(() => {
       rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
     return () => cancelAnimationFrame(id)
-  }, [autoOpen, restoreReadingPosition])
+  }, [autoOpen, restoreReadingPosition, item.id])
 
   const meta = useMemo(() => {
     const demoCount = (item.body.match(/data-demo=/g) ?? []).length

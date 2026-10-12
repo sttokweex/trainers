@@ -95,7 +95,7 @@ export function TheoryStudyMode({
     setOpenSectionIndex(sectionIndex)
     setOpenExcerpt(excerpt)
     let resume = false
-    if (sectionIndex === undefined && excerpt === undefined) {
+    if (item.id !== 'th-glossary' && sectionIndex === undefined && excerpt === undefined) {
       try {
         const savedPosition = Number(localStorage.getItem(`theory-scroll:${item.id}`))
         resume = Number.isFinite(savedPosition) && savedPosition > 0
@@ -152,7 +152,7 @@ export function TheoryStudyMode({
 
   if (article && stage === 'read') return (
     <div className="theory-study">
-      <div className="tg-topline"><button type="button" className="btn" onClick={returnToMap}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" title="Открыть словарь с объяснениями терминов" aria-label="Открыть словарь с объяснениями терминов" onClick={() => { const terms = pack.theory.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Объяснить термины</button>}</div>
+      <div className="tg-topline"><button type="button" className="btn" onClick={returnToMap}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" title="Открыть словарь терминов и сокращений" aria-label="Открыть словарь терминов и сокращений" onClick={() => { const terms = pack.theory.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Открыть словарь</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · ~{estimateReadingMinutes(article.body)} мин чтения</div><h2>{article.title}</h2><p>{article.lead}</p><small>Выдели фрагмент в статье — появится возможность сохранить его под своим названием.</small></div>
       <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} readUpdates={readUpdates} onReadUpdate={onReadUpdate} />
       <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
