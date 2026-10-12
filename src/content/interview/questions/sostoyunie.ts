@@ -2,7 +2,7 @@
 // @ts-nocheck — тела тестов портированы из JS; ассерты приходят из окружения воркера
 import type { Question } from '@/engine/types'
 
-/** Состояние — 4 вопрос(ов) */
+/** Вопросы по управлению состоянием */
 export const sostoyunieQuestions: Question[] = [
   { id:'rtk-slice', topic:'Состояние', type:'manual', level:'middle',
     q:'Напишите slice на Redux Toolkit: список задач, загрузка через async thunk, обработка pending/fulfilled/rejected. Объясните, почему <code class="i">state.items.push()</code> здесь легален.',
@@ -160,6 +160,17 @@ export const sostoyunieQuestions: Question[] = [
   <tr><td>список задач, профиль, справочники</td><td>открытые модалки, шаги визарда, фильтры UI, тема</td></tr>
   </table>
   <div class="hint">Сильный тезис: «после внедрения React Query из Redux уходит 80% кода — потому что большая часть слайсов была ручным кешированием ответов API».</div>` },
+  { id:'state-libraries', topic:'Состояние', type:'theory', level:'middle',
+    q:'Сравните Redux Toolkit, MobX и Zustand. Где здесь RTK Query и Redux-Saga? Как выберете решение для нового приложения?',
+    answer:`<p>Сначала разделю состояние по владению: UI/navigation state (часто локально или в URL), общее клиентское состояние (store при реальной необходимости) и серверные данные (query cache). Затем сравню не популярность, а модель команды и требования.</p>
+<ul>
+<li><b>Redux Toolkit</b>: явные actions/reducers, Immer, DevTools и middleware. Хорош, когда нужны единая структура, аудит переходов и большая экосистема.</li>
+<li><b>MobX</b>: observable/computed/reactions и точечная подписка. Удобен для богатых реактивных моделей; нужно держать под контролем неявные зависимости и эффекты.</li>
+<li><b>Zustand</b>: небольшой store с selectors и малым boilerplate. Подходит для общего клиентского UI-состояния; не заменяет API-кеш.</li>
+<li><b>RTK Query</b>: серверный кеш внутри Redux Toolkit с endpoint hooks и tag invalidation. <b>TanStack Query</b> — отдельный query cache без Redux.</li>
+<li><b>Redux-Saga</b>: генераторы и эффекты для сложных долгих/отменяемых workflow. Для обычного CRUD обычно достаточно RTK Query; для простых async действий — thunk.</li>
+</ul>
+<p>Для нового приложения выберу минимальный набор: URL для фильтров/страниц, локальный React state для локального UI, TanStack Query или RTK Query для сервера и store только для действительно общего клиентского состояния. Уточню SSR, persistence, DevTools, сложность async-процессов, размер команды и существующие соглашения. Объясню цену миграции и проверю сценарий на одном вертикальном срезе.</p>` },
   { id:'rq-optimistic', topic:'Состояние', type:'manual', level:'senior',
     q:'Напишите мутацию с оптимистичным обновлением и корректным откатом при ошибке. Объясните роль <code class="i">onMutate</code>, <code class="i">onError</code>, <code class="i">onSettled</code>.',
     starter:`const toggleTask = useMutation({

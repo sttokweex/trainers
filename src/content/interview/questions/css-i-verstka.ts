@@ -1,6 +1,6 @@
 import type { Question } from '@/engine/types'
 
-/** CSS и вёрстка — 4 вопрос(ов) */
+/** CSS и вёрстка — вопросы для junior и middle */
 export const cssIVerstkaQuestions: Question[] = [
   { id:'css-layout', topic:'CSS и вёрстка', type:'theory', level:'junior',
     q:'Flexbox vs Grid: когда что? Разберите ключевые свойства и типовые задачи вёрстки.',
@@ -132,6 +132,29 @@ export const cssIVerstkaQuestions: Question[] = [
   <li><code class="i">subgrid</code>, <code class="i">popover</code>, <code class="i">dialog</code>, <code class="i">color-mix()</code>, вложенность CSS.</li>
   </ul>
   <div class="hint">Про Tailwind (он у вас в трёх проектах) стоит уметь сказать взвешенно: плюсы — нет мёртвого CSS, нет проблемы именования, единая шкала отступов и цветов, стили рядом с разметкой. Минусы — «грязный» HTML, кривая обучения, и без компонентов начинается копипаст классов. Поэтому его берут <b>вместе</b> с компонентным подходом, а не вместо него.</div>` },
+  { id:'css-debugging-layout', topic:'CSS и вёрстка', type:'theory', level:'middle',
+    q:'В Grid/Flex появляется горизонтальная прокрутка, хотя колонка задана как 1fr или flex: 1. Как будете искать причину и исправлять?',
+    code:`.layout { display: grid; grid-template-columns: 240px 1fr }
+.main { display: flex; flex: 1 }
+.code { white-space: pre }`,
+    answer:`<p>Проверю в DevTools, какой элемент шире контейнера, его computed min-width, длинные неразрывные строки, таблицы и изображения. У flex/grid-потомков часто срабатывает автоматический минимум по min-content: колонка не сжимается до ожидаемого размера.</p>
+<pre class="code">.layout { grid-template-columns: 240px minmax(0, 1fr) }
+.main { min-width: 0 }
+.code { overflow-wrap: anywhere } /* если перенос допустим */</pre>
+<p>Это не универсально: код или таблицу может быть правильнее прокручивать локально. Сначала выясняю ожидаемое поведение содержимого, затем применяю нулевой минимум, перенос или локальный overflow.</p>` },
+  { id:'css-cascade-practice', topic:'CSS и вёрстка', type:'theory', level:'middle',
+    q:'Какое значение padding победит? Объясните каскад и специфичность, включая @layer и !important.',
+    code:`@layer base, components, utilities;
+@layer base { #app .button { padding: 4px } }
+@layer components { .button { padding: 8px } }
+.button { padding: 12px }
+@layer utilities { .button { padding: 16px !important } }`,
+    answer:`<p>Обычное правило без слоя (12px) выигрывает у обычных правил в слоях, даже несмотря на ID в слое base. Между обычными слоями более поздний слой сильнее раннего, но это не помогает против unlayered rule. Важность сравнивается раньше специфичности: авторское !important из utilities победит обычное правило без слоя и задаст 16px.</p>
+<p>У важных деклараций порядок слоёв обратный обычному: ранний слой имеет преимущество перед поздним. Поэтому важность и слои нельзя сводить к одной шкале специфичности; сначала выясняют победивший уровень каскада, а уже потом сравнивают селекторы. В реальном проекте DevTools покажет перечёркнутые декларации и источник победителя.</p>` },
+  { id:'css-modern-platform', topic:'CSS и вёрстка', type:'theory', level:'middle',
+    q:'Какие современные возможности CSS вы применили бы для компонентной адаптивности и всплывающих интерфейсов? Как оцените совместимость?',
+    answer:`<ul><li>Container queries и логические свойства для переиспользуемых компонентов и RTL.</li><li>:has(), nesting и @layer для селекторов, локальной выразительности и управления каскадом.</li><li>Нативные dialog/popover для верхнего слоя и доступных базовых взаимодействий; Anchor Positioning может привязать popup к триггеру.</li><li>View Transitions и scroll-driven animations — для переходов и анимаций, управляемых прокруткой.</li></ul>
+<p>Выбор зависит от целевых браузеров и WebView. Проверю матрицу поддержки и реальный UX; применю @supports/progressive enhancement, оставив рабочую базу для старых окружений. Для нативных dialog/popover отдельно проверю клавиатуру, фокус и закрытие, поскольку наличие CSS-фичи не решает всю доступность.</p>` },
   { id:'css-position', topic:'CSS и вёрстка', type:'theory', level:'junior',
     q:'Разберите <code class="i">position</code>, <code class="i">display</code> и как работает поток документа. Чем отличается <code class="i">display: none</code> от <code class="i">visibility: hidden</code> и <code class="i">opacity: 0</code>?',
     answer:`<h5>position</h5>

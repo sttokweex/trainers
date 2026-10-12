@@ -121,6 +121,53 @@ const toggle = useMutation({
 <p><code class="i">cancelQueries</code> здесь обязателен: если в этот момент летит фоновый рефетч, его «старый» ответ придёт после нашего оптимистичного изменения и затрёт его. Классическая гонка.</p>
 <p><b>Когда применять оптимизм:</b> операция почти наверняка успешна и дёшево откатывается — лайк, отметка «выполнено», удаление из списка. <b>Когда не применять:</b> платежи и необратимые действия.</p>
 
+<h5>RTK Query, TanStack Query и Redux-Saga</h5>
+<p>Если проект уже использует Redux Toolkit, для API обычно сначала рассмотрите <b>RTK Query</b>: endpoint-описания дают hooks, кеш по аргументам, статусы, дедупликацию и invalidation tags. <b>TanStack Query</b> работает без Redux и часто удобнее как отдельный серверный кеш. Сравнивайте интеграцию, SSR, требования команды и текущую архитектуру; не дублируйте один API-кеш одновременно в Redux, RTK Query и TanStack Query.</p>
+<p><code class="i">createAsyncThunk</code> подходит отдельным async-операциям. Listener middleware — реакциям на actions/state, debounce и отменяемым задачам. <b>Redux-Saga</b> использует генераторы и эффекты для долгих, конкурентных и отменяемых workflow. Она полезна в существующей saga-кодовой базе или сложной оркестрации, но обычно избыточна для простого CRUD, где достаточно RTK Query или thunk.</p>
+<pre class="code">const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  tagTypes: ['Task'],
+  endpoints: build =&gt; ({
+    getTasks: build.query&lt;Task[], void&gt;({
+      query: () =&gt; 'tasks', providesTags: ['Task'],
+    }),
+    addTask: build.mutation&lt;Task, NewTask&gt;({
+      query: body =&gt; ({ url: 'tasks', method: 'POST', body }),
+      invalidatesTags: ['Task'],
+    }),
+  }),
+})</pre>
+
+<h5>MobX: реактивные модели</h5>
+<p>MobX отслеживает чтение observable-значений внутри <code class="i">observer</code>-компонента и обновляет подписчиков при изменении. Производные данные описывают через <code class="i">computed</code>, изменения — через actions, внешние эффекты — через reactions. Это даёт точечную реактивность и выразительные модели с небольшим количеством шаблонного кода. Цена — менее явный общий поток изменений, чем в Redux; следите, чтобы реакции не скрывали бизнес-логику и не создавали циклы.</p>
+<pre class="code">class Cart {
+  items = []
+  constructor() { makeAutoObservable(this) }
+  get total() { return this.items.reduce((sum, item) =&gt; sum + item.price, 0) }
+  add(item) { this.items.push(item) }
+}</pre>
+<p>MobX разумен для существующей MobX-архитектуры или богатой модели состояния. Redux Toolkit часто выбирают, когда важны явные события, аудит переходов, middleware и единые соглашения команды.</p>
+
+<h5>Zustand и другие store</h5>
+<p><b>Zustand</b> — компактный клиентский store с хуком-подпиской и селекторами; обычному клиентскому приложению не нужен Provider. Есть middleware для DevTools и persist. Выбирайте только нужный срез в компоненте; следите за стабильностью составных результатов, SSR-гидратацией и тем, что сохраняете в storage. Zustand сам по себе не заменяет серверный кеш: API-данным всё равно нужен TanStack Query или RTK Query.</p>
+<pre class="code">const useUiStore = create&lt;UiState&gt;()((set) =&gt; ({
+  sidebarOpen: false,
+  toggleSidebar: () =&gt; set(state =&gt; ({ sidebarOpen: !state.sidebarOpen })),
+}))
+const open = useUiStore(state =&gt; state.sidebarOpen)</pre>
+<p>Ещё встречаются <b>Jotai</b> (атомарное состояние) и <b>Valtio</b> (proxy-based реактивность). На интервью достаточно объяснить их модель и trade-offs; важнее выбрать правильное место и владельца состояния, чем перечислить все библиотеки.</p>
+
+<h5>Короткое сравнение для собеседования</h5>
+<table>
+<tr><th>Инструмент</th><th>Модель</th><th>Сильная сторона</th><th>Риск/цена</th></tr>
+<tr><td>Redux Toolkit</td><td>actions и reducers</td><td>предсказуемость, DevTools, единые соглашения</td><td>не превращать store в свалку любого состояния</td></tr>
+<tr><td>MobX</td><td>observable, computed, reactions</td><td>точечная реактивность, естественные модели</td><td>неявные зависимости и неконтролируемые эффекты</td></tr>
+<tr><td>Zustand</td><td>store и селекторы</td><td>простота, мало шаблонного кода</td><td>границы store, селекторы, SSR и persist</td></tr>
+<tr><td>RTK Query / TanStack Query</td><td>серверный кеш</td><td>запросы, статусы, дедупликация и инвалидация</td><td>ключи, freshness и конкурентные обновления</td></tr>
+<tr><td>Redux-Saga</td><td>генераторы и эффекты</td><td>сложная отменяемая оркестрация</td><td>дополнительная сложность</td></tr>
+</table>
+<div class="key">Выбор по слоям: URL — состояние навигации; React state — локальный UI; Context — редкие глобальные значения; RTK/Zustand/MobX — общее клиентское состояние; RTK Query/TanStack Query — серверные данные. Saga добавляйте по сложности workflow, а не автоматически вместе с Redux.</div>
+
 <h5>invalidateQueries или setQueryData</h5>
 <table>
 <tr><th><code class="i">invalidateQueries</code></th><th><code class="i">setQueryData</code></th></tr>

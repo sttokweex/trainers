@@ -68,6 +68,21 @@
 }
 
 /* Flash-card flow for interviews. */
+[data-pack="interview"] .cards-mode-interview .fc{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:190px;
+  margin-top:12px; padding:26px 22px; border:1px solid var(--bd2); border-radius:12px;
+  background:linear-gradient(145deg,#111923,#0c1119); text-align:center; cursor:pointer;
+  transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+[data-pack="interview"] .cards-mode-interview .fc:hover{border-color:#345579; background:linear-gradient(145deg,#131e2b,#0d131d)}
+[data-pack="interview"] .cards-mode-interview .fc .side{margin-bottom:12px; color:var(--mut2); font:10px var(--mono); letter-spacing:.12em; text-transform:uppercase}
+[data-pack="interview"] .cards-mode-interview .fc .term{font-size:21px; font-weight:600; line-height:1.35; color:var(--tx)}
+[data-pack="interview"] .cards-mode-interview .fc .en{margin-top:8px; color:var(--mut); font:13px var(--mono)}
+[data-pack="interview"] .cards-mode-interview .fc .def{max-width:60ch; margin-top:12px; color:var(--mut); font-size:14.5px; line-height:1.65; text-align:left}
+[data-pack="interview"] .cards-mode-interview .fc .def p:first-child{margin-top:0}
+[data-pack="interview"] .cards-mode-interview .fc .def p:last-child{margin-bottom:0}
+[data-pack="interview"] .cards-mode-interview .fc-bar{display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:12px}
+[data-pack="interview"] .cards-mode-interview .fc-bar .fc-cnt{margin-left:auto; color:var(--mut2); font:12px var(--mono)}
 [data-pack="interview"] .cards-mode-interview .fc-progress{
   margin:4px 0 12px; padding:11px 13px; background:var(--panel); border:1px solid var(--bd); border-radius:10px;
 }
@@ -95,6 +110,9 @@
   margin-top:9px; padding:9px 12px; border-left:3px solid var(--acc); border-radius:7px; background:#0f1d2e; color:#b8cbea; font-size:13px;
 }
 @media(max-width:560px){
+  [data-pack="interview"] .cards-mode-interview .fc{min-height:165px; padding:22px 16px}
+  [data-pack="interview"] .cards-mode-interview .fc-bar{display:grid; grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-pack="interview"] .cards-mode-interview .fc-bar .btn{width:100%}
   [data-pack="interview"] .cards-mode-interview .fc-progress-head{align-items:flex-start; flex-direction:column; gap:3px}
   [data-pack="interview"] .cards-mode-interview .fc-bar .fc-cnt{display:none}
 }
