@@ -59,7 +59,7 @@ export function VolgaMode({ query }: { query: string }) {
       <div className="volga-section-head"><div><div className="volga-eyebrow">Разбор тем вакансии</div><h2>Теория</h2></div><span>{chapters.length} / {theoryChapters.length}</span></div>
       <p className="volga-note">Прочитайте главу и ответьте на вопросы в конце своими словами. Затем раскройте ответы для сверки.</p>
       <div className="volga-list">{chapters.map((chapter) => <details className="volga-card volga-theory" key={chapter.id}>
-        <summary><span>{chapter.title}<small>{chapter.lead}</small></span></summary>
+        <summary><span>{chapter.title}{chapter.updated && <span className="theory-update-badge">Обновлено</span>}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
           {chapter.points.map((point) => <div className="volga-theory-point" key={point.title}><h3>{point.title}</h3><p>{point.body}</p>{point.code && <pre className="volga-code"><code>{point.code}</code></pre>}{point.explanation && <p className="volga-code-explanation"><b>Как читать этот код:</b> {point.explanation}</p>}</div>)}
           <div className="volga-check"><strong>Проверь себя</strong><ol>{chapter.check.map((item) => <li key={item.question}><details><summary>{item.question}</summary><p>{item.answer}</p></details></li>)}</ol></div>

@@ -4,6 +4,7 @@ export type TheoryChapter = {
   id: string
   title: string
   lead: string
+  updated?: boolean
   points: { title: string; body: string; code?: string; explanation?: string }[]
   check: { question: string; answer: string }[]
 }
