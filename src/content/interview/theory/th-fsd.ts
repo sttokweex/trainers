@@ -40,7 +40,7 @@ export const fsd: TheoryArticle = { id:'th-fsd', topic:'Архитектура �
 <div data-demo="fsd-layers"></div>
 <h5>Public API слайса</h5>
 <p>Каждый слайс экспортирует наружу только то, что хочет отдать, через <code class="i">index.ts</code>. Импортировать <code class="i">features/toggle-task/ui/Button</code> напрямую запрещено — только <code class="i">features/toggle-task</code>.</p>
-<p>Выгода в свободе: внутренности можно перестраивать как угодно, пока контракт тот же. Это та же идея, что поле <code class="i">exports</code> в <code class="i">package.json</code> и <code class="i">exports</code> модуля в NestJS — и, по сути, инкапсуляция на уровне файловой системы.</p>
+<p>Внутреннюю структуру можно менять, пока публичный контракт остаётся прежним. Такой же принцип используют поле <code class="i">exports</code> в <code class="i">package.json</code> и публичные экспорты модулей NestJS: они задают границу доступа к внутренностям.</p>
 
 <h5>Чем entity отличается от feature</h5>
 <p>Вопрос, на котором плывут чаще всего. Простая мнемоника: <b>entity — существительное, feature — глагол</b>.</p>
