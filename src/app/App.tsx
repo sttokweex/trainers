@@ -203,6 +203,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [mode, pack, theoryDone, marks, cardsKnown])
 
   const topicsWithUnreadUpdates = useMemo(() => new Set(pack.theory
+    .filter((article) => theoryDone[article.id])
     .filter((article) => article.updates?.some((update) => !readTheoryUpdates.includes(`${article.id}:${update.id}`)))
     .map((article) => article.topic)), [pack.theory, theoryDone, readTheoryUpdates])
 
