@@ -58,6 +58,7 @@ export function TheoryStudyMode({
   const [openSectionIndex, setOpenSectionIndex] = useState<number | undefined>()
   const [openExcerpt, setOpenExcerpt] = useState<string | undefined>()
   const [resumeReadingPosition, setResumeReadingPosition] = useState(false)
+  const [leavingArticle, setLeavingArticle] = useState(false)
 
   useEffect(() => {
     if (article && !pack.theory.some((item) => item.id === article.id)) {
@@ -89,6 +90,7 @@ export function TheoryStudyMode({
     // Keep the URL's deep link in sync with the article selected from the map
     // or a bookmark, so an older `open` id cannot pull the reader back.
     onOpenArticle(item)
+    setLeavingArticle(false)
     setArticle(item)
     setOpenSectionIndex(sectionIndex)
     setOpenExcerpt(excerpt)
@@ -107,7 +109,7 @@ export function TheoryStudyMode({
   }, [onOpenArticle, pack.questions])
 
   useEffect(() => {
-    if (!openId) return
+    if (!openId || leavingArticle) return
     // Only resolve deep links against the currently visible articles. Looking
     // in pack.theory ignores the topic filter and can reopen a stale chapter.
     const linked = articles.find((item) => item.id === openId)
@@ -116,7 +118,11 @@ export function TheoryStudyMode({
       // manually selected article. `openArticle` checks its saved offset.
       openArticle(linked)
     }
-  }, [openId, articles, article?.id, openArticle])
+  }, [openId, articles, article?.id, openArticle, leavingArticle])
+
+  useEffect(() => {
+    if (!openId && leavingArticle) setLeavingArticle(false)
+  }, [openId, leavingArticle])
 
   // Clicking the active topic in the sidebar clears the URL's `open` id.
   // Treat that as a request to return to the chapter list, even when the topic
@@ -129,8 +135,8 @@ export function TheoryStudyMode({
     setOpenExcerpt(undefined)
   }, [openId, article])
 
-  function finishArticle() {
-    if (article && !done[article.id]) onToggleDone(article.id)
+  function returnToMap() {
+    setLeavingArticle(true)
     onExitArticle()
     setArticle(null)
     setOpenSectionIndex(undefined)
@@ -139,9 +145,14 @@ export function TheoryStudyMode({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  function finishArticle() {
+    if (article && !done[article.id]) onToggleDone(article.id)
+    returnToMap()
+  }
+
   if (article && stage === 'read') return (
     <div className="theory-study">
-      <div className="tg-topline"><button type="button" className="btn" onClick={() => setStage('map')}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" onClick={() => { const terms = articles.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Словарь терминов</button>}</div>
+      <div className="tg-topline"><button type="button" className="btn" onClick={returnToMap}>← К темам и закладкам</button><span>{article.topic}</span>{article.id !== 'th-glossary' && <button type="button" className="btn" onClick={() => { const terms = articles.find((item) => item.id === 'th-glossary'); if (terms) openArticle(terms) }}>Словарь терминов</button>}</div>
       <div className="tg-reading-head"><div className="tg-eyebrow">Теория · ~{estimateReadingMinutes(article.body)} мин чтения</div><h2>{article.title}</h2><p>{article.lead}</p><small>Выдели фрагмент в статье — появится возможность сохранить его под своим названием.</small></div>
       <TheoryCard key={article.id} item={article} demos={pack.demos} autoOpen restoreReadingPosition={resumeReadingPosition && openSectionIndex === undefined} done={Boolean(done[article.id])} onToggleDone={() => onToggleDone(article.id)} onAddBookmark={onAddBookmark} openSectionIndex={openSectionIndex} openExcerpt={openExcerpt} readUpdates={readUpdates} onReadUpdate={onReadUpdate} />
       <div className="tg-reading-action"><span>После чтения ответь на два вопроса по этой теме.</span><button type="button" className="btn pri" onClick={() => { setTaskIndex(0); setStage('tasks') }}>К вопросам →</button></div>
