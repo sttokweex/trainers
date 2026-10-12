@@ -6,10 +6,10 @@ export const css: TheoryArticle = {
   title: 'CSS без каши: каскад, раскладка и современная вёрстка',
   lead: 'Последовательное руководство: как браузер выбирает стили, рассчитывает размеры и раскладывает элементы. С примерами и вопросами для собеседования.',
   updates: [
-    { id: 'css-learning-path-2026-10', sectionTitle: 'Как читать эту главу', label: 'Новый маршрут' },
-    { id: 'css-specificity-2026-10', sectionTitle: '3. Специфичность: три колонки', label: 'Разобрано подробнее' },
-    { id: 'css-layout-2026-10', sectionTitle: '7. Flexbox: одна ось', label: 'Разобрано подробнее' },
-    { id: 'css-modern-2026-10', sectionTitle: '12. Современные возможности', label: 'Новые возможности' },
+    { id: 'css-learning-path-2026-10-v2', sectionTitle: 'Как читать эту главу', label: 'Новый маршрут' },
+    { id: 'css-specificity-2026-10-v2', sectionTitle: '3. Специфичность: три колонки', label: 'Разобрано подробнее' },
+    { id: 'css-layout-2026-10-v2', sectionTitle: '7. Flexbox: одна ось', label: 'Разобрано подробнее' },
+    { id: 'css-modern-2026-10-v2', sectionTitle: '12. Современные возможности', label: 'Новые возможности' },
   ],
   body: `
 <h5>Как читать эту главу</h5>

@@ -161,21 +161,29 @@ export function TheoryCard({
   )
 
   useEffect(() => {
-    if (!done || !open || !onReadUpdate || !item.updates?.length) return
+    if (!open || !onReadUpdate || !item.updates?.length) return
     const pending = item.updates.filter((update) => !readUpdates.includes(`${item.id}:${update.id}`))
     if (!pending.length) return
-    const onScroll = () => {
-      const viewportEnd = window.innerHeight - 24
-      for (const update of pending) {
-        const index = sections.findIndex((section) => section.title === update.sectionTitle)
-        const section = index >= 0 ? bodyRef.current?.querySelector<HTMLElement>(`[data-section-index="${index}"]`) : null
-        if (section && section.getBoundingClientRect().bottom <= viewportEnd) onReadUpdate(`${item.id}:${update.id}`)
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        const update = pending.find((candidate) => {
+          const index = sections.findIndex((section) => section.title === candidate.sectionTitle)
+          return entry.target === bodyRef.current?.querySelector(`[data-section-index="${index}"]`)
+        })
+        if (update) {
+          onReadUpdate(`${item.id}:${update.id}`)
+          observer.unobserve(entry.target)
+        }
       }
+    }, { threshold: 0.15 })
+    for (const update of pending) {
+      const index = sections.findIndex((section) => section.title === update.sectionTitle)
+      const section = index >= 0 ? bodyRef.current?.querySelector<HTMLElement>(`[data-section-index="${index}"]`) : null
+      if (section) observer.observe(section)
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [done, open, onReadUpdate, item.id, item.updates, readUpdates, sections])
+    return () => observer.disconnect()
+  }, [open, onReadUpdate, item.id, item.updates, readUpdates, sections])
 
   useEffect(() => {
     if (!open || openSectionIndex === undefined) return
@@ -270,7 +278,7 @@ export function TheoryCard({
               <ol>
                 {headings.map((h, i) => (
                   <li key={i}>
-                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}{done && item.updates?.some((update) => update.sectionTitle === h && !readUpdates.includes(`${item.id}:${update.id}`)) && <span className="theory-update-badge toc-update-badge">Обновлено</span>}</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}{item.updates?.some((update) => update.sectionTitle === h && !readUpdates.includes(`${item.id}:${update.id}`)) && <span className="theory-update-badge toc-update-badge">Обновлено</span>}</a>
                   </li>
                 ))}
               </ol>
@@ -281,7 +289,7 @@ export function TheoryCard({
             {sections.map((section, index) => {
               const update = item.updates?.find((entry) => entry.sectionTitle === section.title)
               const updateKey = update ? `${item.id}:${update.id}` : ''
-              const showUpdate = Boolean(done && update && !readUpdates.includes(updateKey))
+              const showUpdate = Boolean(update && !readUpdates.includes(updateKey))
               return <section className={'th-section' + (showUpdate ? ' th-section-updated' : '')} key={`${item.id}:${index}`} data-section-index={index}>
               <h5 dangerouslySetInnerHTML={{ __html: section.titleHtml }} />
               {showUpdate && <span className="theory-update-badge theory-update-inline">{update?.label ?? 'Обновлено'}</span>}
