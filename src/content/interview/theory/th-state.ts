@@ -1,7 +1,12 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const state: TheoryArticle = { id:'th-state', topic:'Состояние', title:'Управление состоянием: что, где и почему',
-  lead:'Схема принятия решения, Redux Toolkit и TanStack Query с рабочими примерами и типичными ошибками.',
+  lead:'Сначала определяем, кому принадлежат данные, затем выбираем локальное состояние, Redux Toolkit, MobX, Zustand или query-кеш для сервера.',
+  updates: [
+    { id: 'state-ecosystem-2026-10', sectionTitle: 'RTK Query, TanStack Query и Redux-Saga', label: 'Добавлено сравнение' },
+    { id: 'state-mobx-2026-10', sectionTitle: 'MobX: реактивные модели', label: 'Добавлен разбор' },
+    { id: 'state-zustand-2026-10', sectionTitle: 'Zustand и другие store', label: 'Добавлен разбор' },
+  ],
   body:`
 <h5>Главный вопрос: чьё это состояние</h5>
 <p>Большинство проблем с состоянием начинается с того, что данные кладут не туда. Вот схема, которой достаточно в 95% случаев:</p>
