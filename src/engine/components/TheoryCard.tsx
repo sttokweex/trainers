@@ -161,7 +161,7 @@ export function TheoryCard({
   )
 
   useEffect(() => {
-    if (!open || !onReadUpdate || !item.updates?.length) return
+    if (!done || !open || !onReadUpdate || !item.updates?.length) return
     const pending = item.updates.filter((update) => !readUpdates.includes(`${item.id}:${update.id}`))
     if (!pending.length) return
     const observer = new IntersectionObserver((entries) => {
@@ -183,7 +183,7 @@ export function TheoryCard({
       if (section) observer.observe(section)
     }
     return () => observer.disconnect()
-  }, [open, onReadUpdate, item.id, item.updates, readUpdates, sections])
+  }, [done, open, onReadUpdate, item.id, item.updates, readUpdates, sections])
 
   useEffect(() => {
     if (!open || openSectionIndex === undefined) return
@@ -278,7 +278,7 @@ export function TheoryCard({
               <ol>
                 {headings.map((h, i) => (
                   <li key={i}>
-                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}{item.updates?.some((update) => update.sectionTitle === h && !readUpdates.includes(`${item.id}:${update.id}`)) && <span className="theory-update-badge toc-update-badge">Обновлено</span>}</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); scrollTo(i) }}>{h}{done && item.updates?.some((update) => update.sectionTitle === h && !readUpdates.includes(`${item.id}:${update.id}`)) && <span className="theory-update-badge toc-update-badge">Обновлено</span>}</a>
                   </li>
                 ))}
               </ol>
@@ -289,7 +289,7 @@ export function TheoryCard({
             {sections.map((section, index) => {
               const update = item.updates?.find((entry) => entry.sectionTitle === section.title)
               const updateKey = update ? `${item.id}:${update.id}` : ''
-              const showUpdate = Boolean(update && !readUpdates.includes(updateKey))
+              const showUpdate = Boolean(done && update && !readUpdates.includes(updateKey))
               return <section className={'th-section' + (showUpdate ? ' th-section-updated' : '')} key={`${item.id}:${index}`} data-section-index={index}>
               <h5 dangerouslySetInnerHTML={{ __html: section.titleHtml }} />
               {showUpdate && <span className="theory-update-badge theory-update-inline">{update?.label ?? 'Обновлено'}</span>}
