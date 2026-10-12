@@ -63,7 +63,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   const searchRef = useRef<HTMLInputElement>(null)
   const topRef = useRef<HTMLElement>(null)
-  const sideRef = useRef<HTMLElement>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   /** Interview-only marker for the last random question. */
   const [randomPick, setRandomPick] = useState<{ id: string; filterKey: string; nonce: number } | null>(null)
@@ -119,15 +118,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
   const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'volga'
-
-  /** Сайдбар — свой скролл-контейнер (position:sticky + overflow-y:auto), и он
-      не сбрасывается сам при выборе темы. Если до этого его прокрутили вниз
-      (длинный список тем не помещается в высоту экрана), после клика по теме
-      верх сайдбара — «Все темы» — оставался за пределами видимости, и чтобы
-      выбрать другую тему, приходилось докручивать сайдбар отдельно от страницы. */
-  useEffect(() => {
-    if (sideRef.current) sideRef.current.scrollTop = 0
-  }, [filters.topic, mode])
 
   const questions = useMemo(() => pack.questions.filter((q) => {
     if (filters.topic !== 'all' && q.topic !== filters.topic) return false
@@ -389,7 +379,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
           сетка осталась бы двухколоночной, а main уехал бы в колонку сайдбара. */}
       <div className={'wrap' + (showSidebar ? '' : ' wrap-full')} data-pack={pack.id}>
         {showSidebar && (
-        <aside className="side" ref={sideRef}>
+        <aside className="side">
           <div className="side-box">
             <h4>Темы <span className="topic-review-help">↺ — хочу повторить</span></h4>
             <button
