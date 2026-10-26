@@ -4,7 +4,7 @@ export const render: TheoryArticle = { id:'th-render', topic:'React', title:'К�
   lead:'Как React обновляет интерфейс, что вызывает повторный рендер и как находить причины медленной работы.',
   updates: [
     { id: 'react-learning-order-2026-10-13-v2', sectionTitle: 'Полный цикл обновления', label: 'Добавлен порядок изучения' },
-    { id: 'react-shallow-equal-2026-10-27-v2', sectionTitle: 'Задача: написать shallowEqual для сравнения объектов', label: 'Добавлено применение функции' },
+    { id: 'react-shallow-equal-2026-10-27-v3', sectionTitle: 'Задача: написать shallowEqual для сравнения объектов', label: 'Добавлено объяснение реализации' },
   ],
   body:`
 <h5>Полный цикл обновления</h5>
@@ -58,15 +58,36 @@ const b = { name: 'Аня', user: { id: 1 } }
 Object.is(a.name, b.name) // true: обе строки равны
 Object.is(a.user, b.user) // false: это две разные ссылки
 // shallowEqual(a, b) даст false</pre>
-<p>В задании нужно реализовать функцию для двух объектов. Она вернёт <code class="i">true</code>, если у них одинаковый набор собственных ключей и значения по каждому ключу равны через <code class="i">Object.is</code>; иначе вернёт <code class="i">false</code>. Проверяйте условия в таком порядке:</p>
+<p>Может показаться, что функция просто вызывает <code class="i">Object.is</code>. Но один вызов сравнивает только два переданных значения: он не проверяет, какие поля есть у объектов. Поэтому <code class="i">shallowEqual</code> сначала получает и сопоставляет ключи, а затем вызывает <code class="i">Object.is</code> отдельно для значения каждого поля.</p>
+<h6>Реализация функции</h6>
+<pre class="code">function shallowEqual(a, b) {
+  if (Object.is(a, b)) return true
+
+  if (typeof a !== 'object' || a === null ||
+      typeof b !== 'object' || b === null) return false
+
+  const keysA = Object.keys(a)
+  const keysB = Object.keys(b)
+  if (keysA.length !== keysB.length) return false
+
+  for (const key of keysA) {
+    if (!Object.prototype.hasOwnProperty.call(b, key)) return false
+    if (!Object.is(a[key], b[key])) return false
+  }
+
+  return true
+}</pre>
+<p>Разберём, что делает каждая часть:</p>
 <ol>
-<li>Если <code class="i">Object.is(a, b)</code> — вернуть <code class="i">true</code>. Это покрывает одинаковую ссылку и одинаковые примитивы.</li>
-<li>Если один аргумент не объект или равен <code class="i">null</code>, а второй отличается, вернуть <code class="i">false</code>.</li>
-<li>Получить собственные ключи обоих объектов через <code class="i">Object.keys</code>. Разное число ключей сразу означает <code class="i">false</code>.</li>
-<li>Для каждого ключа первого объекта проверить, что такой собственный ключ есть у второго, и сравнить значения через <code class="i">Object.is</code>.</li>
-<li>Если все проверки прошли, вернуть <code class="i">true</code>. Не вызывайте <code class="i">shallowEqual</code> рекурсивно: вложенные значения сравниваются только по ссылке.</li>
+<li><code class="i">Object.is(a, b)</code> — быстрый выход. Если это один и тот же объект в памяти или равные примитивы, дальше проверять нечего: результат уже <code class="i">true</code>.</li>
+<li>Проверка <code class="i">typeof</code> и <code class="i">null</code> отсекает значения, для которых нельзя сравнивать набор полей. В JavaScript <code class="i">typeof null</code> тоже равен <code class="i">'object'</code>, поэтому <code class="i">null</code> проверяется отдельно.</li>
+<li><code class="i">Object.keys</code> собирает собственные перечисляемые строковые ключи объекта. Если количество ключей разное, объекты точно не равны по полям.</li>
+<li>Цикл берёт каждый ключ из первого объекта. <code class="i">hasOwnProperty.call</code> проверяет, что ключ действительно принадлежит второму объекту, а не только находится выше в его цепочке прототипов.</li>
+<li><code class="i">Object.is(a[key], b[key])</code> сравнивает значения этого поля. Если это вложенный объект, сравниваются его ссылки — функция не спускается внутрь и не вызывает саму себя.</li>
+<li>Если ни одна проверка не вернула <code class="i">false</code>, совпали все ключи и значения первого уровня — возвращаем <code class="i">true</code>.</li>
 </ol>
-<p><code class="i">Object.is</code> здесь важен для двух граничных случаев: он считает <code class="i">NaN</code> равным самому себе, но различает <code class="i">+0</code> и <code class="i">-0</code>. Функцию такого вида передают в <code class="i">useSelector</code> как дополнительное сравнение. <code class="i">React.memo</code> отдельно сравнивает пропсы похожим поверхностным способом, применяя <code class="i">Object.is</code> к каждому пропу.</p>
+<p>Например, <code class="i">shallowEqual({a: 1}, {a: 1})</code> вернёт <code class="i">true</code>: ключи совпали, значения равны. А <code class="i">shallowEqual({user: {id: 1}}, {user: {id: 1}})</code> вернёт <code class="i">false</code>: значения <code class="i">user</code> — разные объекты по разным ссылкам.</p>
+<p><code class="i">Object.is</code> важен для двух граничных случаев: он считает <code class="i">NaN</code> равным самому себе, но различает <code class="i">+0</code> и <code class="i">-0</code>. В React Redux такую функцию передают в <code class="i">useSelector</code> как дополнительный способ сравнить результаты селектора. <code class="i">React.memo</code> тоже использует поверхностное сравнение пропсов, но отдельную функцию для этого обычно писать не нужно.</p>
 
 <h5>Приём, который недооценивают: поднять содержимое</h5>
 <pre class="code">// ❌ Slow перерисовывается при каждом изменении count
