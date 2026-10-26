@@ -236,7 +236,7 @@ export const reactQuestions: Question[] = [
   </table>
   <div class="hint">Отдельно проговорите: <b>серверные данные вообще не должны лежать ни там, ни там</b>. Для них TanStack Query / RTK Query — кеш, инвалидация, дедупликация и статусы бесплатно.</div>` },
   { id:'re-shallow', theoryId:'th-render', topic:'React', type:'code', level:'middle',
-    q:'Реализуйте <code class="i">shallowEqual(a, b)</code>: сравните собственные поля объектов первого уровня через <code class="i">Object.is</code>, не сравнивая вложенные объекты рекурсивно.',
+    q:'Селектор возвращает новый объект при каждом вызове, и <code class="i">useSelector</code> из-за сравнения ссылок считает результат изменившимся. Реализуйте <code class="i">shallowEqual(a, b)</code> — функцию для сравнения собственных полей двух объектов первого уровня через <code class="i">Object.is</code>. Вложенные объекты рекурсивно не сравнивайте.',
     hint:'Следуйте шагам из главы: сначала Object.is для аргументов, затем проверьте null и типы, число собственных ключей, наличие каждого ключа и равенство соответствующих значений через Object.is.',
     starter:`function shallowEqual(a, b) {
     // ваш код
