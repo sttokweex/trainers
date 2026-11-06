@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { hr, stack, tricky, type PrepItem } from '@/content/interview/volga/preparation'
+import { realQuestions } from '@/content/interview/volga/real-questions'
 import { theoryChapters } from '@/content/interview/volga/theory'
 import { vacancySections } from '@/content/interview/volga/vacancy'
 
-type Section = 'vacancy' | 'stack' | 'theory' | 'hr' | 'tricky' | 'resume'
+type Section = 'vacancy' | 'stack' | 'theory' | 'hr' | 'tricky' | 'real' | 'resume'
 const sections: { id: Section; label: string }[] = [
   { id: 'vacancy', label: 'Вакансия' },
   { id: 'stack', label: 'Стек вакансии' },
   { id: 'theory', label: 'Теория' },
   { id: 'hr', label: 'HR-ответы' },
   { id: 'tricky', label: 'Каверзные вопросы' },
+  { id: 'real', label: 'Реальные вопросы' },
   { id: 'resume', label: 'Резюме и проекты' },
 ]
 function AnswerCards({ items }: { items: PrepItem[] }) {
@@ -30,6 +32,7 @@ export function VolgaMode({ query }: { query: string }) {
   const needle = query.trim().toLocaleLowerCase('ru')
   const items = source.filter((item) => !needle || [item.title, item.requirement, item.answer, item.example].join(' ').toLocaleLowerCase('ru').includes(needle))
   const chapters = theoryChapters.filter((chapter) => !needle || [chapter.title, chapter.lead, ...chapter.points.flatMap((point) => [point.title, point.body, point.code, point.explanation]), ...chapter.check.flatMap((item) => [item.question, item.answer])].join(' ').toLocaleLowerCase('ru').includes(needle))
+  const matchingRealQuestions = realQuestions.filter((item) => !needle || [item.topic, item.question, item.feedback, item.answer, item.practice].join(' ').toLocaleLowerCase('ru').includes(needle))
   const matchingVacancySections = vacancySections.map((group) => ({
     ...group,
     requirements: group.requirements.filter((requirement) => !needle || `${group.title} ${requirement}`.toLocaleLowerCase('ru').includes(needle)),
@@ -41,7 +44,7 @@ export function VolgaMode({ query }: { query: string }) {
       <div className="volga-eyebrow">Подготовка к собеседованию · Frontend-разработчик</div>
       <h1>Волга-Волга</h1>
       <p>Требования вакансии, теория, подтверждённые примеры из Jumpster и Themost и ответы, которые можно проговорить на HR и техническом интервью.</p>
-      <div className="volga-hero-meta"><span>{stack.length} тем стека</span><span>{theoryChapters.length} глав теории</span><span>{hr.length} HR-вопросов</span><span>{tricky.length} каверзных вопросов</span></div>
+      <div className="volga-hero-meta"><span>{stack.length} тем стека</span><span>{theoryChapters.length} глав теории</span><span>{hr.length} HR-вопросов</span><span>{tricky.length} каверзных вопросов</span><span>{realQuestions.length} тем из фидбека</span></div>
     </section>
 
     <nav className="volga-nav" aria-label="Разделы подготовки">
@@ -66,6 +69,18 @@ export function VolgaMode({ query }: { query: string }) {
         </div>
       </details>)}</div>
       {!chapters.length && <p className="empty">По запросу ничего не найдено.</p>}
+    </section> : section === 'real' ? <section className="volga-content">
+      <div className="volga-section-head"><div><div className="volga-eyebrow">После собеседования</div><h2>Реальные вопросы</h2></div><span>{matchingRealQuestions.length} / {realQuestions.length}</span></div>
+      <p className="volga-note">Темы взяты из фидбека команды. Точные формулировки вопросов не сохранились, поэтому ниже — восстановленные вопросы для повторной подготовки.</p>
+      <div className="volga-list">{matchingRealQuestions.map((item) => <details className="volga-card volga-real-question" key={item.topic}>
+        <summary><span>{item.question}<small>{item.topic} · {item.kind === 'strength' ? 'Сильная сторона' : 'Подтянуть'}</small></span></summary>
+        <div className="volga-card-body">
+          <p><b>Что сказали в фидбеке:</b> {item.feedback}</p>
+          <div className="volga-answer"><strong>Ориентир для ответа</strong><p>{item.answer}</p></div>
+          <p><b>Для практики:</b> {item.practice}</p>
+        </div>
+      </details>)}</div>
+      {!matchingRealQuestions.length && <p className="empty">По запросу ничего не найдено.</p>}
     </section> : section === 'resume' ? <section className="volga-resume">
       <h2>Опыт и источники</h2>
       <p>Краткая карта проектов для интервью. Используйте её вместе со своим резюме, чтобы выбирать примеры под вопрос собеседующего.</p>

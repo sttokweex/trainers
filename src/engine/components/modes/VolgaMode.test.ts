@@ -41,3 +41,15 @@ it('каждая глава содержит объяснения и ответ�
     for (const item of chapter.check) expect(item.answer.length).toBeGreaterThan(40)
   }
 })
+
+it('показывает вопросы из фидбека и фильтрует их по теме', async () => {
+  await act(async () => root.render(createElement(VolgaMode, { query: '' })))
+  const button = Array.from(container.querySelectorAll<HTMLButtonElement>('.volga-nav button')).find((item) => item.textContent === 'Реальные вопросы')
+  await act(async () => button?.click())
+  expect(container.querySelectorAll('.volga-real-question')).toHaveLength(9)
+  expect(container.textContent).toContain('Точные формулировки вопросов не сохранились')
+  expect(container.textContent).toContain('Какие этапы рендеринга запускаются?')
+  await act(async () => root.render(createElement(VolgaMode, { query: 'бинарный поиск' })))
+  expect(container.querySelectorAll('.volga-real-question')).toHaveLength(1)
+  expect(container.textContent).toContain('Напиши бинарный поиск')
+})
