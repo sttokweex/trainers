@@ -3,6 +3,8 @@ import type { TheoryArticle } from '@/engine/types'
 export const state: TheoryArticle = { id:'th-state', topic:'Состояние', title:'Управление состоянием: что, где и почему',
   lead:'Сначала определяем, кому принадлежат данные, затем выбираем локальное состояние, Redux Toolkit, MobX, Zustand или query-кеш для сервера.',
   updates: [
+    { id: 'state-table-0-2026-11-06', sectionTitle: 'invalidateQueries или setQueryData', label: 'Разобрано подробнее' },
+    { id: 'state-table-1-2026-11-06', sectionTitle: 'Короткое сравнение для собеседования', label: 'Разобрано подробнее' },
     { id: 'state-ecosystem-2026-10-v2', sectionTitle: 'RTK Query, TanStack Query и Redux-Saga', label: 'Добавлено сравнение' },
     { id: 'state-mobx-2026-10-v2', sectionTitle: 'MobX: реактивные модели', label: 'Добавлен разбор' },
     { id: 'state-zustand-2026-10-v2', sectionTitle: 'Zustand и другие store', label: 'Добавлен разбор' },
@@ -163,6 +165,7 @@ const open = useUiStore(state =&gt; state.sidebarOpen)</pre>
 <p>Ещё встречаются <b>Jotai</b> (атомарное состояние) и <b>Valtio</b> (proxy-based реактивность). На интервью достаточно объяснить их модель и trade-offs; важнее выбрать правильное место и владельца состояния, чем перечислить все библиотеки.</p>
 
 <h5>Короткое сравнение для собеседования</h5>
+<p>Перед выбором библиотеки определите, чьи это данные: одного компонента, всего приложения или сервера. Таблица показывает инструменты для разных владельцев состояния.</p>
 <table>
 <tr><th>Инструмент</th><th>Модель</th><th>Сильная сторона</th><th>Риск/цена</th></tr>
 <tr><td>Redux Toolkit</td><td>actions и reducers</td><td>предсказуемость, DevTools, единые соглашения</td><td>не превращать store в свалку любого состояния</td></tr>
@@ -174,6 +177,7 @@ const open = useUiStore(state =&gt; state.sidebarOpen)</pre>
 <div class="key">Выбор по слоям: URL — состояние навигации; React state — локальный UI; Context — редкие глобальные значения; RTK/Zustand/MobX — общее клиентское состояние; RTK Query/TanStack Query — серверные данные. Saga добавляйте по сложности workflow, а не автоматически вместе с Redux.</div>
 
 <h5>invalidateQueries или setQueryData</h5>
+<p>После изменения данных серверный кеш нужно привести в согласованное состояние. Можно запросить свежий ответ у сервера или сразу записать известный результат в кеш; выбор зависит от того, насколько полный ответ у нас есть.</p>
 <table>
 <tr><th><code class="i">invalidateQueries</code></th><th><code class="i">setQueryData</code></th></tr>
 <tr><td>пометить устаревшим и перезапросить</td><td>записать данные напрямую</td></tr>

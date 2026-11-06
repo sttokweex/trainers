@@ -60,6 +60,7 @@ import { kafkaDeep } from './th-kafka-deep'
 import { angular } from './th-angular'
 import { vue } from './th-vue'
 import { styleSystems } from './th-stylesystems'
+import { scss } from './th-scss'
 import { threejs } from './th-threejs'
 import { electron } from './th-electron'
 import { nuxt } from './th-nuxt'
@@ -134,6 +135,7 @@ export const theory: TheoryArticle[] = [
   angular,
   vue,
   styleSystems,
+  scss,
   threejs,
   electron,
   nuxt,

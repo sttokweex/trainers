@@ -1,9 +1,13 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const containersKubernetes: TheoryArticle = { id:'th-containers-kubernetes', topic:'Docker и Kubernetes', title:'Контейнеры, Docker и Kubernetes: от Linux namespaces до production кластера',
-  lead:'Практический курс по контейнерному runtime, образам и слоям, Compose, Kubernetes API/control plane, Pod, Deployment, Service/DNS, probes, storage, ingress, RBAC, Helm, GitOps и отладке.',
+  lead: 'Как упаковать приложение вместе с нужной средой, запустить несколько экземпляров и восстановить работу после сбоя.',
+  updates: [
+    { id: 'containers-kubernetes-opening-2026-11-06', sectionTitle: 'Ментальная модель: контейнер — это изолированный процесс', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Ментальная модель: контейнер — это изолированный процесс</h5>
+<p>Приложение работает на ноутбуке, но на сервере ему нужны те же файлы, зависимости и настройки. Контейнер помогает собрать предсказуемую среду запуска. Сначала разберём один процесс в контейнере, затем его образ, запуск и управление несколькими экземплярами.</p>
 <p>Контейнер — не маленькая виртуальная машина и не отдельное ядро. Обычно это процесс Linux с ограниченным видом на процессы, сеть, mount points и ресурсы. Namespaces изолируют представление PID, network, mount, user и других ресурсов; cgroups учитывают и ограничивают CPU, память и I/O; capabilities и seccomp ограничивают привилегии. Контейнер разделяет kernel хоста, поэтому kernel exploit, неверные права или опасный privileged mount могут перейти границу.</p>
 <p>Docker — набор developer-facing инструментов и APIs для build, image, network, volume и запуска контейнеров. На Linux Docker Engine historically использует containerd/runc стек; Kubernetes обычно общается с CRI runtime (например containerd или CRI-O), а не требует Docker Engine. Docker image и OCI-compatible image остаются переносимыми между совместимыми runtimes. Контейнерный формат, runtime, registry и оркестратор — разные компоненты.</p>
 

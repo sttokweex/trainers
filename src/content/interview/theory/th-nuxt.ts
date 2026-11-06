@@ -1,9 +1,13 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const nuxt: TheoryArticle = { id:'th-nuxt', topic:'Nuxt', title:'Nuxt 3/4: Vue-приложение, SSR, маршруты, данные и deployment',
-  lead:'Подробная модель Nuxt поверх Vue: файловая маршрутизация, Nitro, server/client границы, универсальный рендер, кеширование, middleware, модули и отладка production.',
+  lead: 'Как Vue-страница получает адрес, данные и готовый HTML, чтобы её могли быстро открыть пользователи и прочитать поисковые системы.',
+  updates: [
+    { id: 'nuxt-opening-2026-11-06', sectionTitle: 'Nuxt — приложение и серверный runtime вокруг Vue', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Nuxt — приложение и серверный runtime вокруг Vue</h5>
+<p>Представьте страницу товара: её нужно открыть по адресу, быстро показать в браузере и дать поисковику прочитать содержимое. Vue строит компоненты, а Nuxt добавляет маршруты, серверную часть и способы заранее подготовить HTML. Разберём путь одной страницы.</p>
 <p>Vue отвечает за компонентную модель и реактивный UI. Nuxt добавляет соглашения по структуре приложения, file-based routing, layouts, server rendering, data fetching, SEO metadata, server endpoints, middleware, module ecosystem и production server engine Nitro. Поэтому Nuxt — meta-framework: он задаёт интеграционный слой и способ собирать web-приложение, а не заменяет знание Vue/HTTP.</p>
 <p>Nuxt major-версии меняют детали runtime, конфигурации и defaults. Современный Nuxt 3/4 построен вокруг Vue 3 и Nitro; старые Nuxt 2 примеры могут использовать иной lifecycle, Vue 2, asyncData/fetch semantics и webpack defaults. Всегда связывайте ответ с версией проекта и документацией конкретной major версии.</p>
 

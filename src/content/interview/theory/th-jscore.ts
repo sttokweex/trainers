@@ -1,7 +1,11 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const jscore: TheoryArticle = { id:'th-jscore', topic:'JavaScript', title:'Типы, ссылки, копирование и массивы',
-  lead:'Фундамент, который спрашивают в первые десять минут почти любого собеседования — и на котором чаще всего плывут.',
+  lead: 'Как JavaScript хранит значения, передаёт объекты и копирует данные. Эти правила помогают предсказать результат кода.',
+  updates: [
+    { id: 'jscore-bridge-1-2026-11-06', sectionTitle: 'Современный синтаксис, который должен быть в пальцах', label: 'Добавлено объяснение' },
+    { id: 'jscore-table-0-2026-11-06', sectionTitle: 'Методы массивов: что мутирует, а что нет', label: 'Разобрано подробнее' },
+  ],
   body:`
 <h5>Два вида значений и почему это важнее, чем кажется</h5>
 <p>В JavaScript есть <b>примитивы</b> и <b>объекты</b>, и разница между ними объясняет добрую половину «необъяснимых» багов.</p>
@@ -110,6 +114,7 @@ const deep = structuredClone(user)   // нативно, умеет циклы, D
 <p>Старый трюк <code class="i">JSON.parse(JSON.stringify(obj))</code> лучше не использовать: он падает на циклических ссылках, теряет <code class="i">undefined</code>, функции и символы, превращает <code class="i">Date</code> в строку, <code class="i">Map</code> и <code class="i">Set</code> — в пустые объекты, а <code class="i">NaN</code> и <code class="i">Infinity</code> — в <code class="i">null</code>.</p>
 
 <h5>Методы массивов: что мутирует, а что нет</h5>
+<p>При работе с массивом важно знать, меняет ли метод исходный список. Это особенно заметно, когда массив передали в другую функцию или компонент: неожиданная мутация меняет данные у всех, кто держит ту же ссылку.</p>
 <table>
 <tr><th>Мутируют исходный массив</th><th>Возвращают новый</th></tr>
 <tr><td><code class="i">push</code>, <code class="i">pop</code>, <code class="i">shift</code>, <code class="i">unshift</code></td><td><code class="i">concat</code>, <code class="i">slice</code>, <code class="i">map</code>, <code class="i">filter</code>, <code class="i">flat</code></td></tr>
@@ -141,6 +146,7 @@ Object.groupBy(arr, fn) сгруппировать в объект</pre>
 <p>О производительности: <code class="i">includes</code>, <code class="i">indexOf</code>, <code class="i">find</code> работают за O(n). Вызов любого из них <b>внутри цикла</b> превращает код в O(n²) — самая частая причина неожиданно медленного кода. Лечится построением <code class="i">Set</code> или <code class="i">Map</code> заранее.</p>
 
 <h5>Современный синтаксис, который должен быть в пальцах</h5>
+<p>Ниже несколько сокращений JavaScript для частых действий: взять поля объекта, безопасно обратиться к вложенному значению и подставить запасное. Читайте каждую строку как более короткую запись обычной проверки или присваивания.</p>
 <pre class="code">// деструктуризация
 const { a, b: renamed, c = 10, ...rest } = obj
 const [first, , third = 0] = arr

@@ -93,6 +93,7 @@ export function VolgaMode({ query }: { query: string }) {
     </section> : <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">{section === 'stack' ? 'Техническое интервью' : section === 'hr' ? 'Разговор с рекрутером' : 'Уточняющие вопросы'}</div><h2>{sections.find((entry) => entry.id === section)?.label}</h2></div><span>{items.length} / {source.length}</span></div>
       {section === 'stack' && <p className="volga-note">Открывайте карточки, разбирайте принципы и проговаривайте ответы своими словами.</p>}
+      {(section === 'hr' || section === 'tricky') && <p className="volga-note">Это вопросы для репетиции по вашему резюме и вакансии, а не запись реального интервью. Перед встречей уточните личный вклад, методику подсчёта результатов и детали процессов, которых нет в резюме.</p>}
       {items.length ? <AnswerCards items={items} /> : <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
   </div>

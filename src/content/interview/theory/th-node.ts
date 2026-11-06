@@ -1,9 +1,13 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const node: TheoryArticle = { id:'th-node', topic:'Node / Nest', title:'Node.js под капотом',
-  lead:'Event loop и его фазы, libuv и пул потоков, стримы и backpressure, worker_threads и cluster, диагностика памяти.',
+  lead: 'Почему сервер Node.js обслуживает много запросов, пока JavaScript выполняется в основном потоке, и где появляются задержки.',
+  updates: [
+    { id: 'node-opening-2026-11-06', sectionTitle: 'Из чего состоит Node', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Из чего состоит Node</h5>
+<p>Сервер на Node.js может ждать много сетевых запросов одновременно, хотя JavaScript-код обычно выполняется в одном основном потоке. Причина — ожидание сети и исполнение кода не одно и то же. Сначала разберём этот простой сценарий, затем движок, цикл событий и потоки.</p>
 <p>Node.js — это <b>V8</b> (движок JavaScript), <b>libuv</b> (цикл событий и асинхронный ввод-вывод на C) и набор встроенных модулей. Ваш JS выполняется в одном потоке, но libuv под ним использует несколько.</p>
 
 <h5>Фазы event loop</h5>

@@ -2,8 +2,13 @@ import type { TheoryArticle } from '@/engine/types'
 
 export const angular: TheoryArticle = { id:'th-angular', topic:'Angular', title:'Angular с нуля: компоненты, шаблоны, DI и реактивность',
   lead:'Пошаговый разбор Angular для разработчика, который ещё не работал с ним: как устроен проект, как компоненты показывают данные, как общаются с сервисами и как обновляется интерфейс.',
+  updates: [
+    { id: 'angular-table-0-2026-11-06', sectionTitle: 'Bindings: передать данные из класса в шаблон и обратно', label: 'Разобрано подробнее' },
+    { id: 'angular-opening-2026-11-06', sectionTitle: 'Что такое Angular и чем он отличается от React', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Что такое Angular и чем он отличается от React</h5>
+<p>Представьте страницу заказов: она показывает список, открывает детали и сохраняет изменения. Angular даёт готовые правила для таких частей приложения: как описать экран, откуда взять данные и как перейти между страницами. Сначала разберём один экран, затем названия механизмов.</p>
 <p><b>Angular</b> — полноценный frontend framework: кроме отображения компонентов он предлагает маршрутизатор, dependency injection, формы, HTTP-клиент, инструменты CLI, тестирования и conventions приложения. React — библиотека UI, а многие решения вокруг него выбирают отдельно. Vue занимает промежуточную позицию: ядро компактнее, но официальная экосистема покрывает router, store и tooling.</p>
 <p>Angular написан на TypeScript и предпочитает явно описывать структуру и зависимости. Это удобно для больших команд и крупных приложений: меньше решений нужно изобретать самостоятельно, сильны инструменты и типизация. Цена — больше концепций, шаблонной структуры и знаний самого framework. Называть Angular «старым JavaScript с HTML внутри» неверно: современный Angular включает standalone components, signals, функциональные providers, control-flow синтаксис и развитый SSR.</p>
 
@@ -36,6 +41,7 @@ export class CounterComponent {
 <p>Selector <code class="i">app-counter</code> позволяет использовать компонент как HTML-подобный тег. При standalone модели компонент импортирует другие standalone components/directives/pipes в собственное поле imports, а приложение задаёт общие providers в bootstrap/application config.</p>
 
 <h5>Bindings: передать данные из класса в шаблон и обратно</h5>
+<p>Шаблон должен показать данные компонента и сообщить ему о действиях пользователя. Angular использует разные записи для вывода значения, передачи свойства и обработки события; сначала определите направление данных.</p>
 <table><tr><th>Синтаксис</th><th>Направление</th><th>Пример</th></tr>
 <tr><td>Interpolation <code class="i">{{ }}</code></td><td>значение в текст</td><td><code class="i">{{ title }}</code></td></tr>
 <tr><td>Property binding <code class="i">[prop]</code></td><td>класс → DOM property/input</td><td><code class="i">[disabled]="saving"</code></td></tr>

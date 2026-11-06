@@ -1,9 +1,13 @@
 import type { TheoryArticle } from '@/engine/types'
 
 export const expressFastify: TheoryArticle = { id:'th-express-fastify', topic:'Node / Nest', title:'Express и Fastify: Node.js HTTP серверы, middleware и production',
-  lead:'Как запрос проходит от socket до ответа, как выбирать framework, валидировать вход, формировать plugins, держать latency под контролем и эксплуатировать API.',
+  lead: 'Как сервер принимает HTTP-запрос, выбирает обработчик, проверяет данные и возвращает ответ. На этом пути сравниваем Express и Fastify.',
+  updates: [
+    { id: 'express-fastify-opening-2026-11-06', sectionTitle: 'Что дают Express и Fastify', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Что дают Express и Fastify</h5>
+<p>Браузер отправляет запрос, например «покажи заказ 42». Сервер должен выбрать обработчик, прочитать параметры, проверить данные и отправить ответ. Express и Fastify помогают организовать этот путь; сначала проследим запрос, а потом сравним их правила.</p>
 <p>Node.js предоставляет низкоуровневый HTTP API поверх event loop и sockets. Express и Fastify добавляют routing и соглашения для построения HTTP-приложения. Express — зрелый минималистичный framework с огромной middleware экосистемой и широким историческим использованием. Fastify делает акцент на plugin encapsulation, schema-based validation/serialization и высокопроизводительном HTTP lifecycle. Они решают похожую задачу, но имеют разные extension APIs и несовместимые middleware детали.</p>
 <p>«Fastify быстрее» не означает автоматически, что вся система будет быстрее: база, внешние API, JSON размер, сериализация, connection pool и алгоритмы могут доминировать. Benchmark зависит от версий Node/framework, маршрута, payload, hardware и способа измерения. Выбирайте по экосистеме, поддержке, контрактам, observability, команде и измеренной нагрузке.</p>
 

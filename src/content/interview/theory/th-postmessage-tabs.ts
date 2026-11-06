@@ -2,8 +2,13 @@ import type { TheoryArticle } from '@/engine/types'
 
 export const postMessageTabs: TheoryArticle = { id:'th-postmessage-tabs', topic:'Браузер', title:'Связь между вкладками: postMessage, BroadcastChannel и storage',
   lead:'Как передавать сообщения между окнами и вкладками, безопасно проверять отправителя и выбирать механизм синхронизации состояния.',
+  updates: [
+    { id: 'postmessage-tabs-table-0-2026-11-06', sectionTitle: 'Выбор канала', label: 'Разобрано подробнее' },
+    { id: 'postmessage-tabs-opening-2026-11-06', sectionTitle: 'Сначала различите окна и вкладки', label: 'Понятное начало' },
+  ],
   body:`
 <h5>Сначала различите окна и вкладки</h5>
+<p>Одна страница открыла окно оплаты, а другая вкладка показывает статус пользователя. Обеим может понадобиться сообщение, но способ связи зависит от того, кто кого открыл и принадлежат ли страницы одному сайту. Сначала различим эти случаи.</p>
 <p>Термин <b>postMessage</b> чаще всего означает API <code class="i">Window.postMessage</code>: передача сообщения между объектами window, например родительской страницей и iframe либо окном, открытым через <code class="i">window.open</code>. Для связи между обычными вкладками одного origin есть более удобный <b>BroadcastChannel</b>, а также событие <code class="i">storage</code> при изменении localStorage. Все эти механизмы работают только в подходящих контекстах и не являются серверной синхронизацией.</p>
 <p><b>Origin</b> — комбинация схемы, хоста и порта. <code class="i">https://app.example.com</code> и <code class="i">https://admin.example.com</code> — разные origin. Same-origin policy ограничивает прямой доступ окна к DOM/JS другого origin, но целевой канал обмена можно открыть сообщениями и безопасно валидировать их.</p>
 
@@ -69,6 +74,7 @@ localStorage.setItem('app:session-version', String(Date.now()))</pre>
 <p>Добавляйте <code class="i">messageId</code>, <code class="i">senderId</code>, <code class="i">createdAt</code> и version, если нужно дедуплицировать, диагностировать или отбрасывать устаревшие сигналы. Системные часы разных устройств не всегда надёжны; для порядка используйте серверную версию или монотонный sequence, а не только timestamp.</p>
 
 <h5>Выбор канала</h5>
+<p>Связь между родительской страницей и окном отличается от связи двух независимых вкладок одного сайта. Выберите строку по этим отношениям и по тому, должна ли связь работать между разными источниками.</p>
 <table><tr><th>Механизм</th><th>Связь</th><th>Лучший случай</th><th>Ограничение</th></tr>
 <tr><td>Window.postMessage</td><td>конкретные window/iframe, в том числе между origin</td><td>родитель ↔ iframe, popup ↔ opener</td><td>обязательно проверять origin, source и протокол</td></tr>
 <tr><td>BroadcastChannel</td><td>contexts одного origin с общим именем канала</td><td>уведомления и синхронизация активных вкладок</td><td>нет истории/гарантированной доставки закрытым вкладкам</td></tr>
