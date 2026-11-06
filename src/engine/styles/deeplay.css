@@ -1,0 +1,24 @@
+.deeplay .deeplay-hero{border-color:#426a76;background:linear-gradient(115deg,#12323a,#153148 65%,#29413d)}
+.deeplay .volga-eyebrow{color:#84ddcb}
+.deeplay .volga-nav button:hover,.deeplay .volga-nav button.on{border-color:#4b9d93;background:#174b50}
+.deeplay .deeplay-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.deeplay .deeplay-panel{background:var(--panel);border:1px solid var(--bd2);border-radius:12px;padding:18px 20px;line-height:1.65}
+.deeplay .deeplay-panel h3{font-size:17px;margin:4px 0 10px;color:var(--tx)}
+.deeplay .deeplay-panel p{margin:9px 0;color:var(--mut)}
+.deeplay .deeplay-panel b{color:var(--tx)}
+.deeplay .deeplay-panel ul{margin:0;padding-left:21px;color:var(--mut)}
+.deeplay .deeplay-panel li+li{margin-top:7px}
+.deeplay .deeplay-tag{color:#8fddcf;font:700 11px var(--mono);letter-spacing:.05em}
+.deeplay .deeplay-chapter summary span small,.deeplay .volga-card summary span small{display:block;margin-top:5px;color:var(--mut);font-size:12px;font-weight:400;line-height:1.45}
+.deeplay .deeplay-chapter-number{display:block;color:#8fddcf;font:700 11px var(--mono);margin-bottom:5px}
+.deeplay .deeplay-point{padding:13px 0;border-bottom:1px solid var(--bd)}
+.deeplay .deeplay-point h3{color:var(--tx);font-size:17px;margin:0 0 9px}
+.deeplay .deeplay-point p{margin:9px 0}
+.deeplay .deeplay-exercise{margin-top:15px;border:1px solid #315e5c;background:#112d30;border-radius:9px;padding:14px 17px}
+.deeplay .deeplay-exercise strong{color:#b8efe5}
+.deeplay .deeplay-exercise p{margin:6px 0 0}
+.deeplay .deeplay-complete{margin-top:15px;padding:9px 13px;border-radius:8px;border:1px solid #4b9d93;background:#174b50;color:#e1fff8;cursor:pointer;font-weight:600}
+.deeplay .deeplay-complete[aria-pressed=true]{background:#1d684e;border-color:#55b982}
+.deeplay .deeplay-complete:focus-visible{outline:2px solid #8fddcf;outline-offset:2px}
+.deeplay .deeplay-plan{display:grid;gap:10px}
+@media(max-width:760px){.deeplay .deeplay-grid{grid-template-columns:1fr}}

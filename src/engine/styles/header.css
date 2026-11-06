@@ -39,6 +39,7 @@
 .help-note{margin:16px 0 0; padding-top:12px; border-top:1px solid var(--bd); color:var(--mut2); font-size:12px; line-height:1.55}
 @media(max-width:520px){.help-grid{grid-template-columns:1fr}.help-dialog{padding:15px}}
 
+@media(max-width:900px){.top-in .modes{flex-wrap:wrap;max-width:100%}}
 @media(max-width:640px){
   .top-in{padding:10px 14px}
   .modes{flex:1 1 100%; flex-wrap:wrap; border-radius:10px}
