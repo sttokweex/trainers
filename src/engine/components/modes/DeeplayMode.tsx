@@ -80,12 +80,12 @@ export function DeeplayMode({ query }: { query: string }) {
 
     {section === 'theory' && <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Учебный маршрут</div><h2>Подробная теория</h2></div><span>{filteredChapters.length} / {deeplayChapters.length}</span></div>
-      <p className="volga-note">Читайте главы по порядку. Каждая часть объясняет механизм, пример, частую ошибку и применение к вакансии. После главы ответьте на вопросы без подсказки и выполните задание.</p>
+      <p className="volga-note">Начните со сквозной фичи: она показывает, как требования, API, Node.js, база, очередь, аналитика и интерфейс связаны между собой. Затем изучайте главы по порядку: сначала основную базу, после неё темы с пометкой «Плюс». В каждой главе сначала разберитесь в модели и примере, потом проверьте себя и сделайте упражнение.</p>
       <div className="volga-list">{filteredChapters.map((chapter, index) => <details className="volga-card deeplay-chapter" key={chapter.id}>
         <summary><span><span className="deeplay-chapter-number">{String(index + 1).padStart(2, '0')} · {chapter.priority}</span>{chapter.title}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
           {chapter.sections.map((item) => <section className="deeplay-point" key={item.title}>
-            <h3>{item.title}</h3><p>{item.body}</p>
+            <h3>{item.title}</h3>{item.body.split(/\n\s*\n/).map((paragraph, paragraphIndex) => <p key={`${item.title}-${paragraphIndex}`}>{paragraph}</p>)}
             {item.code && <pre className="volga-code"><code>{item.code}</code></pre>}
             <p><b>Пример:</b> {item.example}</p>
             <p><b>Частая ошибка:</b> {item.pitfall}</p>
