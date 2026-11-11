@@ -55,7 +55,9 @@ export const nodeNestQuestions: Question[] = [
   { id:'nest-di', topic:'Node / Nest', type:'theory', level:'middle',
     q:'Как работает Dependency Injection в NestJS? Что такое провайдер, токен, scope? Как решать циклические зависимости?',
     answer:`<h5>Схема</h5>
-  <p>При старте Nest строит <b>граф зависимостей</b>: читает <code class="i">design:paramtypes</code> из метаданных конструктора (спасибо <code class="i">emitDecoratorMetadata</code>), находит провайдер по <b>токену</b> и подставляет инстанс. Провайдеры по умолчанию <b>синглтоны</b> на всё приложение.</p>
+  <p>Сервис объявляет нужные ему объекты в конструкторе, а Nest передаёт их при создании. Это называется <b>Dependency Injection (DI, внедрение зависимостей)</b>. Зависимостью здесь является объект, нужный классу для работы: например репозиторий базы или почтовый клиент.</p>
+  <p>Чтобы найти объект, Nest использует <b>токен</b> — ключ, под которым объект зарегистрирован в модуле. Для класса токеном обычно является сам класс. При включённой настройке <code class="i">emitDecoratorMetadata</code> TypeScript может записать типы параметров конструктора в метаданные класса. Их внутреннее имя — <code class="i">design:paramtypes</code>. Это механизм, благодаря которому Nest обычно узнаёт, что аргумент <code class="i">ConfigService</code> надо найти по токену <code class="i">ConfigService</code>. Для интерфейсов такой автоподстановки нет: интерфейс стирается при компиляции, поэтому задают явный токен через <code class="i">@Inject(...)</code>.</p>
+  <p>Запись в модуле, связывающая токен с классом или значением, называется <b>провайдером</b>. По умолчанию Nest создаёт один экземпляр провайдера на приложение — это и называют singleton (синглтон). Отдельный экземпляр на каждый запрос включают только при конкретной необходимости.</p>
   <h5>Виды провайдеров</h5>
   <pre class="code">providers: [
     UserService,                                          // класс (токен = сам класс)
@@ -69,7 +71,7 @@ export const nodeNestQuestions: Question[] = [
     { provide: 'ALIAS', useExisting: UserService },        // второй токен на тот же инстанс
   ]</pre>
   <h5>Модули и видимость</h5>
-  <p>Провайдер доступен только внутри своего модуля, пока его не положили в <code class="i">exports</code>, а модуль не добавили в <code class="i">imports</code>. Это главный источник ошибки <code class="i">Nest can't resolve dependencies of X (?)</code> — вопросительный знак показывает <b>позицию</b> нерезолвнутого аргумента.</p>
+  <p>Модуль — область, которая регистрирует контроллеры и провайдеры. Провайдер виден внутри своего модуля; чтобы поделиться им, модуль указывает его в <code class="i">exports</code>, а потребитель добавляет этот модуль в <code class="i">imports</code>. Если Nest выводит <code class="i">Nest can't resolve dependencies of X (?)</code>, он не нашёл объект для одного из аргументов конструктора. Знак вопроса отмечает позицию аргумента; проверьте регистрацию провайдера, экспорт и импорт модуля, а также наличие явного токена там, где тип нельзя узнать автоматически.</p>
   <h5>Scope</h5>
   <table>
   <tr><th>Scope</th><th>Инстанс</th><th>Когда</th></tr>
@@ -77,7 +79,7 @@ export const nodeNestQuestions: Question[] = [
   <tr><td>REQUEST</td><td>новый на каждый запрос</td><td>нужен контекст запроса (текущий юзер, tenant, trace id)</td></tr>
   <tr><td>TRANSIENT</td><td>новый на каждого потребителя</td><td>редко</td></tr>
   </table>
-  <p><b>Важно:</b> REQUEST-scope «заражает» всю цепочку — все зависящие провайдеры тоже станут request-scoped, а это заметный удар по производительности. Чаще правильнее <code class="i">AsyncLocalStorage</code> (CLS) или <code class="i">nestjs-cls</code>.</p>
+  <p><b>Важно:</b> если провайдер помечен как <code class="i">REQUEST</code>, Nest может создавать заново и зависящие от него классы. Это повышает стоимость каждого запроса. Если нужна только информация запроса в логах или глубоко в сервисах, часто удобнее <code class="i">AsyncLocalStorage</code> — хранилище контекста для цепочки асинхронной работы Node.js — или пакет <code class="i">nestjs-cls</code>.</p>
   <h5>Циклические зависимости</h5>
   <p>Между сервисами — <code class="i">@Inject(forwardRef(() =&gt; OtherService))</code>, между модулями — <code class="i">forwardRef(() =&gt; OtherModule)</code> в imports. Но это <b>симптом</b>: обычно правильнее вынести общую логику в третий модуль или развязать через события (<code class="i">@nestjs/event-emitter</code>).</p>
   <h5>Зачем DI вообще</h5>
@@ -274,7 +276,7 @@ export const nodeNestQuestions: Question[] = [
     transformOptions: { enableImplicitConversion: true },
   }))`,
     answer:`<h5>Как это работает</h5>
-  <p><code class="i">ValidationPipe</code> берёт метаданные типа параметра (<code class="i">design:paramtypes</code>), через <code class="i">class-transformer</code> превращает JSON в инстанс DTO-класса, затем <code class="i">class-validator</code> проверяет декораторы. Ошибки собираются в 400 с массивом сообщений.</p>
+  <p>DTO (Data Transfer Object, объект передачи данных) описывает форму входа в обработчик. <code class="i">ValidationPipe</code> — встроенный этап Nest, который получает этот объект до вызова метода контроллера и проверяет его. В варианте с классами и декораторами он превращает JSON в экземпляр DTO, а <code class="i">class-validator</code> проверяет правила вроде «строка», «email» или «не короче восьми символов». Если проверка не прошла, Nest обычно отвечает кодом 400 (Bad Request, неверный запрос).</p>
   <h5>Критичные опции</h5>
   <ul>
   <li><code class="i">whitelist: true</code> — <b>обязательно в проде</b>. Без неё клиент может прислать лишние поля (<code class="i">isAdmin: true</code>), и если где-то делается <code class="i">repo.save(dto)</code>, это mass assignment уязвимость.</li>
