@@ -57,10 +57,38 @@ function Trainer({ pack }: { pack: ContentPack }) {
       return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
     } catch { return [] }
   })
+  const firstReadArticlesKey = `theory-first-read:${pack.id}`
+  const [firstReadArticles, setFirstReadArticles] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(firstReadArticlesKey)
+      const parsed: unknown = saved ? JSON.parse(saved) : []
+      return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
+    } catch { return [] }
+  })
   useEffect(() => {
     try { localStorage.setItem(updateReadKey, JSON.stringify(readTheoryUpdates)) } catch { /* storage may be disabled */ }
   }, [readTheoryUpdates, updateReadKey])
+  useEffect(() => {
+    try { localStorage.setItem(firstReadArticlesKey, JSON.stringify(firstReadArticles)) } catch { /* storage may be disabled */ }
+  }, [firstReadArticles, firstReadArticlesKey])
   const markTheoryUpdateRead = (key: string) => setReadTheoryUpdates((current) => current.includes(key) ? current : [...current, key])
+  const toggleTheoryRead = (id: string) => {
+    if (!theoryDone[id]) {
+      if (!firstReadArticles.includes(id)) {
+        const article = pack.theory.find((item) => item.id === id)
+        if (article?.updates?.length) {
+          const keys = article.updates.map((update) => `${article.id}:${update.id}`)
+          setReadTheoryUpdates((current) => [...new Set([...current, ...keys])])
+        }
+        setFirstReadArticles((current) => current.includes(id) ? current : [...current, id])
+      }
+    } else {
+      // Track legacy completed articles too, so unchecking and rechecking one
+      // does not treat it as a first read and dismiss later updates.
+      setFirstReadArticles((current) => current.includes(id) ? current : [...current, id])
+    }
+    toggleTheory(id)
+  }
 
   const searchRef = useRef<HTMLInputElement>(null)
   const topRef = useRef<HTMLElement>(null)
@@ -546,7 +574,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
                 notes={notes}
                 onNoteChange={setNote}
                 done={theoryDone}
-                onToggleDone={toggleTheory}
+                onToggleDone={toggleTheoryRead}
                 readUpdates={readTheoryUpdates}
                 onReadUpdate={markTheoryUpdateRead}
                 bookmarks={bookmarks}

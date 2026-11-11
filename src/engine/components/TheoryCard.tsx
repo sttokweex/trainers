@@ -161,31 +161,6 @@ export function TheoryCard({
   )
 
   useEffect(() => {
-    if (!done || !open || !onReadUpdate || !item.updates?.length) return
-    const pending = item.updates.filter((update) => !readUpdates.includes(`${item.id}:${update.id}`))
-    if (!pending.length) return
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue
-        const update = pending.find((candidate) => {
-          const index = sections.findIndex((section) => section.title === candidate.sectionTitle)
-          return entry.target === bodyRef.current?.querySelector(`[data-section-index="${index}"]`)
-        })
-        if (update) {
-          onReadUpdate(`${item.id}:${update.id}`)
-          observer.unobserve(entry.target)
-        }
-      }
-    }, { threshold: 0.15 })
-    for (const update of pending) {
-      const index = sections.findIndex((section) => section.title === update.sectionTitle)
-      const section = index >= 0 ? bodyRef.current?.querySelector<HTMLElement>(`[data-section-index="${index}"]`) : null
-      if (section) observer.observe(section)
-    }
-    return () => observer.disconnect()
-  }, [done, open, onReadUpdate, item.id, item.updates, readUpdates, sections])
-
-  useEffect(() => {
     if (!open || openSectionIndex === undefined) return
     const id = requestAnimationFrame(() => {
       const section = openSectionIndex < 0
@@ -292,7 +267,10 @@ export function TheoryCard({
               const showUpdate = Boolean(done && update && !readUpdates.includes(updateKey))
               return <section className={'th-section' + (showUpdate ? ' th-section-updated' : '')} key={`${item.id}:${index}`} data-section-index={index}>
               <h5 dangerouslySetInnerHTML={{ __html: section.titleHtml }} />
-              {showUpdate && <span className="theory-update-badge theory-update-inline">{update?.label ?? 'Обновлено'}</span>}
+              {showUpdate && <div className="theory-update-actions">
+                <span className="theory-update-badge theory-update-inline">{update?.label ?? 'Обновлено'}</span>
+                <button type="button" className="theory-update-ack" onClick={() => onReadUpdate?.(updateKey)}>Ознакомлен</button>
+              </div>}
               <RichContent html={section.body} demos={demos} />
             </section>})}
           </div>
