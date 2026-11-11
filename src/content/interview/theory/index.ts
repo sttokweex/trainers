@@ -70,6 +70,7 @@ import { networkProtocols } from './th-network-protocols'
 import { infraRoadmap } from './th-infra-roadmap'
 import { linuxVps } from './th-linux-vps'
 import { containersKubernetes } from './th-containers-kubernetes'
+import { backendArchitecture } from './th-backend-architecture'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
@@ -116,6 +117,7 @@ export const theory: TheoryArticle[] = [
   sql,
   nest,
   postgresMysql,
+  backendArchitecture,
   cache,
   redisDeep,
   kafkaDeep,
