@@ -3,6 +3,7 @@ import type { TheoryArticle } from '@/engine/types'
 export const http: TheoryArticle = { id:'th-http', topic:'API и сеть', title:'HTTP и проектирование API',
   lead: 'Как читать запрос и ответ HTTP, выбирать метод и статус, а также решать, можно ли повторить запрос или взять ответ из кеша.',
   updates: [
+    { id: 'http-security-forward-note-2026-11-11', sectionTitle: 'Заголовки, которые надо знать', label: 'Добавлен ориентир на главу о безопасности' },
     { id: 'http-table-0-2026-11-06', sectionTitle: 'Версии протокола', label: 'Разобрано подробнее' },
     { id: 'http-table-1-2026-11-06', sectionTitle: 'Заголовки, которые надо знать', label: 'Разобрано подробнее' },
     { id: 'http-table-2-2026-11-06', sectionTitle: 'Методы и идемпотентность', label: 'Разобрано подробнее' },
@@ -74,7 +75,7 @@ Idempotency-Key: 7f3e9a21-...</pre>
 <tr><td><code class="i">User-Agent</code></td><td>клиент</td><td>браузер и платформа; полагаться на него для логики ненадёжно — легко подделывается</td></tr>
 <tr><td><code class="i">Referer</code></td><td>клиент</td><td>страница, с которой пришли. Содержит путь и query, поэтому регулируется <code class="i">Referrer-Policy</code>, чтобы не утекали токены</td></tr>
 </table>
-<p>Отдельно группа безопасности (<code class="i">Content-Security-Policy</code>, <code class="i">Strict-Transport-Security</code>, <code class="i">X-Content-Type-Options</code>) разобрана в статье про безопасность, а заголовки CORS — ниже в этой.</p>
+<p>Отдельно группа заголовков безопасности (<code class="i">Content-Security-Policy</code> задаёт разрешённые источники контента, <code class="i">Strict-Transport-Security</code> требует HTTPS, <code class="i">X-Content-Type-Options</code> запрещает угадывать тип файла) разобрана в главе «Безопасность веб-приложения». В рекомендуемом порядке она идёт после базовых глав про сервер и API. Заголовки CORS разберём ниже в этой статье.</p>
 
 <h5>Кеширование: два разных механизма</h5>
 <p><b>Свежесть</b> — запроса нет вообще: <code class="i">Cache-Control: max-age=31536000</code>, браузер берёт из кеша. Самый быстрый запрос — тот, которого не было.</p>
