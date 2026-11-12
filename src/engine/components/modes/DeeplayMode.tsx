@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { interviewPrompts, requirements, studyPlan, systemCases } from '@/content/interview/deeplay/guide'
+import { interviewPrompts, requirements, studyPlan, systemCases, technicalInterviewQuestions } from '@/content/interview/deeplay/guide'
 import { deeplayChapters } from '@/content/interview/deeplay/theory'
 
 type Section = 'vacancy' | 'fit' | 'theory' | 'cases' | 'interview' | 'plan'
@@ -29,19 +29,20 @@ export function DeeplayMode({ query }: { query: string }) {
   const needle = query.trim().toLocaleLowerCase('ru')
   const filteredRequirements = requirements.filter((item) => matches(needle, [item.title, item.expectation, item.evidence, item.focus]))
   const filteredChapters = deeplayChapters.filter((chapter) => matches(needle, [
-    chapter.title, chapter.lead, chapter.priority, chapter.exercise,
+    chapter.title, chapter.lead, chapter.simpleIntro ?? '', chapter.visual ?? '', chapter.priority, chapter.exercise,
     ...chapter.sections.flatMap((item) => [item.title, item.body, item.example, item.pitfall, item.application, item.code ?? '']),
     ...chapter.check.flatMap((item) => [item.question, item.answer]),
   ]))
   const filteredCases = systemCases.filter((item) => matches(needle, [item.title, item.task, item.outline, item.checklist]))
   const filteredPrompts = interviewPrompts.filter((item) => matches(needle, [item.title, item.question, item.answer, item.followUp]))
+  const filteredTechnical = technicalInterviewQuestions.filter((item) => matches(needle, [item.title, item.question, item.answer, item.followUp]))
 
   return <div className="volga deeplay">
     <section className="volga-hero deeplay-hero">
       <div className="volga-eyebrow">Подготовка к вакансии · Fullstack разработчик Middle</div>
       <h1>deeplay</h1>
-      <p>Полный цикл фичи: TypeScript и Node.js, React, контракты сервисов, конкурентные данные, аналитика, тесты и эксплуатация. Теория идёт от базовых моделей к распределённым сценариям.</p>
-      <div className="volga-hero-meta"><span>{deeplayChapters.length} подробных глав</span><span>{systemCases.length} системных кейса</span><span>{interviewPrompts.length} вопросов</span><span>{done.length} / {deeplayChapters.length} глав пройдено</span></div>
+      <p>Самостоятельный курс по вакансии: сначала разбираем пользовательскую задачу простыми словами и рисуем путь данных, затем изучаем нужные технологии и тренируем ответы на вопросы. Термины объясняются внутри этого раздела — переходить в другую вкладку не нужно.</p>
+      <div className="volga-hero-meta"><span>{deeplayChapters.length} подробных глав</span><span>{systemCases.length} системных кейса</span><span>{interviewPrompts.length + technicalInterviewQuestions.length} вопросов</span><span>{done.length} / {deeplayChapters.length} глав пройдено</span></div>
     </section>
 
     <nav className="volga-nav" aria-label="Разделы подготовки deeplay">
@@ -80,14 +81,17 @@ export function DeeplayMode({ query }: { query: string }) {
 
     {section === 'theory' && <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Учебный маршрут</div><h2>Подробная теория</h2></div><span>{filteredChapters.length} / {deeplayChapters.length}</span></div>
-      <p className="volga-note"><b>Если начинаете с нуля в теме:</b> идите сверху вниз. Сквозная фича объясняет задачу простыми словами, главы «Основа» дают нужные понятия, а «Плюс» закрывают технологии из объявления. Не заучивайте названия: попробуйте объяснить каждый пример своими словами и выполнить упражнение. Это путь с нуля по темам вакансии, а не полный курс JavaScript, React или основ программирования.</p>
-      <p className="volga-note"><b>Если у вас уже есть база:</b> сначала разберите сквозную фичу и вопросы для самопроверки. Отметьте темы, где не можете объяснить причину решения или отказный сценарий, и повторите только эти главы. Затем пройдите системные кейсы и проговорите одну реальную фичу из своего опыта от задачи до результата.</p>
-      <p className="volga-note">Теория покрывает требования объявления, но сама по себе не гарантирует прохождение интервью: нужно уметь применять знания к незнакомому кейсу и честно разбирать собственный вклад. Метка «Основа» — основной стек и инженерные ожидания, «Плюс» — дополнительные технологии и области из вакансии.</p>
+      <p className="volga-note"><b>Путь с нуля:</b> начни с первой главы. Она простыми словами разбирает запрос, handler, очередь, брокер и worker на одном примере и показывает их связь. Потом иди по главам сверху вниз: в каждой сначала прочитай объяснение и схему, затем разберись в терминах и выполни упражнение. Курс учит темам этой вакансии, но не заменяет базовый курс программирования.</p>
+      <p className="volga-note"><b>Если база уже есть:</b> прочитай первую главу, чтобы сверить модель системы. Затем проверь себя вопросами в конце каждой главы; возвращайся к разделу, если не можешь объяснить решение простыми словами, разобрать пример и назвать поведение при сбое.</p>
+      <p className="volga-note">Материал охватывает требования объявления, но одного чтения недостаточно. Интервьюер может выбрать неожиданный угол темы, поэтому цель — понимать причины и уметь рассуждать на новом примере. «Основа» означает основной стек и инженерные ожидания; «Плюс» — технологии, которые в объявлении названы дополнительными.</p>
       <div className="volga-list">{filteredChapters.map((chapter, index) => <details className="volga-card deeplay-chapter" key={chapter.id}>
         <summary><span><span className="deeplay-chapter-number">{String(index + 1).padStart(2, '0')} · {chapter.priority}</span>{chapter.title}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
+          {chapter.simpleIntro && <div className="deeplay-simple"><strong>Сначала простыми словами</strong><p>{chapter.simpleIntro}</p></div>}
+          {chapter.visual && <figure className="deeplay-diagram"><figcaption>Карта темы</figcaption><pre>{chapter.visual}</pre></figure>}
           {chapter.sections.map((item) => <section className="deeplay-point" key={item.title}>
             <h3>{item.title}</h3>{item.body.split(/\n\s*\n/).map((paragraph, paragraphIndex) => <p key={`${item.title}-${paragraphIndex}`}>{paragraph}</p>)}
+            {item.visual && <figure className="deeplay-diagram"><figcaption>Схема</figcaption><pre>{item.visual}</pre></figure>}
             {item.code && <pre className="volga-code"><code>{item.code}</code></pre>}
             <p><b>Пример:</b> {item.example}</p>
             <p><b>Частая ошибка:</b> {item.pitfall}</p>
@@ -104,7 +108,7 @@ export function DeeplayMode({ query }: { query: string }) {
     {section === 'cases' && <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Практика системного дизайна</div><h2>Кейсы</h2></div><span>{filteredCases.length} / {systemCases.length}</span></div>
       <p className="volga-note">Сначала проговори собственное решение: требования → границы → данные → отказ и повтор → тесты → эксплуатация. Затем раскрой ориентир.</p>
-      <div className="volga-list">{filteredCases.map((item) => <details className="volga-card" key={item.title}><summary><span>{item.title}<small>{item.task}</small></span></summary><div className="volga-card-body"><p><b>Что раскрыть:</b> {item.checklist}</p><div className="volga-answer"><strong>Ориентир разбора</strong><p>{item.outline}</p></div></div></details>)}</div>
+      <div className="volga-list">{filteredCases.map((item) => <details className="volga-card" key={item.title}><summary><span>{item.title}<small>{item.task}</small></span></summary><div className="volga-card-body"><p><b>Что раскрыть:</b> {item.checklist}</p>{item.visual && <figure className="deeplay-diagram"><figcaption>Схема решения</figcaption><pre>{item.visual}</pre></figure>}<div className="volga-answer"><strong>Ориентир разбора</strong><p>{item.outline}</p></div></div></details>)}</div>
       {!filteredCases.length && <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
 
@@ -113,6 +117,10 @@ export function DeeplayMode({ query }: { query: string }) {
       <p className="volga-note">Это вероятные вопросы по вакансии, а не вопросы, подтверждённые deeplay. Отвечай своими словами и не выдавай изученную технологию за рабочий опыт.</p>
       <div className="volga-list">{filteredPrompts.map((item) => <details className="volga-card" key={item.title}><summary><span>{item.question}<small>{item.title}</small></span></summary><div className="volga-card-body"><div className="volga-answer"><strong>Опорные мысли</strong><p>{item.answer}</p></div><p><b>Уточняющий вопрос:</b> {item.followUp}</p></div></details>)}</div>
       {!filteredPrompts.length && <p className="empty">По запросу ничего не найдено.</p>}
+      <div className="volga-section-head deeplay-subhead"><div><div className="volga-eyebrow">Технические вопросы по требованиям вакансии</div><h3>Проверь, можешь ли объяснить своими словами</h3></div><span>{filteredTechnical.length} / {technicalInterviewQuestions.length}</span></div>
+      <p className="volga-note">Сначала ответь сам, затем раскрой пример. Хороший ответ объясняет причину решения, его ограничение и что произойдёт при сбое.</p>
+      <div className="volga-list">{filteredTechnical.map((item) => <details className="volga-card" key={item.title}><summary><span>{item.question}<small>{item.title}</small></span></summary><div className="volga-card-body"><div className="volga-answer"><strong>Пример понятного ответа</strong><p>{item.answer}</p></div><p><b>Уточняющий вопрос:</b> {item.followUp}</p></div></details>)}</div>
+      {!filteredTechnical.length && <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
 
     {section === 'plan' && <section className="volga-content">

@@ -14,6 +14,13 @@
 .deeplay .deeplay-point{padding:13px 0;border-bottom:1px solid var(--bd)}
 .deeplay .deeplay-point h3{color:var(--tx);font-size:17px;margin:0 0 9px}
 .deeplay .deeplay-point p{margin:9px 0}
+.deeplay .deeplay-simple{margin:0 0 14px;padding:14px 16px;border:1px solid #376863;border-radius:10px;background:linear-gradient(125deg,#122d30,#151d2a)}
+.deeplay .deeplay-simple strong{color:#b8efe5;font-size:12px}
+.deeplay .deeplay-simple p{margin:6px 0 0;color:#d2dfdf;line-height:1.65}
+.deeplay .deeplay-diagram{margin:13px 0;padding:12px 14px;border:1px solid #31565a;border-radius:9px;background:linear-gradient(130deg,#102126,#111a25);overflow-x:auto}
+.deeplay .deeplay-diagram figcaption{margin-bottom:8px;color:#8fddcf;font:700 10px var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.deeplay .deeplay-diagram pre{margin:0;color:#d2e8e6;font:12px/1.65 var(--mono);white-space:pre;tab-size:2}
+.deeplay .volga-code{overflow-x:auto}
 .deeplay .deeplay-exercise{margin-top:15px;border:1px solid #315e5c;background:#112d30;border-radius:9px;padding:14px 17px}
 .deeplay .deeplay-exercise strong{color:#b8efe5}
 .deeplay .deeplay-exercise p{margin:6px 0 0}
