@@ -72,7 +72,6 @@ describe.each(PACKS)('пак $id', (pack) => {
     }
     pack.theory.forEach((t) => scan(t.body))
     pack.questions.forEach((q) => scan(q.answer))
-    pack.tools?.forEach((t) => referenced.add(t.demo))
 
     const missing = [...referenced].filter((name) => !(name in pack.demos))
     expect(missing).toEqual([])

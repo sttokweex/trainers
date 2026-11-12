@@ -4,7 +4,6 @@ import type { PlanLink, PlanWeek } from '@/engine/types'
 /** Подпись к ссылке — чтобы было понятно, куда уведёт клик. */
 const LINK_HINT: Record<string, string> = {
   theory: 'Открыть статью',
-  tools: 'Открыть тренажёр в практикуме',
   questions: 'Перейти к вопросам темы',
   cards: 'Открыть карточки',
   plan: 'План',

@@ -4,7 +4,6 @@ import { DEFAULT_PACK, PACK_META, loadPack } from '@/content'
 import { QuestionCard } from '@/engine/components/QuestionCard'
 import { CardsMode } from '@/engine/components/modes/CardsMode'
 import { PlanMode } from '@/engine/components/modes/PlanMode'
-import { ToolsMode } from '@/engine/components/modes/ToolsMode'
 import { DashboardMode } from '@/engine/components/modes/DashboardMode'
 import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
@@ -18,7 +17,7 @@ import { theoryForQuestion } from '@/engine/theoryLinks'
 import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
-  questions: 'Вопросы', theory: 'Теория', tools: 'Практикум', cards: 'Карточки', plan: 'План',
+  questions: 'Вопросы', theory: 'Теория', cards: 'Карточки', plan: 'План',
   dashboard: 'Обзор', session: 'Пробник', volga: 'Волга-Волга', deeplay: 'deeplay',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
@@ -164,11 +163,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
     && matches([t.title, t.lead, t.body, t.topic].join(' '), filters.query),
   ), [pack.theory, filters])
 
-  const tools = useMemo(() => (pack.tools ?? []).filter((t) =>
-    (filters.topic === 'all' || t.topic === filters.topic)
-    && matches([t.t, t.d, t.topic].join(' '), filters.query),
-  ), [pack.tools, filters])
-
   const cards = useMemo(() => (pack.cards ?? []).filter((c) =>
     (filters.topic === 'all' || c.topic === filters.topic)
     && matches([c.term, c.en, c.def].join(' '), filters.query),
@@ -178,7 +172,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
   const topicCounts = useMemo(() => {
     const src: { topic: string }[] =
       mode === 'theory' ? pack.theory
-        : mode === 'tools' ? (pack.tools ?? [])
         : mode === 'cards' ? (pack.cards ?? [])
         : pack.questions
     const map = new Map<string, number>()
@@ -190,14 +183,13 @@ function Trainer({ pack }: { pack: ContentPack }) {
     const query = filters.query.trim()
     if (!query) return new Set<string>()
     const source = mode === 'theory' ? pack.theory
-      : mode === 'tools' ? (pack.tools ?? [])
         : mode === 'cards' ? (pack.cards ?? [])
           : pack.questions
     return new Set(source.filter((item) => {
       if ('q' in item) return matches([item.q, item.answer, item.topic].join(' '), query)
       if ('title' in item) return matches([item.title, item.lead, item.body, item.topic].join(' '), query)
       if ('term' in item) return matches([item.term, item.en, item.def].join(' '), query)
-      return matches([item.t, item.d, item.topic].join(' '), query)
+      return false
     }).map((item) => item.topic))
   }, [pack, mode, filters.query])
 
@@ -293,7 +285,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
       иначе при выбранной теме он совпадал бы с её же счётчиком. */
   const totalInMode =
     mode === 'theory' ? pack.theory.length
-      : mode === 'tools' ? (pack.tools ?? []).length
       : mode === 'cards' ? (pack.cards ?? []).length
       : pack.questions.length
 
@@ -546,10 +537,6 @@ function Trainer({ pack }: { pack: ContentPack }) {
               weeks={pack.plan} done={planDone}
               onToggle={togglePlan} onNavigate={goToLink}
             />
-          )}
-
-          {mode === 'tools' && (
-            <ToolsMode items={tools} demos={pack.demos} openId={filters.open} query={filters.query} />
           )}
 
           {mode === 'cards' && (

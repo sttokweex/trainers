@@ -2,7 +2,6 @@ import { demos } from '@/demos/interview'
 import type { ContentPack } from '@/engine/types'
 import { questions } from './questions'
 import { theory } from './theory'
-import { tools } from './tools'
 import { cards } from './cards'
 import { plan } from './plan'
 
@@ -11,7 +10,7 @@ export const interviewPack: ContentPack = {
   title: 'Собеседование',
   accent: '#58a6ff',
   storagePrefix: 'interview-trainer',
-  modes: ['dashboard', 'questions', 'theory', 'tools', 'cards', 'session', 'volga', 'deeplay'],
+  modes: ['dashboard', 'questions', 'theory', 'cards', 'session', 'volga', 'deeplay'],
   defaultMode: 'questions',
   hasLevelFilter: true,
   categories: [
@@ -25,7 +24,6 @@ export const interviewPack: ContentPack = {
   ],
   questions,
   theory,
-  tools,
   cards,
   plan,
   demos,

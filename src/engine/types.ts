@@ -103,18 +103,6 @@ export interface TheoryUpdate {
   label?: string
 }
 
-/** Карточка режима «Практикум» — обёртка над демо. */
-export interface Tool {
-  id: string
-  topic: string
-  /** Заголовок. */
-  t: string
-  /** Описание. */
-  d: string
-  /** Имя демо из реестра. */
-  demo: string
-}
-
 /** Флеш-карточка: термин, английский эквивалент, определение. */
 export interface Card {
   term: string
@@ -159,7 +147,7 @@ export interface PlanWeek {
  */
 export type LegacyDemo = (root: HTMLElement) => void
 
-export type PackMode = 'questions' | 'theory' | 'tools' | 'cards' | 'plan' | 'dashboard' | 'session' | 'volga' | 'deeplay'
+export type PackMode = 'questions' | 'theory' | 'cards' | 'plan' | 'dashboard' | 'session' | 'volga' | 'deeplay'
 
 /** Группировка тем в сайдбаре. Если не задана — темы выводятся плоским списком. */
 export interface TopicCategory {
@@ -180,7 +168,6 @@ export interface ContentPack {
   categories?: TopicCategory[]
   questions: Question[]
   theory: TheoryArticle[]
-  tools?: Tool[]
   cards?: Card[]
   plan?: PlanWeek[]
   demos: Record<string, LegacyDemo>
