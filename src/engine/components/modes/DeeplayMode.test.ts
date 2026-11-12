@@ -36,6 +36,8 @@ it('показывает теорию, сохраняет прогресс и ф
   const done = chapter?.querySelector<HTMLButtonElement>('.deeplay-complete')
   await act(async () => done?.click())
   expect(done?.getAttribute('aria-pressed')).toBe('true')
+  expect(chapter?.classList.contains('is-complete')).toBe(true)
+  expect(chapter?.textContent).toContain('Пройдено ✓')
   expect(JSON.parse(localStorage.getItem('deeplay-study-complete-v1') ?? '[]')).toContain(deeplayChapters[0]?.id)
   await act(async () => root.render(createElement(DeeplayMode, { query: 'MergeTree' })))
   expect(container.querySelectorAll('.deeplay-chapter')).toHaveLength(1)

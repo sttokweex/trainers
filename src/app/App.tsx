@@ -9,6 +9,7 @@ import { SessionMode } from '@/engine/components/modes/SessionMode'
 import { TheoryStudyMode } from '@/engine/components/modes/TheoryStudyMode'
 import { VolgaMode } from '@/engine/components/modes/VolgaMode'
 import { DeeplayMode } from '@/engine/components/modes/DeeplayMode'
+import { VacanciesMode } from '@/engine/components/modes/VacanciesMode'
 import { AmbientOrbit } from '@/engine/components/AmbientOrbit'
 import { useFilters } from '@/engine/hooks/useFilters'
 import { useProgress } from '@/engine/hooks/useProgress'
@@ -18,7 +19,7 @@ import '@/engine/styles/index.css'
 
 const MODE_LABEL: Record<PackMode, string> = {
   questions: 'Вопросы', theory: 'Теория', cards: 'Карточки', plan: 'План',
-  dashboard: 'Обзор', session: 'Пробник', volga: 'Волга-Волга', deeplay: 'deeplay',
+  dashboard: 'Обзор', session: 'Пробник', vacancies: 'Вакансии', volga: 'Волга-Волга', deeplay: 'deeplay',
 }
 const TYPE_LABEL: Record<Question['type'], string> = {
   theory: 'теория', code: 'код', output: 'вывод', manual: 'написать', choice: 'выбор', num: 'расчёт',
@@ -145,7 +146,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }, [pack.title, mode])
 
   /** План — единственный режим без фильтров: там нечего фильтровать. */
-  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'volga' && mode !== 'deeplay'
+  const showSidebar = mode !== 'plan' && mode !== 'dashboard' && mode !== 'session' && mode !== 'vacancies' && mode !== 'volga' && mode !== 'deeplay'
 
   const questions = useMemo(() => pack.questions.filter((q) => {
     if (filters.topic !== 'all' && q.topic !== filters.topic) return false
@@ -531,6 +532,7 @@ function Trainer({ pack }: { pack: ContentPack }) {
 
           {mode === 'volga' && <VolgaMode query={filters.query} />}
           {mode === 'deeplay' && <DeeplayMode query={filters.query} />}
+          {mode === 'vacancies' && <VacanciesMode query={filters.query} />}
 
           {mode === 'plan' && pack.plan && (
             <PlanMode

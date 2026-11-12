@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react'
-import { interviewPrompts, requirements, studyPlan, systemCases, technicalInterviewQuestions } from '@/content/interview/deeplay/guide'
+import { interviewPrompts, requirements, systemCases, technicalInterviewQuestions } from '@/content/interview/deeplay/guide'
 import { deeplayChapters } from '@/content/interview/deeplay/theory'
 
-type Section = 'vacancy' | 'fit' | 'theory' | 'cases' | 'interview' | 'plan'
+type Section = 'vacancy' | 'fit' | 'theory' | 'cases' | 'interview'
 const sections: { id: Section; label: string }[] = [
   { id: 'vacancy', label: 'Вакансия' },
   { id: 'fit', label: 'Требования и опыт' },
   { id: 'theory', label: 'Подробная теория' },
   { id: 'cases', label: 'Системный дизайн' },
   { id: 'interview', label: 'Вопросы и ответы' },
-  { id: 'plan', label: 'План подготовки' },
 ]
 const progressKey = 'deeplay-study-complete-v1'
 const matches = (query: string, values: string[]) => !query || values.join(' ').toLocaleLowerCase('ru').includes(query)
@@ -42,7 +41,7 @@ export function DeeplayMode({ query }: { query: string }) {
       <div className="volga-eyebrow">Подготовка к вакансии · Fullstack разработчик Middle</div>
       <h1>deeplay</h1>
       <p>Самостоятельный курс по вакансии: сначала разбираем пользовательскую задачу простыми словами и рисуем путь данных, затем изучаем нужные технологии и тренируем ответы на вопросы. Термины объясняются внутри этого раздела — переходить в другую вкладку не нужно.</p>
-      <div className="volga-hero-meta"><span>{deeplayChapters.length} подробных глав</span><span>{systemCases.length} системных кейса</span><span>{interviewPrompts.length + technicalInterviewQuestions.length} вопросов</span><span>{done.length} / {deeplayChapters.length} глав пройдено</span></div>
+      <div className="volga-hero-meta"><span>{deeplayChapters.length} подробных глав</span><span>{systemCases.length} системных кейса</span><span>{interviewPrompts.length + technicalInterviewQuestions.length} вопросов</span><span>{done.filter((id) => deeplayChapters.some((chapter) => chapter.id === id)).length} / {deeplayChapters.length} глав пройдено</span></div>
     </section>
 
     <nav className="volga-nav" aria-label="Разделы подготовки deeplay">
@@ -84,8 +83,8 @@ export function DeeplayMode({ query }: { query: string }) {
       <p className="volga-note"><b>Путь с нуля:</b> начни с первой главы. Она простыми словами разбирает запрос, handler, очередь, брокер и worker на одном примере и показывает их связь. Потом иди по главам сверху вниз: в каждой сначала прочитай объяснение и схему, затем разберись в терминах и выполни упражнение. Курс учит темам этой вакансии, но не заменяет базовый курс программирования.</p>
       <p className="volga-note"><b>Если база уже есть:</b> прочитай первую главу, чтобы сверить модель системы. Затем проверь себя вопросами в конце каждой главы; возвращайся к разделу, если не можешь объяснить решение простыми словами, разобрать пример и назвать поведение при сбое.</p>
       <p className="volga-note">Материал охватывает требования объявления, но одного чтения недостаточно. Интервьюер может выбрать неожиданный угол темы, поэтому цель — понимать причины и уметь рассуждать на новом примере. «Основа» означает основной стек и инженерные ожидания; «Плюс» — технологии, которые в объявлении названы дополнительными.</p>
-      <div className="volga-list">{filteredChapters.map((chapter, index) => <details className="volga-card deeplay-chapter" key={chapter.id}>
-        <summary><span><span className="deeplay-chapter-number">{String(index + 1).padStart(2, '0')} · {chapter.priority}</span>{chapter.title}<small>{chapter.lead}</small></span></summary>
+      <div className="volga-list">{filteredChapters.map((chapter, index) => <details className={`volga-card deeplay-chapter${done.includes(chapter.id) ? ' is-complete' : ''}`} key={chapter.id}>
+        <summary><span><span className="deeplay-chapter-number">{String(index + 1).padStart(2, '0')} · {chapter.priority}{done.includes(chapter.id) && <span className="deeplay-done-badge">Пройдено ✓</span>}</span>{chapter.title}<small>{chapter.lead}</small></span></summary>
         <div className="volga-card-body">
           {chapter.simpleIntro && <div className="deeplay-simple"><strong>Сначала простыми словами</strong><p>{chapter.simpleIntro}</p></div>}
           {chapter.visual && <figure className="deeplay-diagram"><figcaption>Карта темы</figcaption><pre>{chapter.visual}</pre></figure>}
@@ -107,7 +106,8 @@ export function DeeplayMode({ query }: { query: string }) {
 
     {section === 'cases' && <section className="volga-content">
       <div className="volga-section-head"><div><div className="volga-eyebrow">Практика системного дизайна</div><h2>Кейсы</h2></div><span>{filteredCases.length} / {systemCases.length}</span></div>
-      <p className="volga-note">Сначала проговори собственное решение: требования → границы → данные → отказ и повтор → тесты → эксплуатация. Затем раскрой ориентир.</p>
+      <p className="volga-note">Системный дизайн — это объяснение, как части продукта вместе решают задачу и что происходит при нагрузке, повторе или сбое. Это не соревнование в количестве технологий. Для каждого кейса сначала уточни цель и ограничения, затем нарисуй путь данных, выбери хранение и контракты, разберись с отказами, безопасностью и наблюдаемостью.</p>
+      <div className="deeplay-design-guide"><h3>Удобный порядок ответа на интервью</h3><ol><li><b>Пользователь и результат:</b> кто нажимает кнопку и что считает успешным исходом.</li><li><b>Нагрузка и свежесть:</b> сколько пользователей/событий и как быстро результат должен обновиться.</li><li><b>Путь запроса:</b> интерфейс → API handler (принимает запрос) → бизнес-логика → база/внешний сервис → ответ.</li><li><b>Данные и границы:</b> кто владеет записью, как проверяются tenant и права, где нужна транзакция.</li><li><b>Сбой и повтор:</b> timeout, дубли, частичный успех, очередь задач и восстановление.</li><li><b>Проверка и эксплуатация:</b> тесты, метрики, логи, трассировка и безопасный выпуск.</li></ol><p><b>Пример:</b> для отчёта партнёра сначала выясняем допустимую задержку цифр. Если допустимы минуты, события можно собирать асинхронно в аналитическое хранилище; если нужен немедленный ответ по одной операции — читаем транзакционную базу. Решение зависит от свежести и характера запросов.</p></div>
       <div className="volga-list">{filteredCases.map((item) => <details className="volga-card" key={item.title}><summary><span>{item.title}<small>{item.task}</small></span></summary><div className="volga-card-body"><p><b>Что раскрыть:</b> {item.checklist}</p>{item.visual && <figure className="deeplay-diagram"><figcaption>Схема решения</figcaption><pre>{item.visual}</pre></figure>}<div className="volga-answer"><strong>Ориентир разбора</strong><p>{item.outline}</p></div></div></details>)}</div>
       {!filteredCases.length && <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
@@ -123,10 +123,5 @@ export function DeeplayMode({ query }: { query: string }) {
       {!filteredTechnical.length && <p className="empty">По запросу ничего не найдено.</p>}
     </section>}
 
-    {section === 'plan' && <section className="volga-content">
-      <div className="volga-section-head"><div><div className="volga-eyebrow">Последовательность подготовки</div><h2>План на семь блоков</h2></div></div>
-      <p className="volga-note">Блоки можно проходить в любом темпе. При ограниченном времени сначала пройди главы с пометкой «Основа» и подготовь одну реальную fullstack-историю.</p>
-      <div className="deeplay-plan">{studyPlan.map((item) => <article className="deeplay-panel" key={item.day}><div className="deeplay-tag">{item.day}</div><h3>{item.focus}</h3><p>{item.result}</p></article>)}</div>
-    </section>}
   </div>
 }

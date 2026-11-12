@@ -12,14 +12,15 @@ document.body.appendChild(container)
 const root = createRoot(container)
 afterEach(async () => { await act(async () => root.render(null)) })
 
-it('показывает ответы по стеку и переключает на каверзные вопросы', async () => {
+it('открывает подробную теорию и сопоставление требований', async () => {
   await act(async () => root.render(createElement(VolgaMode, { query: '' })))
-  expect(container.textContent).toContain('React 19, хуки, композиция, Suspense')
-  const button = Array.from(container.querySelectorAll<HTMLButtonElement>('.volga-nav button')).find((item) => item.textContent === 'Каверзные вопросы')
+  expect(container.textContent).toContain('Подробная теория')
+  expect(container.textContent).toContain('React 19: рендер, хуки и Suspense')
+  const button = Array.from(container.querySelectorAll<HTMLButtonElement>('.volga-nav button')).find((item) => item.textContent === 'Требования и опыт')
   await act(async () => button?.click())
-  expect(container.textContent).toContain('Почему Redux, а не MobX или Zustand?')
-  expect(container.textContent).not.toContain('React 19, хуки, композиция, Suspense')
-  const theory = Array.from(container.querySelectorAll<HTMLButtonElement>('.volga-nav button')).find((item) => item.textContent === 'Теория')
+  expect(container.textContent).toContain('React 19, хуки, композиция, Suspense')
+  expect(container.textContent).toContain('проверяемыми примерами из опыта')
+  const theory = Array.from(container.querySelectorAll<HTMLButtonElement>('.volga-nav button')).find((item) => item.textContent === 'Подробная теория')
   await act(async () => theory?.click())
   expect(container.textContent).toContain('React 19: рендер, хуки и Suspense')
   expect(container.textContent).toContain('Проверь себя')
@@ -30,6 +31,10 @@ it('показывает ответы по стеку и переключает 
   await act(async () => firstAnswer?.querySelector('summary')?.click())
   expect(firstAnswer?.open).toBe(true)
   expect(firstAnswer?.querySelector('p')?.textContent?.length).toBeGreaterThan(40)
+  const markDone = firstChapter?.querySelector<HTMLButtonElement>('.deeplay-complete')
+  await act(async () => markDone?.click())
+  expect(firstChapter?.classList.contains('is-complete')).toBe(true)
+  expect(firstChapter?.textContent).toContain('Пройдено ✓')
 })
 
 it('каждая глава содержит объяснения и ответы на вопросы', () => {

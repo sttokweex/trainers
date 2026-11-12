@@ -10,7 +10,7 @@ export const interviewPack: ContentPack = {
   title: 'Собеседование',
   accent: '#58a6ff',
   storagePrefix: 'interview-trainer',
-  modes: ['dashboard', 'questions', 'theory', 'cards', 'session', 'volga', 'deeplay'],
+  modes: ['dashboard', 'questions', 'theory', 'cards', 'session', 'vacancies'],
   defaultMode: 'questions',
   hasLevelFilter: true,
   categories: [

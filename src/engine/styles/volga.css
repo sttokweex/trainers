@@ -22,4 +22,5 @@
 .volga-vacancy-card li::marker{color:var(--acc)}
 .volga-vacancy-card li+li{margin-top:3px}
 .volga-check details{border-bottom:1px solid #3b4269;padding:7px 0}.volga-check details:last-child{border-bottom:0}.volga-check summary{display:list-item;padding:0;font-weight:600;color:#e0dafc;cursor:pointer}.volga-check summary:before{content:none}.volga-check details[open] summary:before{content:none}.volga-check details p{margin:7px 0 2px;color:#c7d3e7;line-height:1.6}
+.volga .deeplay-complete{margin-top:15px;padding:9px 13px;border-radius:8px;border:1px solid #4b9d93;background:#174b50;color:#e1fff8;cursor:pointer;font-weight:600}.volga .deeplay-complete[aria-pressed=true]{background:#1d684e;border-color:#55b982}.volga .deeplay-complete:focus-visible{outline:2px solid #8fddcf;outline-offset:2px}
 @media(max-width:640px){.volga-hero{padding:24px 20px}.volga-nav button{flex:1 1 45%}.volga-card summary{padding:14px;gap:8px}.volga-card-body{padding:4px 14px 14px}.volga-resume{padding:18px}.volga-vacancy-grid{grid-template-columns:1fr}.volga-vacancy-card{padding:15px}}
