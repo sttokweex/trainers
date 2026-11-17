@@ -8,6 +8,8 @@ export const state: TheoryArticle = { id:'th-state', topic:'Состояние',
     { id: 'state-ecosystem-2026-10-v2', sectionTitle: 'RTK Query, TanStack Query и Redux-Saga', label: 'Добавлено сравнение' },
     { id: 'state-mobx-2026-10-v2', sectionTitle: 'MobX: реактивные модели', label: 'Добавлен разбор' },
     { id: 'state-zustand-2026-10-v2', sectionTitle: 'Zustand и другие store', label: 'Добавлен разбор' },
+    { id: 'state-redux-toolkit-basics-2026-11-18', sectionTitle: 'Redux Toolkit с нуля: подключение и поток данных', label: 'Добавлено объяснение с нуля' },
+    { id: 'state-redux-toolkit-async-2026-11-18', sectionTitle: 'Загрузка данных и контроль жизненного цикла', label: 'Добавлен полный пример' },
   ],
   body:`
 <h5>Главный вопрос: чьё это состояние</h5>
@@ -31,32 +33,143 @@ const status = searchParams.get('status') ?? 'all'
 setSearchParams({ status: 'open', page: '2' })</pre>
 <p>Что вы получаете бесплатно: работающую кнопку «назад», перезагрузку без потери контекста, возможность отправить ссылку коллеге и открыть в новой вкладке. И ни строчки в глобальном сторе.</p>
 
-<h5>Redux Toolkit: минимальный рабочий набор</h5>
-<pre class="code">// store.ts
-export const store = configureStore({ reducer: { tasks: tasksReducer } })
-export type RootState = ReturnType&lt;typeof store.getState&gt;
-export type AppDispatch = typeof store.dispatch
+<h5>Redux Toolkit с нуля: подключение и поток данных</h5>
+<p><b>Redux Toolkit (RTK)</b> — рекомендуемый набор инструментов для Redux. Redux хранит общее клиентское состояние в одном store; RTK даёт удобные функции, чтобы описать состояние, события и обновления без ручного шаблонного кода. Представим список задач: экрану надо читать задачи, отмечать их выполненными и показывать загрузку.</p>
+<p>Сначала устанавливают библиотеку и связывают store с React. Store создают один раз на приложение, а <code class="i">Provider</code> делает его доступным вложенным компонентам:</p>
+<pre class="code">pnpm add @reduxjs/toolkit react-redux</pre>
+<pre class="code">// main.tsx
+import { Provider } from 'react-redux'
+import { store } from './app/store'
 
-// типизированные хуки — пишутся один раз на проект
-export const useAppDispatch = () =&gt; useDispatch&lt;AppDispatch&gt;()
-export const useAppSelector: TypedUseSelectorHook&lt;RootState&gt; = useSelector</pre>
-<p><code class="i">configureStore</code> из коробки подключает redux-thunk, DevTools и dev-проверки на случайные мутации и несериализуемые значения в сторе.</p>
-<pre class="code">const tasksSlice = createSlice({
-  name: 'tasks',
-  initialState: { items: [], status: 'idle', error: null },
+root.render(
+  &lt;Provider store={store}&gt;
+    &lt;App /&gt;
+  &lt;/Provider&gt;
+)</pre>
+<p><code class="i">Provider</code> получает именно экземпляр store. Без него хуки <code class="i">useSelector</code> и <code class="i">useDispatch</code> внутри дерева React не найдут хранилище.</p>
+<p>Дальше зададим начальное состояние и действия. <b>Action</b> — обычное описание события, например «задачу с id 7 отметили выполненной». <b>Reducer</b> — функция, которая получает прежнее состояние и action и определяет новое состояние. <code class="i">createSlice</code> собирает начальное состояние, reducers и автоматически создаёт action creators:</p>
+<pre class="code">// features/tasks/tasksSlice.ts
+import { createSlice } from '@reduxjs/toolkit'
+
+const initialState = {
+  items: [{ id: '7', title: 'Прочитать статью', completed: false }],
+}
+
+const tasksSlice = createSlice({
+  name: 'tasks',                 // имя области состояния и префикс action type
+  initialState,                  // исходное значение state.tasks
   reducers: {
-    taskToggled(state, action) {
-      const task = state.items.find(t =&gt; t.id === action.payload)
-      if (task) task.completed = !task.completed     // «мутация» — см. ниже
+    taskToggled(state, action) { // обработчик события taskToggled
+      const task = state.items.find(item =&gt; item.id === action.payload)
+      if (task) task.completed = !task.completed
+    },
+    taskAdded(state, action) {   // payload здесь — новая задача
+      state.items.push(action.payload)
+    },
+  },
+})
+
+export const { taskToggled, taskAdded } = tasksSlice.actions
+export default tasksSlice.reducer</pre>
+<p>Разберём связь строк. <code class="i">name</code> даёт событиям полные имена вроде <code class="i">tasks/taskToggled</code>. <code class="i">initialState</code> задаёт форму данных при запуске. Каждое поле в <code class="i">reducers</code> становится обработчиком action с таким же именем. Вызов <code class="i">taskToggled('7')</code> создаст объект события с типом и <code class="i">payload: '7'</code>. Редьюсер найдёт задачу и поменяет её флаг. Сами action creators ничего не меняют: они только создают описание события.</p>
+<p>Теперь подключим редьюсер к store. Ключ <code class="i">tasks</code> определяет путь, по которому данные будут лежать в общем состоянии — <code class="i">state.tasks</code>:</p>
+<pre class="code">// app/store.ts
+import { configureStore } from '@reduxjs/toolkit'
+import tasksReducer from '../features/tasks/tasksSlice'
+
+export const store = configureStore({
+  reducer: { tasks: tasksReducer },
+})
+
+export type RootState = ReturnType&lt;typeof store.getState&gt;
+export type AppDispatch = typeof store.dispatch</pre>
+<p><code class="i">configureStore</code> подключает редьюсеры, Redux DevTools и стандартные проверки разработки; thunk middleware уже включён. <code class="i">RootState</code> автоматически получает тип всего состояния, а <code class="i">AppDispatch</code> — тип функции отправки событий. Это избавляет от ручного описания типов, которое легко рассинхронизировать.</p>
+<p>В компонентах состояние читают селектором, а изменение отправляют через <code class="i">dispatch</code>. Компонент подписывается только на выбранный результат:</p>
+<pre class="code">// features/tasks/Tasks.tsx
+import { useDispatch, useSelector } from 'react-redux'
+import type { RootState, AppDispatch } from '../../app/store'
+import { taskToggled } from './tasksSlice'
+
+export function Tasks() {
+  const dispatch = useDispatch&lt;AppDispatch&gt;()
+  const tasks = useSelector((state: RootState) =&gt; state.tasks.items)
+
+  return tasks.map(task =&gt; (
+    &lt;button key={task.id}
+      onClick={() =&gt; dispatch(taskToggled(task.id))}&gt;
+      {task.completed ? '✓' : '○'} {task.title}
+    &lt;/button&gt;
+  ))
+}</pre>
+<p>При клике путь такой: компонент отправляет action → Redux вызывает подходящий reducer → RTK формирует новое состояние → подписанный компонент получает новое значение и перерисовывается. Компонент не вызывает reducer напрямую и не редактирует store сам.</p>
+<p>Чтобы не повторять типы хуков по всему проекту, обычно создают typed hooks один раз:</p>
+<pre class="code">// app/hooks.ts
+import { useDispatch, useSelector } from 'react-redux'
+import type { TypedUseSelectorHook } from 'react-redux'
+import type { RootState, AppDispatch } from './store'
+
+export const useAppDispatch: () =&gt; AppDispatch = useDispatch
+export const useAppSelector: TypedUseSelectorHook&lt;RootState&gt; = useSelector</pre>
+<p>После этого компоненты используют <code class="i">useAppDispatch()</code> и <code class="i">useAppSelector(state =&gt; state.tasks.items)</code>. Типы помогают редактору подсказать доступные поля и ловить опечатки до запуска.</p>
+
+<h5>Загрузка данных и контроль жизненного цикла</h5>
+<p>Запрос к серверу проходит не мгновенно и может завершиться ошибкой. Поэтому состояние обычно хранит не только список, но и статус запроса. <code class="i">createAsyncThunk</code> создаёт thunk-действие и три события: <code class="i">pending</code> (начался), <code class="i">fulfilled</code> (успешно завершился), <code class="i">rejected</code> (ошибка). Thunk — функция, которую middleware выполняет вместо обычного объекта action; она может дождаться сети и затем отправить итоговое событие.</p>
+<pre class="code">// features/tasks/tasksSlice.ts
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+
+type Task = { id: string; title: string; completed: boolean }
+type TasksState = {
+  items: Task[]
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'
+  error: string | null
+}
+
+export const fetchTasks = createAsyncThunk&lt;Task[], void, { rejectValue: string }&gt;(
+  'tasks/fetchTasks',
+  async (_, { rejectWithValue }) =&gt; {
+    const response = await fetch('/api/tasks')
+    if (!response.ok) return rejectWithValue('Не удалось загрузить задачи')
+    return response.json() as Promise&lt;Task[]&gt;
+  },
+)
+
+const initialState: TasksState = { items: [], status: 'idle', error: null }
+
+const tasksSlice = createSlice({
+  name: 'tasks', initialState,
+  reducers: {
+    taskToggled(state, action: { payload: string }) {
+      const task = state.items.find(item =&gt; item.id === action.payload)
+      if (task) task.completed = !task.completed
     },
   },
   extraReducers: builder =&gt; {
     builder
-      .addCase(fetchTasks.pending,   s =&gt; { s.status = 'loading' })
-      .addCase(fetchTasks.fulfilled, (s, a) =&gt; { s.status = 'ok'; s.items = a.payload })
-      .addCase(fetchTasks.rejected,  (s, a) =&gt; { s.status = 'fail'; s.error = a.error.message })
+      .addCase(fetchTasks.pending, state =&gt; {
+        state.status = 'loading'; state.error = null
+      })
+      .addCase(fetchTasks.fulfilled, (state, action) =&gt; {
+        state.status = 'succeeded'; state.items = action.payload
+      })
+      .addCase(fetchTasks.rejected, (state, action) =&gt; {
+        state.status = 'failed'
+        state.error = action.payload ?? action.error.message ?? 'Неизвестная ошибка'
+      })
   },
 })</pre>
+<p>Смысл параметров thunk: первая строка — стабильный префикс имени события; второй аргумент — async-функция; <code class="i">_</code> означает, что входных аргументов нет; <code class="i">rejectWithValue</code> позволяет вернуть контролируемое сообщение ошибки. Для HTTP-ответа важно самим проверить <code class="i">response.ok</code>: <code class="i">fetch</code> не считает статусы 404/500 сетевым исключением.</p>
+<p>В компоненте запускаем запрос при появлении экрана и отдельно показываем три состояния:</p>
+<pre class="code">const dispatch = useAppDispatch()
+const { items, status, error } = useAppSelector(state =&gt; state.tasks)
+
+useEffect(() =&gt; {
+  if (status === 'idle') dispatch(fetchTasks())
+}, [dispatch, status])
+
+if (status === 'loading') return &lt;p&gt;Загрузка…&lt;/p&gt;
+if (status === 'failed') return &lt;p role="alert"&gt;{error}&lt;/p&gt;
+return &lt;TaskList tasks={items} /&gt;</pre>
+<p>Так интерфейс не путает «список пока пуст» с «данные ещё загружаются» и «сервер вернул ошибку». Для сложного API-кеша, повторной загрузки, дедупликации и инвалидации чаще удобнее RTK Query или TanStack Query; thunk хорош для отдельного процесса, который действительно нужно контролировать в Redux.</p>
 
 <h5>Почему мутация внутри редьюсера легальна</h5>
 <p>RTK оборачивает редьюсеры в <b>Immer</b>. В функцию приходит не сам state, а <b>Proxy-черновик</b>: все «мутации» записываются как список изменений, а на выходе Immer собирает новый неизменяемый объект, переиспользуя нетронутые ветки (structural sharing). Иммутабельность не нарушена — нарушена только её многословность.</p>
