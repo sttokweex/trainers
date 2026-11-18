@@ -5,6 +5,9 @@ import { tsAdvanced } from './th-ts-advanced'
 import { tsPractice } from './th-ts-practice'
 import { zod } from './th-zod'
 import { render } from './th-render'
+import { reactVersions } from './th-react-versions'
+import { react18Deep } from './th-react-18-deep'
+import { react19Deep } from './th-react-19-deep'
 import { hooks } from './th-hooks'
 import { lifecycle } from './th-lifecycle'
 import { state } from './th-state'
@@ -61,6 +64,7 @@ import { redisDeep } from './th-redis-deep'
 import { kafkaDeep } from './th-kafka-deep'
 import { angular } from './th-angular'
 import { vue } from './th-vue'
+import { frameworks } from './th-frameworks'
 import { styleSystems } from './th-stylesystems'
 import { scss } from './th-scss'
 import { threejs } from './th-threejs'
@@ -108,7 +112,11 @@ export const theory: TheoryArticle[] = [
   postMessageTabs,
   browserExtensions,
   // 4. UI-фреймворки: сначала модель React, затем состояние и другие экосистемы.
+  frameworks,
   render,
+  reactVersions,
+  react18Deep,
+  react19Deep,
   hooks,
   lifecycle,
   state,
