@@ -38,6 +38,8 @@ import { delivery } from './th-delivery'
 import { eventDelivery } from './th-event-delivery'
 import { authProtocols } from './th-auth-protocols'
 import { pwaOffline } from './th-pwa-offline'
+import { cacheApi } from './th-cache-api'
+import { browserStorage } from './th-browser-storage'
 import { loadBalancing } from './th-load-balancing'
 import { html } from './th-html'
 import { jsExecution } from './th-js-execution'
@@ -100,7 +102,9 @@ export const theory: TheoryArticle[] = [
   networkProtocols,
   http,
   browser,
+  browserStorage,
   pwaOffline,
+  cacheApi,
   postMessageTabs,
   browserExtensions,
   // 4. UI-фреймворки: сначала модель React, затем состояние и другие экосистемы.
