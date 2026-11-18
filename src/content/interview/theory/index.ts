@@ -64,6 +64,7 @@ import { scss } from './th-scss'
 import { threejs } from './th-threejs'
 import { electron } from './th-electron'
 import { nuxt } from './th-nuxt'
+import { next } from './th-next'
 import { expressFastify } from './th-express-fastify'
 import { networkingAdmin } from './th-networking-admin'
 import { networkProtocols } from './th-network-protocols'
@@ -111,6 +112,7 @@ export const theory: TheoryArticle[] = [
   angular,
   ssr,
   nuxt,
+  next,
   // 5. Сервер и данные: Node → HTTP-серверы/API → SQL → Nest и хранилища.
   node,
   expressFastify,
