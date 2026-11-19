@@ -20,6 +20,7 @@ import { oop } from './th-oop'
 import { fsd } from './th-fsd'
 import { css } from './th-css'
 import { a11y } from './th-a11y'
+import { seo } from './th-seo'
 import { testing } from './th-testing'
 import { sysdesign } from './th-sysdesign'
 import { git } from './th-git'
@@ -101,6 +102,7 @@ export const theory: TheoryArticle[] = [
   styleSystems,
   scss,
   a11y,
+  seo,
   build,
   networkingAdmin,
   networkProtocols,
