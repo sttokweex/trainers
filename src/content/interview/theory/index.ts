@@ -116,11 +116,11 @@ export const theory: TheoryArticle[] = [
   // 4. UI-фреймворки: сначала модель React, затем состояние и другие экосистемы.
   frameworks,
   render,
+  hooks,
+  lifecycle,
   reactVersions,
   react18Deep,
   react19Deep,
-  hooks,
-  lifecycle,
   state,
   vue,
   angular,
