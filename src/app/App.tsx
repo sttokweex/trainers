@@ -278,9 +278,28 @@ function Trainer({ pack }: { pack: ContentPack }) {
   }
 
   const categories = pack.categories
-  const topicGroups = categories
-    ? categories.map((c) => ({ name: c.name, topics: c.topics.filter((t) => topicCounts.has(t)) }))
-    : [{ name: '', topics: [...topicCounts.keys()] }]
+  const topicGroups = useMemo(() => {
+    if (!categories) return [{ name: '', topics: [...topicCounts.keys()] }]
+
+    const assignedTopics = new Set<string>()
+    const groups = categories.map((category) => {
+      const topics = category.topics.filter((topic) => {
+        if (!topicCounts.has(topic) || assignedTopics.has(topic)) return false
+        assignedTopics.add(topic)
+        return true
+      })
+      return { name: category.name, topics }
+    })
+    const unlistedTopics = [...topicCounts.keys()].filter((topic) => !assignedTopics.has(topic))
+
+    if (unlistedTopics.length > 0) {
+      const otherTopics = groups.find((group) => group.name === 'Другие темы')
+      if (otherTopics) otherTopics.topics.push(...unlistedTopics)
+      else groups.push({ name: 'Другие темы', topics: unlistedTopics })
+    }
+
+    return groups
+  }, [categories, topicCounts])
 
   /** Счётчик у «Все темы» — как и topicCounts, игнорирует все фильтры, кроме режима:
       иначе при выбранной теме он совпадал бы с её же счётчиком. */
