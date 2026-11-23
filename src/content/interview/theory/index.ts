@@ -82,6 +82,8 @@ import { backendArchitecture } from './th-backend-architecture'
 import type { TheoryArticle } from '@/engine/types'
 
 export const theory: TheoryArticle[] = [
+  // Общая карта обучения — входная точка в темы frontend, backend и эксплуатации.
+  infraRoadmap,
   // 1. Основы языка: последующие главы предполагают чтение простых примеров кода.
   basicsVariables,
   basicsTypes,
@@ -166,7 +168,6 @@ export const theory: TheoryArticle[] = [
   performance,
   threejs,
   electron,
-  infraRoadmap,
   // Справочные главы и подготовка не являются prerequisite для остальных тем.
   glossary,
   plan,

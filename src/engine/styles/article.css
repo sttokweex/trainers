@@ -65,9 +65,12 @@
 .th-bookmark-target{outline:2px solid #9f88ff!important; outline-offset:4px; border-radius:4px; background:#30264b!important; transition:background .2s}
 
 
-.cat{font:600 10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--mut2); margin:12px 0 4px; padding:0 8px}
+.cat{font:700 11px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:#8bbcff; margin:14px 0 5px; padding:0 8px 4px 10px; border-left:2px solid #579dff; border-bottom:1px solid #25374b}
 .cat:first-of-type{margin-top:2px}
 .side-box.flat{display:block}
+.wrap[data-pack="interview"] .topic-label-text{color:#dce6f2; font-size:14px; font-weight:600}
+.wrap[data-pack="interview"] .topic-entry .tp-topic:hover .topic-label-text{color:#fff}
+.wrap[data-pack="interview"] .topic-entry .tp-topic.on .topic-label-text{color:#d9eaff}
 @media(max-width:900px){
   .side-box{display:flex; flex-wrap:wrap; gap:6px; max-height:none}
   .side h4{flex:0 0 100%; margin-bottom:2px}
